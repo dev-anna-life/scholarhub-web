@@ -329,8 +329,7 @@ function Home() {
                                             <div className="px-4 py-8 text-center text-gray-400 text-sm">No notifications yet</div>
                                         ) : (
                                             notifications.map((notif, i) => {
-                                                const from = notif.fromUser || notif.sender
-                                                return (
+                                                const from = notif.fromUser || notif.sender; return (
                                                 <div key={i} className={`px-4 py-3 border-b border-gray-50 flex items-start gap-3 ${!notif.read ? 'bg-primary/5' : ''}`}>
                                                     <div
                                                         onClick={() => from?._id && router.push(`/profile/${from._id}`)}
@@ -353,7 +352,8 @@ function Home() {
                                                     </div>
                                                     {!notif.read && <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />}
                                                 </div>
-                                            ))
+                                                )
+                                            })
                                         )}
                                     </div>
                                 </motion.div>
