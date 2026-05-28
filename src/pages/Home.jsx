@@ -100,6 +100,14 @@ function Home() {
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
+    const fetchNotificationsOnly = async () => {
+        try {
+            const notifRes = await getNotifications()
+            setNotifications(notifRes.data)
+            setUnreadCount(notifRes.data.filter(n => !n.read).length)
+        } catch (_) {}
+    }
+
     useEffect(() => {
         const fetchAll = async () => {
             setLoading(true)
@@ -139,6 +147,8 @@ function Home() {
             }
         }
         fetchAll()
+        const interval = setInterval(fetchNotificationsOnly, 10000)
+        return () => clearInterval(interval)
     }, [])
 
     const toggleLike = async (id, isReal) => {
@@ -318,23 +328,25 @@ function Home() {
                                         {notifications.length === 0 ? (
                                             <div className="px-4 py-8 text-center text-gray-400 text-sm">No notifications yet</div>
                                         ) : (
-                                            notifications.map((notif, i) => (
+                                            notifications.map((notif, i) => {
+                                                const from = notif.fromUser || notif.sender
+                                                return (
                                                 <div key={i} className={`px-4 py-3 border-b border-gray-50 flex items-start gap-3 ${!notif.read ? 'bg-primary/5' : ''}`}>
                                                     <div
-                                                        onClick={() => notif.sender?._id && router.push(`/profile/${notif.sender._id}`)}
+                                                        onClick={() => from?._id && router.push(`/profile/${from._id}`)}
                                                         className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 cursor-pointer hover:bg-primary/20 transition">
-                                                        {notif.sender?.name?.charAt(0) || 'S'}
+                                                        {from?.name?.charAt(0) || 'S'}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-xs text-dark">
                                                             <span
-                                                                onClick={() => notif.sender?._id && router.push(`/profile/${notif.sender._id}`)}
+                                                                onClick={() => from?._id && router.push(`/profile/${from._id}`)}
                                                                 className="font-semibold cursor-pointer hover:text-primary transition">
-                                                                {notif.sender?.name}
+                                                                {from?.name}
                                                             </span>
-                                                            {notif.type === 'like' ? ' liked your post' : ' commented on your post'}
+                                                            {notif.type === 'follow' ? ' started following you' : notif.type === 'message' ? ' sent you a message' : notif.type === 'like' ? ' liked your post' : notif.type === 'gift' ? ' sent you a gift' : ' commented on your post'}
                                                         </p>
-                                                        <p className="text-xs text-gray-400 truncate mt-0.5">{notif.post?.title}</p>
+                                                        <p className="text-xs text-gray-400 truncate mt-0.5">{notif.type === 'message' || notif.type === 'gift' ? notif.text : notif.post?.title}</p>
                                                         <p className="text-xs text-gray-300 mt-0.5">
                                                             {new Date(notif.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
                                                         </p>

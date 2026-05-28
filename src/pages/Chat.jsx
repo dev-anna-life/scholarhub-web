@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiSend, FiSearch, FiArrowLeft, FiX, FiMessageCircle } from "react-icons/fi"
-import { getConversations, getMessages, sendMessage, searchUsers } from "../api/auth"
+import { getConversations, getMessages, sendMessage, markMessagesAsRead, searchUsers } from "../api/auth"
 import { useSearchParams } from "next/navigation"
 
 const knownAbbreviations = {
@@ -72,6 +72,8 @@ function Chat() {
 
     useEffect(() => {
         fetchConversations()
+        const interval = setInterval(fetchConversations, 10000)
+        return () => clearInterval(interval)
     }, [])
 
     // Handle opening chat from URL param e.g. /chat?user=userId
@@ -151,8 +153,11 @@ function Chat() {
         setSearchQuery('')
         setSearchResults([])
         try {
-            const res = await getMessages(chatUser._id)
-            setMessages(res.data)
+            const [msgRes] = await Promise.all([
+                getMessages(chatUser._id),
+                markMessagesAsRead(chatUser._id).catch(() => {}),
+            ])
+            setMessages(msgRes.data)
             setConversations(prev => prev.map(c =>
                 c.user._id === chatUser._id ? { ...c, unread: 0 } : c
             ))

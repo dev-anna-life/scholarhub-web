@@ -25,7 +25,7 @@ export default function ShopPage() {
   const [redeemTab, setRedeemTab] = useState('airtime')
   const [phone, setPhone] = useState('')
   const [network, setNetwork] = useState('mtn')
-  const [airtimeAmount, setAirtimeAmount] = useState(100)
+  const [airtimeItemId, setAirtimeItemId] = useState('airtime_100')
   const [dataPlanId, setDataPlanId] = useState('')
   const [redeeming, setRedeeming] = useState(false)
 
@@ -74,7 +74,8 @@ export default function ShopPage() {
     try {
       let res
       if (redeemTab === 'airtime') {
-        res = await redeemAirtime(airtimeAmount, network, phone)
+        if (!airtimeItemId) { setMsg({ type: 'error', text: 'Select an airtime amount' }); setRedeeming(false); return }
+        res = await redeemAirtime(airtimeItemId, network, phone)
       } else {
         if (!dataPlanId) { setMsg({ type: 'error', text: 'Select a data plan' }); setRedeeming(false); return }
         res = await redeemData(dataPlanId, network, phone)
@@ -214,8 +215,8 @@ export default function ShopPage() {
               {redeemTab === 'airtime' ? (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                  <select value={airtimeAmount} onChange={e => setAirtimeAmount(parseInt(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                    {items?.airtime?.map(a => <option key={a.id} value={a.price}>{a.name} — {a.price} coins</option>)}
+                  <select value={airtimeItemId} onChange={e => setAirtimeItemId(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    {items?.airtime?.map(a => <option key={a.id} value={a.id}>{a.name} — {a.price} coins</option>)}
                   </select>
                 </div>
               ) : (
@@ -228,7 +229,9 @@ export default function ShopPage() {
                 </div>
               )}
               <button onClick={handleRedeem} disabled={redeeming} className="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-medium text-sm hover:bg-indigo-700 disabled:opacity-50">
-                {redeeming ? 'Processing...' : `Redeem for ${redeemTab === 'airtime' ? airtimeAmount : '(selected plan)'} coins`}
+                {redeeming ? 'Processing...' : `Redeem for ${redeemTab === 'airtime'
+                  ? (items?.airtime?.find(a => a.id === airtimeItemId)?.price || '?')
+                  : (items?.data?.find(d => d.id === dataPlanId)?.price || '?')} coins`}
               </button>
             </div>
           </div>

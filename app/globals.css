@@ -400,6 +400,30 @@ html, body {
   color: #9aab9a;
 }
 
+.dark .text-gray-700 {
+  color: #b0c0b0;
+}
+
+.dark .text-gray-800 {
+  color: #d0ddd0;
+}
+
+.dark .text-gray-900 {
+  color: #e0e8e0;
+}
+
+.dark .text-black {
+  color: #e8f0e8;
+}
+
+.dark .text-red-700 {
+  color: #fca5a5;
+}
+
+.dark .bg-red-100 {
+  background: rgba(220, 38, 38, 0.12);
+}
+
 .dark .border-gray-100,
 .dark .border-gray-200,
 .dark .border-gray-50 {

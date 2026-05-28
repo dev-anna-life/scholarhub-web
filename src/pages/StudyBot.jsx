@@ -2,8 +2,9 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiSend, FiTrash2, FiZap } from "react-icons/fi"
-import { BsRobot } from "react-icons/bs"
-import { askBot } from "../api/auth"
+import { BsRobot, BsShop } from "react-icons/bs"
+import Link from "next/link"
+import { askBot, getMe } from "../api/auth"
 
 const suggestedQuestions = [
     "Explain photosynthesis simply",
@@ -27,9 +28,21 @@ function StudyBot() {
 
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
+    const [quota, setQuota] = useState({ limit: 5, used: 0, badge: 'free' })
+    const [limitReached, setLimitReached] = useState(false)
 
     const messagesEndRef = useRef(null)
     const inputRef = useRef(null)
+
+    useEffect(() => {
+        getMe().then(r => {
+            const u = r.data
+            const badge = (u.badgeSubscriptions || []).find(s => new Date(s.expiresAt) > new Date())
+            const limits = { free: 5, badge_basic: 20, badge_premium: 50, badge_extra_premium: 9999 }
+            const bid = badge?.id || 'free'
+            setQuota({ limit: limits[bid] || 5, used: 0, badge: bid })
+        }).catch(() => {})
+    }, [])
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -58,6 +71,7 @@ function StudyBot() {
             }))
 
             const res = await askBot(apiMessages)
+            if (res.data.quota) setQuota(res.data.quota)
 
             setMessages(prev => [
                 ...prev,
@@ -68,14 +82,28 @@ function StudyBot() {
                 }
             ])
         } catch (err) {
-            setMessages(prev => [
-                ...prev,
-                {
-                    role: 'assistant',
-                    content: "Sorry, I'm having trouble connecting. Please try again.",
-                    time: new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })
-                }
-            ])
+            const data = err.response?.data
+            if (data?.limit) {
+                setQuota({ limit: data.limit, used: data.used, badge: data.badge })
+                setLimitReached(true)
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        role: 'assistant',
+                        content: data.message || "You've reached your daily limit.",
+                        time: new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })
+                    }
+                ])
+            } else {
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        role: 'assistant',
+                        content: "Sorry, I'm having trouble connecting. Please try again.",
+                        time: new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })
+                    }
+                ])
+            }
         } finally {
             setLoading(false)
         }
@@ -109,12 +137,26 @@ function StudyBot() {
                     </div>
                 </div>
 
-                <button
-                    onClick={clearChat}
-                    className="p-2 text-gray-400 hover:text-white transition rounded-xl hover:bg-white/10"
-                >
-                    <FiTrash2 size={18} />
-                </button>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-white/10 rounded-lg px-2.5 py-1.5 flex items-center gap-2">
+                            <FiZap size={12} className="text-yellow-400" />
+                            <div className="flex items-center gap-1">
+                                <div className="w-16 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                                    <div className="h-full bg-yellow-400 rounded-full transition-all duration-300"
+                                        style={{ width: `${Math.min((quota.used / quota.limit) * 100, 100)}%` }} />
+                                </div>
+                                <span className="text-xs text-gray-400 min-w-[40px] text-right">{quota.used}/{quota.limit}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        onClick={clearChat}
+                        className="p-2 text-gray-400 hover:text-white transition rounded-xl hover:bg-white/10"
+                    >
+                        <FiTrash2 size={18} />
+                    </button>
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto px-3 py-4 max-w-3xl mx-auto w-full">
@@ -231,6 +273,15 @@ function StudyBot() {
                     </button>
 
                 </div>
+
+                {limitReached && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-2 flex items-center justify-between">
+                        <p className="text-xs text-amber-700">Daily limit reached. Upgrade to keep chatting.</p>
+                        <Link href="/shop" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                            <BsShop size={12} /> Shop
+                        </Link>
+                    </div>
+                )}
 
                 <p className="text-center text-xs text-gray-400 mt-2">
                     Enter to send • Shift + Enter for new line
