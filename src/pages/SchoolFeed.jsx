@@ -214,14 +214,14 @@ function SchoolFeed() {
 
                                         <div className="flex items-center gap-3 mb-3">
                                             <div
-                                                onClick={() => post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`)}
+                                                onClick={(e) => { e.stopPropagation(); post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`) }}
                                                 className={`w-8 h-8 md:w-9 md:h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:opacity-80' : ''}`}
                                                 style={{ backgroundColor: accentColor }}>
                                                 {post.avatar}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p
-                                                    onClick={() => post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`)}
+                                                    onClick={(e) => { e.stopPropagation(); post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`) }}
                                                     className={`font-semibold text-dark text-xs md:text-sm truncate ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:text-primary transition' : ''}`}>
                                                     {post.author}
                                                 </p>
@@ -232,26 +232,28 @@ function SchoolFeed() {
                                             </span>
                                         </div>
 
-                                        <h3 className="font-bold text-dark text-sm md:text-base mb-1.5 leading-snug">{post.title}</h3>
-                                        <p className="text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 mb-3">{post.content}</p>
+                                        <div onClick={() => router.push(`/post/${post.id}`)} className="cursor-pointer">
+                                          <h3 className="font-bold text-dark text-sm md:text-base mb-1.5 leading-snug">{post.title}</h3>
+                                          <p className="text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 mb-3">{post.content}</p>
+                                        </div>
 
                                         <div className="flex items-center gap-3 pt-2.5 border-t border-gray-50">
-                                            <button onClick={() => toggleLike(post.id, post.isReal)}
+                                            <button onClick={(e) => { e.stopPropagation(); toggleLike(post.id, post.isReal) }}
                                                 className={`flex items-center gap-1 text-sm transition-colors duration-200 ${post.liked ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
                                                 <FiHeart size={14} className={post.liked ? 'fill-current' : ''} />
                                                 <span className="text-xs">{post.likes}</span>
                                             </button>
-                                            <button onClick={() => handleShowComments(post.id, post.isReal)}
+                                            <button onClick={(e) => { e.stopPropagation(); handleShowComments(post.id, post.isReal) }}
                                                 className={`flex items-center gap-1 text-sm transition-colors duration-200 ${showComments === post.id ? 'text-primary' : 'text-gray-400 hover:text-primary'}`}>
                                                 <FiMessageCircle size={14} />
                                                 <span className="text-xs">{post.commentCount || 0}</span>
                                             </button>
-                                            <button onClick={() => handleShare(post)}
+                                            <button onClick={(e) => { e.stopPropagation(); handleShare(post) }}
                                                 className="flex items-center gap-1 text-sm text-gray-400 hover:text-primary transition-colors duration-200">
                                                 <FiShare2 size={14} />
                                                 <span className="text-xs hidden sm:block">Share</span>
                                             </button>
-                                            <button onClick={() => toggleSave(post.id)}
+                                            <button onClick={(e) => { e.stopPropagation(); toggleSave(post.id) }}
                                                 className={`ml-auto transition-colors duration-200 ${post.saved ? 'text-primary' : 'text-gray-300 hover:text-primary'}`}>
                                                 <FiBookmark size={14} className={post.saved ? 'fill-current' : ''} />
                                             </button>
