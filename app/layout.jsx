@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <GoogleOAuthProvider clientId="513890880200-2v1en01v816i01g0sj2hvhc1vl4dn6um.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId="513890880200-6ndbr026fbjdesrn0j3lippsu2map8rg.apps.googleusercontent.com">
           <ClientLayout>
             {children}
           </ClientLayout>
