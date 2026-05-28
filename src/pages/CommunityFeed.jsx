@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock } from "react-icons/fi"
+import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
 
 const communityData = {
@@ -27,6 +27,52 @@ const communityData = {
         categories: ['All', 'Lecture Notes', 'Past Questions', 'Campus Gist', 'Internships', 'Projects', 'Research'],
     },
 }
+
+const secondarySchools = [
+  { name: "King's College, Lagos", location: 'Lagos, Nigeria', level: 'Secondary', color: '#1F2A1F' },
+  { name: 'Alliance High School', location: 'Nairobi, Kenya', level: 'Secondary', color: '#008751' },
+  { name: "St. George's College", location: 'Nairobi, Kenya', level: 'Secondary', color: '#2d4a2d' },
+  { name: 'Loyola Jesuit College', location: 'Abuja, Nigeria', level: 'Secondary', color: '#FF9F1C' },
+  { name: 'Achimota School', location: 'Accra, Ghana', level: 'Secondary', color: '#1F2A1F' },
+  { name: 'Ghana National College', location: 'Cape Coast, Ghana', level: 'Secondary', color: '#008751' },
+  { name: "St. John's College", location: 'Johannesburg, South Africa', level: 'Secondary', color: '#2d4a2d' },
+  { name: 'Bishops Diocesan College', location: 'Cape Town, South Africa', level: 'Secondary', color: '#FF9F1C' },
+  { name: "St. Mary's School", location: 'Nairobi, Kenya', level: 'Secondary', color: '#1F2A1F' },
+  { name: 'Government Secondary School, Enugu', location: 'Enugu, Nigeria', level: 'Secondary', color: '#008751' },
+  { name: "Queen's College", location: 'Lagos, Nigeria', level: 'Secondary', color: '#2d4a2d' },
+  { name: 'Federal Government College, Ilorin', location: 'Ilorin, Nigeria', level: 'Secondary', color: '#FF9F1C' },
+  { name: "Lycée Sainte Famille", location: "Abidjan, Côte d'Ivoire", level: 'Secondary', color: '#1F2A1F' },
+  { name: 'International School of Kenya', location: 'Nairobi, Kenya', level: 'Secondary', color: '#008751' },
+  { name: 'SOS Hermann Gmeiner School', location: 'Addis Ababa, Ethiopia', level: 'Secondary', color: '#2d4a2d' },
+  { name: "St. Augustine's College", location: 'Cape Coast, Ghana', level: 'Secondary', color: '#FF9F1C' },
+  { name: 'Mpesa Foundation Academy', location: 'Nairobi, Kenya', level: 'Secondary', color: '#1F2A1F' },
+  { name: 'Hillcrest Secondary School', location: 'Nairobi, Kenya', level: 'Secondary', color: '#008751' },
+  { name: "St. Joseph's College", location: 'Durban, South Africa', level: 'Secondary', color: '#2d4a2d' },
+  { name: "St. Charles Lwanga School", location: 'Kampala, Uganda', level: 'Secondary', color: '#FF9F1C' },
+]
+
+const universities = [
+  { name: 'University of Cape Town', location: 'Cape Town, South Africa', level: 'University', color: '#1F2A1F' },
+  { name: 'University of the Witwatersrand', location: 'Johannesburg, South Africa', level: 'University', color: '#008751' },
+  { name: 'Stellenbosch University', location: 'Stellenbosch, South Africa', level: 'University', color: '#2d4a2d' },
+  { name: 'University of Ibadan', location: 'Ibadan, Nigeria', level: 'University', color: '#FF9F1C' },
+  { name: 'Obafemi Awolowo University', location: 'Ile-Ife, Nigeria', level: 'University', color: '#1F2A1F' },
+  { name: 'University of Lagos', location: 'Lagos, Nigeria', level: 'University', color: '#008751' },
+  { name: 'University of Ghana', location: 'Accra, Ghana', level: 'University', color: '#2d4a2d' },
+  { name: 'University of Nairobi', location: 'Nairobi, Kenya', level: 'University', color: '#FF9F1C' },
+  { name: 'Cairo University', location: 'Giza, Egypt', level: 'University', color: '#1F2A1F' },
+  { name: 'Makerere University', location: 'Kampala, Uganda', level: 'University', color: '#008751' },
+  { name: 'University of Dar es Salaam', location: 'Dar es Salaam, Tanzania', level: 'University', color: '#2d4a2d' },
+  { name: 'Addis Ababa University', location: 'Addis Ababa, Ethiopia', level: 'University', color: '#FF9F1C' },
+  { name: 'University of Pretoria', location: 'Pretoria, South Africa', level: 'University', color: '#1F2A1F' },
+  { name: 'Rhodes University', location: 'Makhanda, South Africa', level: 'University', color: '#008751' },
+  { name: 'Covenant University', location: 'Ota, Nigeria', level: 'University', color: '#2d4a2d' },
+  { name: 'University of Johannesburg', location: 'Johannesburg, South Africa', level: 'University', color: '#FF9F1C' },
+  { name: 'Kwame Nkrumah University of Science and Technology', location: 'Kumasi, Ghana', level: 'University', color: '#1F2A1F' },
+  { name: 'University of Khartoum', location: 'Khartoum, Sudan', level: 'University', color: '#008751' },
+  { name: 'University of Botswana', location: 'Gaborone, Botswana', level: 'University', color: '#2d4a2d' },
+  { name: "Université Cheikh Anta Diop", location: 'Dakar, Senegal', level: 'University', color: '#FF9F1C' },
+]
 
 function CommunityFeed() {
     const params = useParams() || {}
@@ -254,6 +300,29 @@ function CommunityFeed() {
                                         {cat}
                                     </button>
                                 ))}
+                            </div>
+
+                            <div className="mb-6">
+                              <h2 className="text-lg font-extrabold text-dark mb-3">
+                                {level === 'secondary' ? '🏫 Top Secondary Schools in Africa' : '🎓 Top Universities in Africa'}
+                              </h2>
+                              <p className="text-xs text-gray-400 mb-4">Click on any school to see posts from students of that school.</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {(level === 'secondary' ? secondarySchools : universities).map((school, i) => (
+                                  <motion.div key={school.name} custom={i}
+                                    whileHover={{ y: -2 }}
+                                    className="bg-white rounded-xl border border-gray-100 p-3 cursor-pointer hover:shadow-md transition-all duration-300 flex items-center gap-3"
+                                    onClick={() => window.open(`/school/${encodeURIComponent(school.name)}`, '_blank')}>
+                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: school.color }}>
+                                      {school.name.charAt(0)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-semibold text-dark truncate">{school.name} <FiExternalLink size={12} className="inline text-gray-400 ml-0.5" /></p>
+                                      <p className="text-xs text-gray-400 truncate">{school.location}</p>
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </div>
                             </div>
 
                             <div className="flex flex-col gap-4">

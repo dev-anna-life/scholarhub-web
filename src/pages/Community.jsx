@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { FiUsers, FiArrowRight, FiBookOpen, FiTrendingUp, FiStar, FiZap, FiAward, FiMapPin, FiSearch } from "react-icons/fi"
+import { FiUsers, FiArrowRight, FiBookOpen, FiTrendingUp, FiStar, FiZap, FiAward, FiSearch } from "react-icons/fi"
 import { getLeaderboard, getMe } from "../api/auth"
 
 const communities = [
@@ -29,52 +29,6 @@ const fadeUp = {
     visible: (i) => ({ opacity: 1, y: 0, transition: { delay: i * 0.12, duration: 0.5, ease: 'easeOut' } })
 }
 
-const secondarySchools = [
-    { name: 'King\'s College, Lagos', location: 'Lagos, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#1F2A1F' },
-    { name: 'Alliance High School', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#008751' },
-    { name: 'St. George\'s College', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#2d4a2d' },
-    { name: 'Loyola Jesuit College', location: 'Abuja, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#FF9F1C' },
-    { name: 'Achimota School', location: 'Accra, Ghana', country: 'Ghana', level: 'Secondary', color: '#1F2A1F' },
-    { name: 'Ghana National College', location: 'Cape Coast, Ghana', country: 'Ghana', level: 'Secondary', color: '#008751' },
-    { name: 'St. John\'s College', location: 'Johannesburg, South Africa', country: 'South Africa', level: 'Secondary', color: '#2d4a2d' },
-    { name: 'Bishops Diocesan College', location: 'Cape Town, South Africa', country: 'South Africa', level: 'Secondary', color: '#FF9F1C' },
-    { name: 'St. Mary\'s School', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#1F2A1F' },
-    { name: 'Government Secondary School, Enugu', location: 'Enugu, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#008751' },
-    { name: 'Queen\'s College', location: 'Lagos, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#2d4a2d' },
-    { name: 'Federal Government College, Ilorin', location: 'Ilorin, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#FF9F1C' },
-    { name: 'Lycée Sainte Famille', location: 'Abidjan, Côte d\'Ivoire', country: 'Côte d\'Ivoire', level: 'Secondary', color: '#1F2A1F' },
-    { name: 'International School of Kenya', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#008751' },
-    { name: 'SOS Hermann Gmeiner School', location: 'Addis Ababa, Ethiopia', country: 'Ethiopia', level: 'Secondary', color: '#2d4a2d' },
-    { name: 'St. Augustine\'s College', location: 'Cape Coast, Ghana', country: 'Ghana', level: 'Secondary', color: '#FF9F1C' },
-    { name: 'Mpesa Foundation Academy', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#1F2A1F' },
-    { name: 'Hillcrest Secondary School', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#008751' },
-    { name: 'St. Joseph\'s College', location: 'Durban, South Africa', country: 'South Africa', level: 'Secondary', color: '#2d4a2d' },
-    { name: 'St. Charles Lwanga School', location: 'Kampala, Uganda', country: 'Uganda', level: 'Secondary', color: '#FF9F1C' },
-]
-
-const universities = [
-    { name: 'University of Cape Town', location: 'Cape Town, South Africa', country: 'South Africa', level: 'University', color: '#1F2A1F' },
-    { name: 'University of the Witwatersrand', location: 'Johannesburg, South Africa', country: 'South Africa', level: 'University', color: '#008751' },
-    { name: 'Stellenbosch University', location: 'Stellenbosch, South Africa', country: 'South Africa', level: 'University', color: '#2d4a2d' },
-    { name: 'University of Ibadan', location: 'Ibadan, Nigeria', country: 'Nigeria', level: 'University', color: '#FF9F1C' },
-    { name: 'Obafemi Awolowo University', location: 'Ile-Ife, Nigeria', country: 'Nigeria', level: 'University', color: '#1F2A1F' },
-    { name: 'University of Lagos', location: 'Lagos, Nigeria', country: 'Nigeria', level: 'University', color: '#008751' },
-    { name: 'University of Ghana', location: 'Accra, Ghana', country: 'Ghana', level: 'University', color: '#2d4a2d' },
-    { name: 'University of Nairobi', location: 'Nairobi, Kenya', country: 'Kenya', level: 'University', color: '#FF9F1C' },
-    { name: 'Cairo University', location: 'Giza, Egypt', country: 'Egypt', level: 'University', color: '#1F2A1F' },
-    { name: 'Makerere University', location: 'Kampala, Uganda', country: 'Uganda', level: 'University', color: '#008751' },
-    { name: 'University of Dar es Salaam', location: 'Dar es Salaam, Tanzania', country: 'Tanzania', level: 'University', color: '#2d4a2d' },
-    { name: 'Addis Ababa University', location: 'Addis Ababa, Ethiopia', country: 'Ethiopia', level: 'University', color: '#FF9F1C' },
-    { name: 'University of Pretoria', location: 'Pretoria, South Africa', country: 'South Africa', level: 'University', color: '#1F2A1F' },
-    { name: 'Rhodes University', location: 'Makhanda, South Africa', country: 'South Africa', level: 'University', color: '#008751' },
-    { name: 'Covenant University', location: 'Ota, Nigeria', country: 'Nigeria', level: 'University', color: '#2d4a2d' },
-    { name: 'University of Johannesburg', location: 'Johannesburg, South Africa', country: 'South Africa', level: 'University', color: '#FF9F1C' },
-    { name: 'Kwame Nkrumah University of Science and Technology', location: 'Kumasi, Ghana', country: 'Ghana', level: 'University', color: '#1F2A1F' },
-    { name: 'University of Khartoum', location: 'Khartoum, Sudan', country: 'Sudan', level: 'University', color: '#008751' },
-    { name: 'University of Botswana', location: 'Gaborone, Botswana', country: 'Botswana', level: 'University', color: '#2d4a2d' },
-    { name: 'Université Cheikh Anta Diop', location: 'Dakar, Senegal', country: 'Senegal', level: 'University', color: '#FF9F1C' },
-]
-
 function Community() {
     const router = useRouter()
     const [user, setUser] = useState({})
@@ -91,8 +45,6 @@ function Community() {
     }, [])
 
     const userLevel = user.level === 'JSS' || user.level === 'SSS' ? 'Secondary' : user.level
-    const schools = userLevel === 'University' ? universities : secondarySchools
-
     return (
         <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
             <div className="sticky top-0 z-40 bg-light/95 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4">
@@ -159,49 +111,6 @@ function Community() {
                     ))}
                 </div>
 
-                <div className="mt-10 md:mt-12">
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <div>
-                            <h2 className="text-lg md:text-xl font-extrabold text-dark flex items-center gap-2">
-                                <FiMapPin className="text-primary" size={20} /> {userLevel === 'University' ? 'Top Universities in Africa' : 'Top Secondary Schools in Africa'}
-                            </h2>
-                            <p className="text-xs md:text-sm text-gray-400 mt-0.5">
-                                {userLevel === 'University' ? 'Connect with students from leading universities across Africa' : 'Connect with students from leading secondary schools across Africa'}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                        {schools.map((school, i) => (
-                            <motion.div key={school.name} custom={i + 5} variants={fadeUp} initial="hidden" animate="visible"
-                                whileHover={{ y: -3 }}
-                                className="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-lg hover:border-primary/30 transition-all duration-300"
-                                onClick={() => router.push(`/school/${encodeURIComponent(school.name)}`)}>
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                                        style={{ backgroundColor: school.color }}>
-                                        {school.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="font-bold text-dark text-sm truncate">{school.name}</p>
-                                        <p className="text-xs text-gray-400 truncate">{school.location}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between mt-2">
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <FiMapPin size={12} />
-                                        <span className="truncate">{school.country}</span>
-                                    </div>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); router.push(`/school/${encodeURIComponent(school.name)}`) }}
-                                        className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all duration-200">
-                                        View
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
             </div>
         </div>
     )
