@@ -33,7 +33,17 @@ function SchoolFeed() {
         'Ihiala Secondary School, Nsukka': 'JSS',
     }
     const schoolLevel = schoolLevels[decodedSchool]
-    const userData = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}
+    const [userData, setUserData] = useState({level: ''})
+    useEffect(() => {
+        const stored = JSON.parse(localStorage.getItem('user') || '{}')
+        setUserData(stored)
+        if (!stored.level) {
+            import('../api/auth').then(mod => mod.getMe().then(res => {
+                setUserData(res.data)
+                localStorage.setItem('user', JSON.stringify(res.data))
+            }).catch(() => {}))
+        }
+    }, [])
     if (schoolLevel && userData.level && userData.level !== schoolLevel) {
         return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This school is not available for your level</p><p className="text-sm text-gray-400">You can only access schools in your education level.</p></div></div>
     }

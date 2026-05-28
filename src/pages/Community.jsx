@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { FiUsers, FiArrowRight, FiBookOpen, FiTrendingUp, FiStar, FiZap, FiAward, FiMapPin, FiSearch } from "react-icons/fi"
-import { getLeaderboard } from "../api/auth"
+import { getLeaderboard, getMe } from "../api/auth"
 
 const communities = [
     {
@@ -57,7 +57,14 @@ function Community() {
     const [user, setUser] = useState({})
 
     useEffect(() => {
-        try { setUser(JSON.parse(localStorage.getItem('user') || '{}')) } catch (e) {}
+        const stored = JSON.parse(localStorage.getItem('user') || '{}')
+        setUser(stored)
+        if (!stored.level) {
+            getMe().then(res => {
+                setUser(res.data)
+                localStorage.setItem('user', JSON.stringify(res.data))
+            }).catch(() => {})
+        }
     }, [])
 
     return (

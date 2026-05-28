@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock } from "react-icons/fi"
-import { createPost, getPosts, likePost, getComments, addComment } from "../api/auth"
+import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
 
 const communityData = {
     jss: {
@@ -65,7 +65,14 @@ function CommunityFeed() {
     const [activeCategory, setActiveCategory] = useState('All')
 
     useEffect(() => {
-        try { setUser(JSON.parse(localStorage.getItem('user') || '{}')) } catch (e) {}
+        const stored = JSON.parse(localStorage.getItem('user') || '{}')
+        setUser(stored)
+        if (!stored.level) {
+            getMe().then(res => {
+                setUser(res.data)
+                localStorage.setItem('user', JSON.stringify(res.data))
+            }).catch(() => {})
+        }
         setJoined(localStorage.getItem(STORAGE_KEY) === 'true')
     }, [level])
 
