@@ -29,9 +29,9 @@ const steps = [
 ]
 
 const communities = [
-  { id: 'jss', name: "JSS Community", members: "12K+", color: "bg-emerald-50 border-emerald-200", badge: "text-primary", desc: "Notes, gist & exam tips" },
-  { id: 'sss', name: "SSS Community", members: "28K+", color: "bg-orange-50 border-orange-200", badge: "text-accent", desc: "WAEC, JAMB & NECO prep" },
-  { id: 'university', name: "University Hub", members: "54K+", color: "bg-blue-50 border-blue-200", badge: "text-blue-600", desc: "Lecture notes & campus life" },
+  { id: 'jss', name: "JSS Community", color: "bg-emerald-50 border-emerald-200", badge: "text-primary", desc: "Notes, gist & exam tips" },
+  { id: 'sss', name: "SSS Community", color: "bg-orange-50 border-orange-200", badge: "text-accent", desc: "WAEC, JAMB & NECO prep" },
+  { id: 'university', name: "University Hub", color: "bg-blue-50 border-blue-200", badge: "text-blue-600", desc: "Lecture notes & campus life" },
 ]
 
 const navLinks = [
@@ -223,7 +223,6 @@ const handleCommunityClick = (id) => {
         >
           {[
             { value: "100K+", label: "Students" },
-            { value: "54K+", label: "Posts Shared" },
             { value: "12+", label: "African Countries" },
           ].map(stat => (
             <div key={stat.label} className="text-center group cursor-default">
@@ -272,7 +271,9 @@ const handleCommunityClick = (id) => {
                 onClick={() => handleCommunityClick(c.id)}
                 className={`reveal border rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-2 transition-all duration-300 cursor-pointer ${c.color}`}
               >
-                <p className={`text-2xl font-extrabold mb-1 ${c.badge}`}>{c.members}</p>
+                <p className={`text-2xl font-extrabold mb-1 ${c.id === 'sss' ? 'text-accent' : c.badge}`}>
+                  {c.id === 'jss' ? '📚' : c.id === 'sss' ? '⚡' : '🎓'}
+                </p>
                 <p className="font-semibold text-dark text-sm mt-1">{c.name}</p>
                 <p className="text-xs text-gray-400 mt-1 mb-3">{c.desc}</p>
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.badge} border ${c.color}`}>

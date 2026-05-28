@@ -38,18 +38,18 @@ const fadeUp = {
 }
 
 const schools = [
-    { name: 'Government Secondary School, Enugu', abbr: 'GSS', location: 'Enugu State', color: '#008751', members: '1.2k', level: 'SSS' },
-    { name: 'Queen\'s School, Enugu', abbr: 'QS', location: 'Enugu State', color: '#FF9F1C', members: '980', level: 'SSS' },
-    { name: 'Community Secondary School, Nsukka', abbr: 'CSS', location: 'Nsukka, Enugu', color: '#1F2A1F', members: '850', level: 'JSS' },
-    { name: 'University of Nigeria Secondary School, Nsukka', abbr: 'UNSS', location: 'Nsukka, Enugu', color: '#008751', members: '1.1k', level: 'SSS' },
-    { name: 'Boys\' Secondary School, Enugu', abbr: 'BSS', location: 'Enugu State', color: '#2d4a2d', members: '760', level: 'SSS' },
-    { name: 'St. Patrick\'s College, Enugu', abbr: 'SPC', location: 'Enugu State', color: '#00a86b', members: '920', level: 'SSS' },
-    { name: 'Holy Rosary College, Enugu', abbr: 'HRC', location: 'Enugu State', color: '#FF9F1C', members: '890', level: 'SSS' },
-    { name: 'Urban Day Secondary School, Nsukka', abbr: 'UDSS', location: 'Nsukka, Enugu', color: '#1F2A1F', members: '620', level: 'JSS' },
-    { name: 'King\'s College, Lagos', abbr: 'KC', location: 'Lagos State', color: '#008751', members: '1.5k', level: 'SSS' },
-    { name: 'Federal Government College, Enugu', abbr: 'FGC', location: 'Enugu State', color: '#FF9F1C', members: '1.3k', level: 'SSS' },
-    { name: 'College of the Immaculate Conception, Enugu', abbr: 'CIC', location: 'Enugu State', color: '#00a86b', members: '780', level: 'SSS' },
-    { name: 'Ihiala Secondary School, Nsukka', abbr: 'ISS', location: 'Nsukka, Enugu', color: '#2d4a2d', members: '540', level: 'JSS' },
+    { name: 'Government Secondary School, Enugu', abbr: 'GSS', location: 'Enugu State', color: '#008751', level: 'SSS' },
+    { name: 'Queen\'s School, Enugu', abbr: 'QS', location: 'Enugu State', color: '#FF9F1C', level: 'SSS' },
+    { name: 'Community Secondary School, Nsukka', abbr: 'CSS', location: 'Nsukka, Enugu', color: '#1F2A1F', level: 'JSS' },
+    { name: 'University of Nigeria Secondary School, Nsukka', abbr: 'UNSS', location: 'Nsukka, Enugu', color: '#008751', level: 'SSS' },
+    { name: 'Boys\' Secondary School, Enugu', abbr: 'BSS', location: 'Enugu State', color: '#2d4a2d', level: 'SSS' },
+    { name: 'St. Patrick\'s College, Enugu', abbr: 'SPC', location: 'Enugu State', color: '#00a86b', level: 'SSS' },
+    { name: 'Holy Rosary College, Enugu', abbr: 'HRC', location: 'Enugu State', color: '#FF9F1C', level: 'SSS' },
+    { name: 'Urban Day Secondary School, Nsukka', abbr: 'UDSS', location: 'Nsukka, Enugu', color: '#1F2A1F', level: 'JSS' },
+    { name: 'King\'s College, Lagos', abbr: 'KC', location: 'Lagos State', color: '#008751', level: 'SSS' },
+    { name: 'Federal Government College, Enugu', abbr: 'FGC', location: 'Enugu State', color: '#FF9F1C', level: 'SSS' },
+    { name: 'College of the Immaculate Conception, Enugu', abbr: 'CIC', location: 'Enugu State', color: '#00a86b', level: 'SSS' },
+    { name: 'Ihiala Secondary School, Nsukka', abbr: 'ISS', location: 'Nsukka, Enugu', color: '#2d4a2d', level: 'JSS' },
 ]
 
 function Community() {
@@ -163,7 +163,7 @@ function Community() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                <FiUsers size={12} /><span>{school.members} students</span>
+                                                <FiUsers size={12} /><span>Students</span>
                                                 <span className="text-gray-300">•</span>
                                                 <span className="text-primary text-xs font-medium">Near you</span>
                                             </div>
@@ -192,7 +192,7 @@ function Community() {
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-gray-400">
                                     <FiUsers size={12} />
-                                    <span>{school.members} students</span>
+                                    <span>Students</span>
                                     {school.level && (
                                         <>
                                             <span className="text-gray-300">•</span>

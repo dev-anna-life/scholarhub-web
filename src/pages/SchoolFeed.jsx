@@ -18,6 +18,26 @@ function SchoolFeed() {
     const [loading, setLoading] = useState(false)
     const [joined, setJoined] = useState(false)
 
+    const schoolLevels = {
+        'Government Secondary School, Enugu': 'SSS',
+        'University of Nigeria Secondary School, Nsukka': 'SSS',
+        'Community Secondary School, Nsukka': 'JSS',
+        'Queen\'s Secondary School, Enugu': 'SSS',
+        'Boys Secondary School, Awgu': 'JSS',
+        'Federal Government College, Enugu': 'SSS',
+        'University Demonstration Secondary School, Nsukka': 'SSS',
+        'Community Secondary School, Udi': 'JSS',
+        'College of Immaculate Conception, Enugu': 'SSS',
+        'Girls Secondary School, Nsukka': 'JSS',
+        'Holy Rosary Secondary School, Enugu': 'SSS',
+        'Ihiala Secondary School, Nsukka': 'JSS',
+    }
+    const schoolLevel = schoolLevels[decodedSchool]
+    const userData = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}
+    if (schoolLevel && userData.level && userData.level !== schoolLevel) {
+        return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This school is not available for your level</p><p className="text-sm text-gray-400">You can only access schools in your education level.</p></div></div>
+    }
+
     useEffect(() => {
         try { setUser(JSON.parse(localStorage.getItem('user') || '{}')) } catch (e) {}
         setJoined(localStorage.getItem(STORAGE_KEY) === 'true')
