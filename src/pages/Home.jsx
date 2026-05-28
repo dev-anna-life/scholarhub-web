@@ -89,6 +89,8 @@ function Home() {
     const [unreadCount, setUnreadCount] = useState(0)
     const [leaderboard, setLeaderboard] = useState([])
     const notifRef = useRef(null)
+    const prevUnreadRef = useRef(0)
+    const notifSoundRef = useRef(null)
 
     useEffect(() => {
         const handler = (e) => {
@@ -100,11 +102,56 @@ function Home() {
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
+    const playNotifSound = () => {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)()
+            const playTone = (freq, start, duration) => {
+                const osc = ctx.createOscillator()
+                const gain = ctx.createGain()
+                osc.connect(gain)
+                gain.connect(ctx.destination)
+                osc.frequency.value = freq
+                osc.type = 'sine'
+                gain.gain.setValueAtTime(0.15, start)
+                gain.gain.exponentialRampToValueAtTime(0.001, start + duration)
+                osc.start(start)
+                osc.stop(start + duration)
+            }
+            playTone(523, ctx.currentTime, 0.1)
+            playTone(659, ctx.currentTime + 0.12, 0.15)
+        } catch (_) {}
+    }
+
+    const showDesktopNotif = (title, body) => {
+        if (!('Notification' in window)) return
+        if (Notification.permission === 'granted') {
+            new Notification(title, { body, icon: '/favicon.ico' })
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission()
+        }
+    }
+
     const fetchNotificationsOnly = async () => {
         try {
             const notifRes = await getNotifications()
+            const newCount = notifRes.data.filter(n => !n.read).length
+            if (newCount > prevUnreadRef.current) {
+                playNotifSound()
+                const latest = notifRes.data.find(n => !n.read)
+                if (latest) {
+                    const from = latest.fromUser || latest.sender
+                    const label = latest.type === 'message' ? 'sent you a message'
+                        : latest.type === 'like' ? 'liked your post'
+                        : latest.type === 'comment' ? 'commented on your post'
+                        : latest.type === 'follow' ? 'started following you'
+                        : latest.type === 'gift' ? 'sent you a gift'
+                        : 'notification'
+                    showDesktopNotif(from?.name || 'ScholarHub', label)
+                }
+            }
+            prevUnreadRef.current = newCount
             setNotifications(notifRes.data)
-            setUnreadCount(notifRes.data.filter(n => !n.read).length)
+            setUnreadCount(newCount)
         } catch (_) {}
     }
 
@@ -147,7 +194,7 @@ function Home() {
             }
         }
         fetchAll()
-        const interval = setInterval(fetchNotificationsOnly, 10000)
+        const interval = setInterval(fetchNotificationsOnly, 3000)
         return () => clearInterval(interval)
     }, [])
 
@@ -198,6 +245,9 @@ function Home() {
 
     const handleBellClick = async () => {
         setShowNotifications(!showNotifications)
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission()
+        }
         if (!showNotifications && unreadCount > 0) {
             try {
                 await markNotificationsRead()
