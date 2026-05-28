@@ -61,7 +61,8 @@ function SchoolFeed() {
         'Université Cheikh Anta Diop': 'University',
     }
     const schoolLevel = schoolLevels[decodedSchool]
-    const [userData, setUserData] = useState({level: ''})
+    const storedLevel = typeof window !== 'undefined' ? (JSON.parse(localStorage.getItem('user') || '{}').level || '') : ''
+    const [userData, setUserData] = useState({level: storedLevel})
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
         setUserData(stored)
@@ -72,7 +73,8 @@ function SchoolFeed() {
             }).catch(() => {}))
         }
     }, [])
-    if (schoolLevel && userData.level && userData.level !== schoolLevel) {
+    const effectiveLevel = userData.level === 'JSS' || userData.level === 'SSS' ? 'Secondary' : userData.level
+    if (schoolLevel && effectiveLevel && effectiveLevel !== schoolLevel) {
         return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This school is not available for your level</p><p className="text-sm text-gray-400">You can only access schools in your education level.</p></div></div>
     }
 

@@ -44,7 +44,9 @@ function Community() {
         }
     }, [])
 
-    const userLevel = user.level === 'JSS' || user.level === 'SSS' ? 'Secondary' : user.level
+    const stored = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}
+    const effectiveLevel = stored.level || user.level
+    const userLevel = effectiveLevel === 'JSS' || effectiveLevel === 'SSS' ? 'Secondary' : effectiveLevel
     return (
         <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
             <div className="sticky top-0 z-40 bg-light/95 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4">
@@ -55,7 +57,7 @@ function Community() {
             </div>
 
             <div className="max-w-5xl mx-auto px-4 py-4 md:py-8">
-                {user.level && (
+                {effectiveLevel && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                         className="bg-dark rounded-2xl p-4 md:p-5 mb-6 md:mb-8">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
