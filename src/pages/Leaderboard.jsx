@@ -53,7 +53,7 @@ function stringToColor(school) {
     return colors[Math.abs(hash) % colors.length]
 }
 
-const levels = ['All', 'JSS', 'SSS', 'University']
+const levels = ['All', 'Secondary', 'University']
 
 function Leaderboard() {
     const [users, setUsers] = useState([])

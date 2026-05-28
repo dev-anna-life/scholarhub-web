@@ -17,7 +17,7 @@ const fadeUp = {
 
 const features = [
   { icon: FiBookOpen, title: "Share Knowledge", desc: "Post study notes, past questions, exam tips and educational content for students across Africa." },
-  { icon: FiUsers, title: "Join Communities", desc: "Connect with students at your level — JSS, SSS or University. Find your tribe." },
+  { icon: FiUsers, title: "Join Communities", desc: "Connect with students at your level — Secondary or University. Find your tribe." },
   { icon: FiAward, title: "Earn & Grow", desc: "Get rewarded with coins for every approved post. Streak daily and earn even more." },
   { icon: FiZap, title: "Stay Updated", desc: "Get the latest on JAMB, WAEC, NECO, campus gist and education news across Africa." },
 ]
@@ -29,8 +29,7 @@ const steps = [
 ]
 
 const communities = [
-  { id: 'jss', name: "JSS Community", color: "bg-emerald-50 border-emerald-200", badge: "text-primary", desc: "Notes, gist & exam tips" },
-  { id: 'sss', name: "SSS Community", color: "bg-orange-50 border-orange-200", badge: "text-accent", desc: "WAEC, JAMB & NECO prep" },
+  { id: 'secondary', name: "Secondary School Hub", color: "bg-emerald-50 border-emerald-200", badge: "text-primary", desc: "Notes, gist & exam tips" },
   { id: 'university', name: "University Hub", color: "bg-blue-50 border-blue-200", badge: "text-blue-600", desc: "Lecture notes & campus life" },
 ]
 
@@ -261,7 +260,7 @@ const handleCommunityClick = (id) => {
         <div className="max-w-5xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
             <h2 className="text-4xl font-extrabold text-dark mb-3">Find your community</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">Every student has a space on ScholarHub from JSS to University.</p>
+            <p className="text-gray-400 max-w-xl mx-auto">Every student has a space on ScholarHub from Secondary to University.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {communities.map(c => (

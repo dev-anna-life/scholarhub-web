@@ -420,8 +420,7 @@ function Settings() {
                           className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white"
                         >
                           <option value="">Select level</option>
-                          <option value="JSS">JSS</option>
-                          <option value="SSS">SSS</option>
+                          <option value="Secondary">Secondary</option>
                           <option value="University">University</option>
                         </select>
                       </div>

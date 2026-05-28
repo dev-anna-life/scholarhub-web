@@ -7,20 +7,12 @@ import { getLeaderboard, getMe } from "../api/auth"
 
 const communities = [
     {
-        id: 'jss', name: 'JSS Community', level: 'JSS',
-        description: 'Junior secondary school students sharing notes, gist, assignments and exam tips.',
+        id: 'secondary', name: 'Secondary School Hub', level: 'Secondary',
+        description: 'Junior and senior secondary students sharing notes, gist, assignments and exam tips.',
         color: 'from-[#1F2A1F] to-[#2d4a2d]', lightColor: 'bg-green-50',
         borderColor: 'border-green-200', textColor: 'text-[#1F2A1F]', accentColor: '#008751',
         icon: FiBookOpen,
-        tags: ['Basic Science', 'Mathematics', 'English', 'Social Studies', 'CRS/IRS'],
-    },
-    {
-        id: 'sss', name: 'SSS Community', level: 'SSS',
-        description: 'Senior secondary students conquering WAEC, NECO, JAMB and sharing everything in between.',
-        color: 'from-[#008751] to-[#00a86b]', lightColor: 'bg-emerald-50',
-        borderColor: 'border-emerald-200', textColor: 'text-emerald-800', accentColor: '#008751',
-        icon: FiZap,
-        tags: ['WAEC Prep', 'JAMB', 'Chemistry', 'Physics', 'Literature'],
+        tags: ['WAEC Prep', 'JAMB', 'Mathematics', 'English', 'Science'],
     },
     {
         id: 'university', name: 'University Hub', level: 'University',
@@ -37,19 +29,50 @@ const fadeUp = {
     visible: (i) => ({ opacity: 1, y: 0, transition: { delay: i * 0.12, duration: 0.5, ease: 'easeOut' } })
 }
 
-const schools = [
-    { name: 'Government Secondary School, Enugu', abbr: 'GSS', location: 'Enugu State', color: '#008751', level: 'SSS' },
-    { name: 'Queen\'s School, Enugu', abbr: 'QS', location: 'Enugu State', color: '#FF9F1C', level: 'SSS' },
-    { name: 'Community Secondary School, Nsukka', abbr: 'CSS', location: 'Nsukka, Enugu', color: '#1F2A1F', level: 'JSS' },
-    { name: 'University of Nigeria Secondary School, Nsukka', abbr: 'UNSS', location: 'Nsukka, Enugu', color: '#008751', level: 'SSS' },
-    { name: 'Boys\' Secondary School, Enugu', abbr: 'BSS', location: 'Enugu State', color: '#2d4a2d', level: 'SSS' },
-    { name: 'St. Patrick\'s College, Enugu', abbr: 'SPC', location: 'Enugu State', color: '#00a86b', level: 'SSS' },
-    { name: 'Holy Rosary College, Enugu', abbr: 'HRC', location: 'Enugu State', color: '#FF9F1C', level: 'SSS' },
-    { name: 'Urban Day Secondary School, Nsukka', abbr: 'UDSS', location: 'Nsukka, Enugu', color: '#1F2A1F', level: 'JSS' },
-    { name: 'King\'s College, Lagos', abbr: 'KC', location: 'Lagos State', color: '#008751', level: 'SSS' },
-    { name: 'Federal Government College, Enugu', abbr: 'FGC', location: 'Enugu State', color: '#FF9F1C', level: 'SSS' },
-    { name: 'College of the Immaculate Conception, Enugu', abbr: 'CIC', location: 'Enugu State', color: '#00a86b', level: 'SSS' },
-    { name: 'Ihiala Secondary School, Nsukka', abbr: 'ISS', location: 'Nsukka, Enugu', color: '#2d4a2d', level: 'JSS' },
+const secondarySchools = [
+    { name: 'King\'s College, Lagos', location: 'Lagos, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#1F2A1F' },
+    { name: 'Alliance High School', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#008751' },
+    { name: 'St. George\'s College', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#2d4a2d' },
+    { name: 'Loyola Jesuit College', location: 'Abuja, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#FF9F1C' },
+    { name: 'Achimota School', location: 'Accra, Ghana', country: 'Ghana', level: 'Secondary', color: '#1F2A1F' },
+    { name: 'Ghana National College', location: 'Cape Coast, Ghana', country: 'Ghana', level: 'Secondary', color: '#008751' },
+    { name: 'St. John\'s College', location: 'Johannesburg, South Africa', country: 'South Africa', level: 'Secondary', color: '#2d4a2d' },
+    { name: 'Bishops Diocesan College', location: 'Cape Town, South Africa', country: 'South Africa', level: 'Secondary', color: '#FF9F1C' },
+    { name: 'St. Mary\'s School', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#1F2A1F' },
+    { name: 'Government Secondary School, Enugu', location: 'Enugu, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#008751' },
+    { name: 'Queen\'s College', location: 'Lagos, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#2d4a2d' },
+    { name: 'Federal Government College, Ilorin', location: 'Ilorin, Nigeria', country: 'Nigeria', level: 'Secondary', color: '#FF9F1C' },
+    { name: 'Lycée Sainte Famille', location: 'Abidjan, Côte d\'Ivoire', country: 'Côte d\'Ivoire', level: 'Secondary', color: '#1F2A1F' },
+    { name: 'International School of Kenya', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#008751' },
+    { name: 'SOS Hermann Gmeiner School', location: 'Addis Ababa, Ethiopia', country: 'Ethiopia', level: 'Secondary', color: '#2d4a2d' },
+    { name: 'St. Augustine\'s College', location: 'Cape Coast, Ghana', country: 'Ghana', level: 'Secondary', color: '#FF9F1C' },
+    { name: 'Mpesa Foundation Academy', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#1F2A1F' },
+    { name: 'Hillcrest Secondary School', location: 'Nairobi, Kenya', country: 'Kenya', level: 'Secondary', color: '#008751' },
+    { name: 'St. Joseph\'s College', location: 'Durban, South Africa', country: 'South Africa', level: 'Secondary', color: '#2d4a2d' },
+    { name: 'St. Charles Lwanga School', location: 'Kampala, Uganda', country: 'Uganda', level: 'Secondary', color: '#FF9F1C' },
+]
+
+const universities = [
+    { name: 'University of Cape Town', location: 'Cape Town, South Africa', country: 'South Africa', level: 'University', color: '#1F2A1F' },
+    { name: 'University of the Witwatersrand', location: 'Johannesburg, South Africa', country: 'South Africa', level: 'University', color: '#008751' },
+    { name: 'Stellenbosch University', location: 'Stellenbosch, South Africa', country: 'South Africa', level: 'University', color: '#2d4a2d' },
+    { name: 'University of Ibadan', location: 'Ibadan, Nigeria', country: 'Nigeria', level: 'University', color: '#FF9F1C' },
+    { name: 'Obafemi Awolowo University', location: 'Ile-Ife, Nigeria', country: 'Nigeria', level: 'University', color: '#1F2A1F' },
+    { name: 'University of Lagos', location: 'Lagos, Nigeria', country: 'Nigeria', level: 'University', color: '#008751' },
+    { name: 'University of Ghana', location: 'Accra, Ghana', country: 'Ghana', level: 'University', color: '#2d4a2d' },
+    { name: 'University of Nairobi', location: 'Nairobi, Kenya', country: 'Kenya', level: 'University', color: '#FF9F1C' },
+    { name: 'Cairo University', location: 'Giza, Egypt', country: 'Egypt', level: 'University', color: '#1F2A1F' },
+    { name: 'Makerere University', location: 'Kampala, Uganda', country: 'Uganda', level: 'University', color: '#008751' },
+    { name: 'University of Dar es Salaam', location: 'Dar es Salaam, Tanzania', country: 'Tanzania', level: 'University', color: '#2d4a2d' },
+    { name: 'Addis Ababa University', location: 'Addis Ababa, Ethiopia', country: 'Ethiopia', level: 'University', color: '#FF9F1C' },
+    { name: 'University of Pretoria', location: 'Pretoria, South Africa', country: 'South Africa', level: 'University', color: '#1F2A1F' },
+    { name: 'Rhodes University', location: 'Makhanda, South Africa', country: 'South Africa', level: 'University', color: '#008751' },
+    { name: 'Covenant University', location: 'Ota, Nigeria', country: 'Nigeria', level: 'University', color: '#2d4a2d' },
+    { name: 'University of Johannesburg', location: 'Johannesburg, South Africa', country: 'South Africa', level: 'University', color: '#FF9F1C' },
+    { name: 'Kwame Nkrumah University of Science and Technology', location: 'Kumasi, Ghana', country: 'Ghana', level: 'University', color: '#1F2A1F' },
+    { name: 'University of Khartoum', location: 'Khartoum, Sudan', country: 'Sudan', level: 'University', color: '#008751' },
+    { name: 'University of Botswana', location: 'Gaborone, Botswana', country: 'Botswana', level: 'University', color: '#2d4a2d' },
+    { name: 'Université Cheikh Anta Diop', location: 'Dakar, Senegal', country: 'Senegal', level: 'University', color: '#FF9F1C' },
 ]
 
 function Community() {
@@ -66,6 +89,9 @@ function Community() {
             }).catch(() => {})
         }
     }, [])
+
+    const userLevel = user.level === 'JSS' || user.level === 'SSS' ? 'Secondary' : user.level
+    const schools = userLevel === 'University' ? universities : secondarySchools
 
     return (
         <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
@@ -84,12 +110,12 @@ function Community() {
                             <div>
                                 <p className="text-gray-400 text-xs mb-1">Your community</p>
                                 <p className="text-white font-bold text-base md:text-lg">
-                                    {communities.find(c => c.level === user.level)?.name || 'ScholarHub'}
+                                    {communities.find(c => c.level === userLevel)?.name || 'ScholarHub'}
                                 </p>
-                                <p className="text-gray-400 text-xs mt-0.5">Based on your education level — {user.level}</p>
+                                <p className="text-gray-400 text-xs mt-0.5">Based on your education level — {userLevel}</p>
                             </div>
                             <button
-                                onClick={() => router.push(`/community/${user.level?.toLowerCase()}`)}
+                                onClick={() => router.push(`/community/${userLevel?.toLowerCase()}`)}
                                 className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition flex items-center gap-2 self-start sm:self-auto">
                                 Enter <FiArrowRight size={15} />
                             </button>
@@ -97,8 +123,8 @@ function Community() {
                     </motion.div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                    {communities.filter(c => !user.level || c.level === user.level).map((c, i) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+                    {communities.filter(c => !userLevel || c.level === userLevel).map((c, i) => (
                         <motion.div key={c.id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
                             whileHover={{ y: -4 }}
                             className={`bg-white rounded-2xl border ${c.borderColor} overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl`}
@@ -137,52 +163,16 @@ function Community() {
                     <div className="flex items-center justify-between mb-4 md:mb-6">
                         <div>
                             <h2 className="text-lg md:text-xl font-extrabold text-dark flex items-center gap-2">
-                                <FiMapPin className="text-primary" size={20} /> School Communities
+                                <FiMapPin className="text-primary" size={20} /> {userLevel === 'University' ? 'Top Universities in Africa' : 'Top Secondary Schools in Africa'}
                             </h2>
-                            <p className="text-xs md:text-sm text-gray-400 mt-0.5">Connect with students from your school</p>
+                            <p className="text-xs md:text-sm text-gray-400 mt-0.5">
+                                {userLevel === 'University' ? 'Connect with students from leading universities across Africa' : 'Connect with students from leading secondary schools across Africa'}
+                            </p>
                         </div>
                     </div>
 
-                    {user.state && (() => {
-                        const stateKey = user.state.toLowerCase().trim()
-                        const stateSchools = schools.filter(s => s.location.toLowerCase().includes(stateKey) || s.name.toLowerCase().includes(stateKey)).filter(s => !user.level || s.level === user.level)
-                        if (stateSchools.length === 0) return null
-                        return (
-                            <div className="mb-6">
-                                <p className="text-sm font-semibold text-dark mb-3 flex items-center gap-2">
-                                    <span className="w-1.5 h-5 bg-primary rounded-full inline-block" />
-                                    Schools in {user.state}
-                                </p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                                    {stateSchools.map((school, i) => (
-                                        <motion.div key={school.name} custom={i} variants={fadeUp} initial="hidden" animate="visible"
-                                            whileHover={{ y: -3 }}
-                                            className="bg-primary/5 border border-primary/20 rounded-2xl p-4 cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-300"
-                                            onClick={() => router.push(`/school/${encodeURIComponent(school.name)}`)}>
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                                                    style={{ backgroundColor: school.color }}>
-                                                    {school.abbr}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="font-bold text-dark text-sm truncate">{school.name}</p>
-                                                    <p className="text-xs text-gray-400 truncate">{school.location}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                <FiUsers size={12} /><span>Students</span>
-                                                <span className="text-gray-300">•</span>
-                                                <span className="text-primary text-xs font-medium">Near you</span>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            </div>
-                        )
-                    })()}
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                        {schools.filter(s => !user.level || s.level === user.level).slice(0, 9).map((school, i) => (
+                        {schools.map((school, i) => (
                             <motion.div key={school.name} custom={i + 5} variants={fadeUp} initial="hidden" animate="visible"
                                 whileHover={{ y: -3 }}
                                 className="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-lg hover:border-primary/30 transition-all duration-300"
@@ -190,22 +180,23 @@ function Community() {
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                                         style={{ backgroundColor: school.color }}>
-                                        {school.abbr}
+                                        {school.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
                                     </div>
                                     <div className="min-w-0">
                                         <p className="font-bold text-dark text-sm truncate">{school.name}</p>
                                         <p className="text-xs text-gray-400 truncate">{school.location}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-gray-400">
-                                    <FiUsers size={12} />
-                                    <span>Students</span>
-                                    {school.level && (
-                                        <>
-                                            <span className="text-gray-300">•</span>
-                                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">{school.level}</span>
-                                        </>
-                                    )}
+                                <div className="flex items-center justify-between mt-2">
+                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                        <FiMapPin size={12} />
+                                        <span className="truncate">{school.country}</span>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); router.push(`/school/${encodeURIComponent(school.name)}`) }}
+                                        className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all duration-200">
+                                        View
+                                    </button>
                                 </div>
                             </motion.div>
                         ))}

@@ -6,25 +6,15 @@ import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, Fi
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
 
 const communityData = {
-    jss: {
-        name: 'JSS Community', level: 'JSS',
-        description: 'Junior secondary students sharing knowledge and growing together',
+    secondary: {
+        name: 'Secondary School Hub', level: 'Secondary',
+        description: 'Junior and senior secondary students sharing notes, gist, assignments and exam tips.',
         color: 'from-[#1F2A1F] to-[#2d4a2d]', accentColor: '#008751',
         lightColor: 'bg-green-50', borderColor: 'border-green-200', textColor: 'text-[#1F2A1F]',
         icon: FiBookOpen,
-        pinned: 'Welcome to the JSS Community! Share your notes, ask questions and help each other grow.',
+        pinned: 'Welcome to the Secondary School Hub! Share your notes, ask questions and help each other grow.',
         topContributors: [],
-        categories: ['All', 'Basic Science', 'Mathematics', 'English', 'Social Studies', 'CRS/IRS', 'Gist'],
-    },
-    sss: {
-        name: 'SSS Community', level: 'SSS',
-        description: 'Senior secondary students conquering WAEC, NECO and JAMB together',
-        color: 'from-[#008751] to-[#00a86b]', accentColor: '#008751',
-        lightColor: 'bg-emerald-50', borderColor: 'border-emerald-200', textColor: 'text-emerald-800',
-        icon: FiZap,
-        pinned: 'WAEC 2026 starts soon! Check the pinned past questions and study guides. Good luck to everyone!',
-        topContributors: [],
-        categories: ['All', 'WAEC Prep', 'JAMB', 'Chemistry', 'Physics', 'Mathematics', 'Literature', 'Gist'],
+        categories: ['All', 'Mathematics', 'English', 'Science', 'WAEC Prep', 'JAMB', 'Gist'],
     },
     university: {
         name: 'University Hub', level: 'University',
@@ -44,7 +34,8 @@ function CommunityFeed() {
     const router = useRouter()
     const community = communityData[level] || communityData.university
     const [user, setUser] = useState({})
-    const userLevel = user?.level?.toLowerCase()
+    const rawLevel = user?.level
+    const userLevel = rawLevel === 'JSS' || rawLevel === 'SSS' ? 'secondary' : (rawLevel?.toLowerCase() || '')
     if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
 
     const STORAGE_KEY = `scholarhub_joined_${level}`

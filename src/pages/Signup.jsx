@@ -15,7 +15,7 @@ const fadeUp = {
   exit: { opacity: 0, y: 30, transition: { duration: 0.3 } },
 }
 
-const levels = ['JSS', 'SSS', 'University']
+const levels = ['Secondary', 'University']
 const interests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
 
 const africanCountries = [
