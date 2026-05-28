@@ -423,11 +423,10 @@ function Settings() {
                           <option value="JSS">JSS</option>
                           <option value="SSS">SSS</option>
                           <option value="University">University</option>
-                          <option value="Postgrad">Postgrad</option>
                         </select>
                       </div>
 
-                      {(schoolForm.level === 'University' || schoolForm.level === 'Postgrad') && (
+                      {(schoolForm.level === 'University') && (
                         <div>
                           <label className="block text-xs font-medium text-gray-500 mb-1">Course / Field of Study</label>
                           <div className="max-h-40 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2">

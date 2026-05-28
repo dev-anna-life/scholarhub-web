@@ -3,7 +3,6 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { FiSearch, FiX } from "react-icons/fi"
 import { MdLocalFireDepartment } from "react-icons/md"
-import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
 import { FiAward } from "react-icons/fi"
 import { getLeaderboard } from "../api/auth"
@@ -54,7 +53,7 @@ function stringToColor(school) {
     return colors[Math.abs(hash) % colors.length]
 }
 
-const levels = ['All', 'JSS', 'SSS', 'University', 'Postgrad']
+const levels = ['All', 'JSS', 'SSS', 'University']
 
 function Leaderboard() {
     const [users, setUsers] = useState([])
@@ -112,32 +111,10 @@ function Leaderboard() {
                             <GiTrophy size={28} className="text-accent" />
                         </div>
                         <h1 className="text-2xl font-extrabold text-white">Leaderboard</h1>
-                        <p className="text-gray-400 text-sm mt-1">Top scholars ranked by coins earned</p>
+                        <p className="text-gray-400 text-sm mt-1">Top scholars ranked by activity</p>
                     </motion.div>
 
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="bg-white/5 rounded-2xl p-4 mb-5"
-                    >
-                        <p className="text-white text-xs font-semibold mb-3 flex items-center gap-1.5">
-                            <BsCoin className="text-accent" size={14} /> How to earn coins
-                        </p>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                            {[
-                                { action: 'Post approved', coins: '+50' },
-                                { action: 'Daily streak', coins: '+10' },
-                                { action: '7-day streak', coins: '+100' },
-                                { action: 'Sign up bonus', coins: '+50' },
-                            ].map(item => (
-                                <div key={item.action} className="bg-white/10 rounded-xl p-2.5 text-center">
-                                    <p className="text-accent font-extrabold text-sm">{item.coins}</p>
-                                    <p className="text-gray-400 text-xs mt-0.5">{item.action}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </motion.div>
+
 
                     {myRank > 0 && (
                         <motion.div
@@ -163,10 +140,7 @@ function Leaderboard() {
                             </div>
                             <div className="text-right flex-shrink-0">
                                 <p className="text-accent font-extrabold text-xl">#{myRank}</p>
-                                <div className="flex items-center gap-1 justify-end mt-0.5">
-                                    <BsCoin size={11} className="text-accent" />
-                                    <p className="text-gray-300 text-xs">{currentUser.coins || 0} coins</p>
-                                </div>
+
                             </div>
                         </motion.div>
                     )}
@@ -256,10 +230,7 @@ function Leaderboard() {
                                                 {getSchoolAbbr(user.school)}
                                             </span>
                                         )}
-                                        <div className="flex items-center gap-1 mb-2">
-                                            <BsCoin size={10} className="text-accent" />
-                                            <p className="text-xs font-bold text-primary">{user.coins?.toLocaleString()}</p>
-                                        </div>
+
                                         <div className={`w-full ${height} ${color} rounded-t-xl flex items-start justify-center pt-2 border border-gray-100`}>
                                             <span className="text-xl">{medal}</span>
                                         </div>
@@ -327,11 +298,7 @@ function Leaderboard() {
                                             </div>
 
                                             <div className="text-right flex-shrink-0">
-                                                <div className="flex items-center gap-1 justify-end">
-                                                    <BsCoin size={12} className="text-accent" />
-                                                    <p className="font-extrabold text-dark text-sm">{user.coins?.toLocaleString()}</p>
-                                                </div>
-                                                <p className="text-xs text-gray-400 mt-0.5">{user.badge || 'Beginner'}</p>
+                                            <p className="text-xs text-gray-400 mt-0.5">{user.badge || 'Beginner'}</p>
                                             </div>
                                         </motion.div>
                                     )

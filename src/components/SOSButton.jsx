@@ -64,12 +64,12 @@ function SOSButton() {
                     className="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex flex-col items-center justify-center shadow-lg shadow-red-500/40"
                 >
                     <MdEmergency size={18} />
-                    <span className="text-[9px] font-bold mt-0.5">SOS</span>
+                    <span className="text-[11px] font-bold mt-0.5">SOS</span>
                 </motion.button>
 
-                <p className="text-center text-[10px] text-gray-400 mt-1 whitespace-nowrap">
-                    Tap for emergency
-                </p>
+<p className="text-center text-xs text-gray-400 mt-1 whitespace-nowrap">
+    Tap for emergency
+</p>
             </div>
 
             <AnimatePresence>

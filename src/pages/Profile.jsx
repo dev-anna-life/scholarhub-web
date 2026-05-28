@@ -5,7 +5,6 @@ import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle } from
 import { MdLeaderboard, MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
-import { RiVipCrownLine } from "react-icons/ri"
 import { useRouter } from "next/navigation"
 import { getMe, getUserPosts, deletePost } from "../api/auth"
 
@@ -65,14 +64,7 @@ function Profile() {
     { label: 'Rank', value: '#—', icon: GiTrophy, color: 'text-purple-500' },
   ]
 
-  const achievements = [
-    { icon: FiStar, title: 'Welcome to ScholarHub', desc: 'Joined the platform', earned: true },
-    { icon: BsCoin, title: 'First Coins', desc: 'Earned your first 50 coins', earned: user.coins >= 50 },
-    { icon: FiBookOpen, title: 'First Post', desc: 'Submitted your first post', earned: myPostCount > 0 },
-    { icon: MdLocalFireDepartment, title: '7-Day Streak', desc: 'Posted for 7 days in a row', earned: currentStreak >= 7 },
-    { icon: GiTrophy, title: 'Top Scholar', desc: 'Reached 1,000 coins', earned: user.coins >= 1000 },
-    { icon: RiVipCrownLine, title: 'Community Leader', desc: 'Got 100 likes on a post', earned: false },
-  ]
+
 
   return (
     <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
@@ -170,7 +162,7 @@ function Profile() {
         </motion.div>
 
         <div className="flex gap-2 mb-5">
-          {[{ id: 'posts', label: 'My Posts', icon: FiBookOpen }, { id: 'achievements', label: 'Achievements', icon: FiAward }].map(tab => (
+          {[{ id: 'posts', label: 'My Posts', icon: FiBookOpen }].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === tab.id ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-500 hover:border-primary'}`}>
               <tab.icon size={14} /> {tab.label}
@@ -229,31 +221,7 @@ function Profile() {
           </motion.div>
         )}
 
-        {activeTab === 'achievements' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {achievements.map((a, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className={`rounded-2xl p-4 border flex items-center gap-3 transition-all duration-300 ${a.earned ? 'bg-primary/5 border-primary/20 hover:shadow-md' : 'bg-gray-50 border-gray-100 opacity-50'}`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${a.earned ? 'bg-primary/10' : 'bg-gray-200'}`}>
-                  <a.icon size={20} className={a.earned ? 'text-primary' : 'text-gray-400'} />
-                </div>
-                <div>
-                  <p className="font-bold text-dark text-sm">{a.title}</p>
-                  <p className="text-xs text-gray-400">{a.desc}</p>
-                  {a.earned && (
-                    <p className="text-xs text-primary font-semibold mt-0.5 flex items-center gap-1">
-                      <FiStar size={10} /> Earned
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
+
       </div>
       
       <AnimatePresence>

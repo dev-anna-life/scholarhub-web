@@ -40,6 +40,7 @@ function UserProfile() {
     const [userPosts, setUserPosts] = useState([])
     const [loading, setLoading] = useState(true)
     const [following, setFollowing] = useState(false)
+    const [followedBy, setFollowedBy] = useState(false)
     const [followLoading, setFollowLoading] = useState(false)
     const [followError, setFollowError] = useState('')
     const [followersCount, setFollowersCount] = useState(0)
@@ -98,6 +99,7 @@ function UserProfile() {
                     setFollowersCount(userData.followersCount ?? userData.followers?.length ?? 0)
                     setFollowingCount(userData.followingCount ?? userData.following?.length ?? 0)
                     setFollowing(userData.isFollowing ?? false)
+                    setFollowedBy(userData.isFollowedBy ?? false)
                 } else {
                     setProfileUser(null)
                     setLoading(false)
@@ -238,7 +240,7 @@ function UserProfile() {
                                                 : 'bg-primary text-white hover:opacity-90'
                                         }`}>
                                         {following ? <FiUserCheck size={13} /> : <FiUserPlus size={13} />}
-                                        {followLoading ? '...' : following ? 'Following' : 'Follow'}
+                                        {followLoading ? '...' : following ? 'Following' : followedBy ? 'Follow Back' : 'Follow'}
                                     </motion.button>
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
@@ -284,11 +286,7 @@ function UserProfile() {
                                 <p className="font-extrabold text-dark text-lg">{followingCount}</p>
                                 <p className="text-xs text-gray-400">Following</p>
                             </div>
-                            <div className="w-px h-8 bg-gray-100" />
-                            <div className="text-center">
-                                <p className="font-extrabold text-primary text-lg">{profileUser.coins || 50}</p>
-                                <p className="text-xs text-gray-400">Coins</p>
-                            </div>
+
                         </div>
 
                         <div className="flex items-center gap-2 flex-wrap mb-4">
@@ -339,7 +337,6 @@ function UserProfile() {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         className="grid grid-cols-2 gap-3">
                         {[
-                            { label: 'Coins', value: profileUser.coins || 50, icon: BsCoin, color: 'text-accent' },
                             { label: 'Streak', value: `${profileUser.streak || 0}/7`, icon: MdLocalFireDepartment, color: 'text-orange-500' },
                             { label: 'Followers', value: followersCount, icon: FiUserCheck, color: 'text-primary' },
                             { label: 'Following', value: followingCount, icon: FiUserPlus, color: 'text-purple-500' },

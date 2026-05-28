@@ -15,7 +15,7 @@ const fadeUp = {
   exit: { opacity: 0, y: 30, transition: { duration: 0.3 } },
 }
 
-const levels = ['JSS', 'SSS', 'University', 'Postgrad']
+const levels = ['JSS', 'SSS', 'University']
 const interests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
 
 const africanCountries = [
@@ -472,7 +472,7 @@ function Signup() {
                 />
               </div>
 
-              {(form.level === 'University' || form.level === 'Postgrad') && (
+              {(form.level === 'University') && (
                 <div className="mb-4">
                   <label className="block text-xs font-medium text-gray-500 mb-2">Your Course / Field of Study</label>
                   <div className="max-h-36 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2">

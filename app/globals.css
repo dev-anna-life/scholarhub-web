@@ -626,6 +626,11 @@ button {
   min-height: 44px;
 }
 
+/* Increase readability of small text */
+.text-xs {
+  font-size: 13px;
+}
+
 /* Mobile responsive fixes */
 @media (max-width: 768px) {
   /* Fix SOS button position */

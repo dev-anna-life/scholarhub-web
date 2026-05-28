@@ -36,16 +36,6 @@ const communityData = {
         topContributors: [],
         categories: ['All', 'Lecture Notes', 'Past Questions', 'Campus Gist', 'Internships', 'Projects', 'Research'],
     },
-    postgrad: {
-        name: 'Postgrad Network', level: 'Postgrad',
-        description: 'Masters and PhD students collaborating on research and academic excellence',
-        color: 'from-[#1F2A1F] to-[#008751]', accentColor: '#1F2A1F',
-        lightColor: 'bg-green-50', borderColor: 'border-green-200', textColor: 'text-[#1F2A1F]',
-        icon: FiAward,
-        pinned: 'Research collaboration thread is live! Connect with fellow researchers across Africa.',
-        topContributors: [],
-        categories: ['All', 'Research', 'Thesis Help', 'Publications', 'Scholarships', 'Academia', 'Gist'],
-    },
 }
 
 function CommunityFeed() {
@@ -54,6 +44,8 @@ function CommunityFeed() {
     const router = useRouter()
     const community = communityData[level] || communityData.university
     const [user, setUser] = useState({})
+    const userLevel = user?.level?.toLowerCase()
+    if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
 
     const STORAGE_KEY = `scholarhub_joined_${level}`
     const [joined, setJoined] = useState(false)
@@ -433,7 +425,7 @@ function CommunityFeed() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-xs font-semibold text-dark truncate">{c.name}</p>
-                                            <p className="text-xs text-gray-400">{c.coins} coins</p>
+                                            <p className="text-xs text-gray-400">Contributor</p>
                                         </div>
                                     </div>
                                 ))}

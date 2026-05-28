@@ -30,14 +30,6 @@ const communities = [
         icon: FiStar,
         tags: ['Lecture Notes', 'Past Questions', 'Campus Gist', 'Internships', 'Projects'],
     },
-    {
-        id: 'postgrad', name: 'Postgrad Network', level: 'Postgrad',
-        description: 'Masters and PhD students collaborating on research, theses and academic excellence.',
-        color: 'from-[#1F2A1F] to-[#008751]', lightColor: 'bg-green-50',
-        borderColor: 'border-green-200', textColor: 'text-[#1F2A1F]', accentColor: '#1F2A1F',
-        icon: FiAward,
-        tags: ['Research', 'Thesis Help', 'Publications', 'Scholarships', 'Academia'],
-    },
 ]
 
 const fadeUp = {
@@ -99,7 +91,7 @@ function Community() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                    {communities.map((c, i) => (
+                    {communities.filter(c => !user.level || c.level === user.level).map((c, i) => (
                         <motion.div key={c.id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
                             whileHover={{ y: -4 }}
                             className={`bg-white rounded-2xl border ${c.borderColor} overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl`}
@@ -146,7 +138,7 @@ function Community() {
 
                     {user.state && (() => {
                         const stateKey = user.state.toLowerCase().trim()
-                        const stateSchools = schools.filter(s => s.location.toLowerCase().includes(stateKey) || s.name.toLowerCase().includes(stateKey))
+                        const stateSchools = schools.filter(s => s.location.toLowerCase().includes(stateKey) || s.name.toLowerCase().includes(stateKey)).filter(s => !user.level || s.level === user.level)
                         if (stateSchools.length === 0) return null
                         return (
                             <div className="mb-6">
@@ -183,7 +175,7 @@ function Community() {
                     })()}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                        {schools.slice(0, 9).map((school, i) => (
+                        {schools.filter(s => !user.level || s.level === user.level).slice(0, 9).map((school, i) => (
                             <motion.div key={school.name} custom={i + 5} variants={fadeUp} initial="hidden" animate="visible"
                                 whileHover={{ y: -3 }}
                                 className="bg-white rounded-2xl border border-gray-100 p-4 cursor-pointer hover:shadow-lg hover:border-primary/30 transition-all duration-300"
@@ -204,7 +196,7 @@ function Community() {
                                     {school.level && (
                                         <>
                                             <span className="text-gray-300">•</span>
-                                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-medium">{school.level}</span>
+                                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">{school.level}</span>
                                         </>
                                     )}
                                 </div>

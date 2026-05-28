@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend } from "react-icons/fi"
 import { useRouter } from "next/navigation"
-import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard } from '../api/auth'
+import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser } from '../api/auth'
 import SOSButton from '../components/SOSButton'
 import { getCategoriesForCourse } from '../data/courses'
 
@@ -88,6 +88,7 @@ function Home() {
     const [showNotifications, setShowNotifications] = useState(false)
     const [unreadCount, setUnreadCount] = useState(0)
     const [leaderboard, setLeaderboard] = useState([])
+    const [followedNotifs, setFollowedNotifs] = useState(new Set())
     const notifRef = useRef(null)
     const prevUnreadRef = useRef(0)
     const audioCtxRef = useRef(null)
@@ -176,6 +177,7 @@ function Home() {
                 setNotifications(notifRes.data)
                 setUnreadCount(notifRes.data.filter(n => !n.read).length)
                 setLeaderboard(leaderRes.data.slice(0, 3))
+                prevUnreadRef.current = notifRes.data.filter(n => !n.read).length
                 const realPosts = postsRes.data.map(post => ({
                     id: post._id,
                     authorId: post.author?._id || '',
@@ -358,6 +360,14 @@ function Home() {
         }
     }
 
+    const handleFollowBack = async (e, userId) => {
+        e.stopPropagation()
+        try {
+            await followUser(userId)
+            setFollowedNotifs(prev => new Set([...prev, userId]))
+        } catch (_) {}
+    }
+
     const filteredPosts = posts.filter(post => {
         if (activeCategory === '__course__') {
             return courseCats.length === 0 || courseCats.includes(post.category)
@@ -416,17 +426,23 @@ function Home() {
                                                     <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                                                         {from?.name?.charAt(0) || 'S'}
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
+                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-xs text-dark">
-                                                            <span className="font-semibold">{from?.name}</span>
+                                                            <span className="font-semibold hover:text-primary cursor-pointer">{from?.name?.split(' ')[0] || 'Someone'}</span>
                                                             {notif.type === 'follow' ? ' started following you' : notif.type === 'message' ? ' sent you a message' : notif.type === 'like' ? ' liked your post' : notif.type === 'gift' ? ' sent you a gift' : ' commented on your post'}
                                                         </p>
-                                                        <p className="text-xs text-gray-400 truncate mt-0.5">{notif.type === 'message' || notif.type === 'gift' ? notif.text : notif.post?.title}</p>
-                                                        <p className="text-xs text-gray-300 mt-0.5">
-                                                            {new Date(notif.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
-                                                        </p>
-                                                    </div>
-                                                    {!notif.read && <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />}
+                                                         <p className="text-xs text-gray-400 truncate mt-0.5">{notif.type === 'message' || notif.type === 'gift' ? notif.text : notif.post?.title}</p>
+                                                         <p className="text-xs text-gray-300 mt-0.5">
+                                                             {new Date(notif.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
+                                                         </p>
+                                                         {notif.type === 'follow' && from?._id && (
+                                                             <button onClick={(e) => handleFollowBack(e, from._id)}
+                                                                 className={`mt-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${followedNotifs.has(from._id) ? 'bg-gray-100 text-gray-500' : 'bg-primary text-white hover:opacity-90'}`}>
+                                                                 {followedNotifs.has(from._id) ? 'Following' : 'Follow Back'}
+                                                             </button>
+                                                         )}
+                                                     </div>
+                                                     {!notif.read && <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />}
                                                 </div>
                                                 )
                                             })
@@ -693,7 +709,6 @@ function Home() {
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-xs font-bold text-primary">{s.coins?.toLocaleString()}</p>
                                 </div>
                             )) : (
                                 <p className="text-xs text-gray-400 text-center py-2">No scholars yet</p>
