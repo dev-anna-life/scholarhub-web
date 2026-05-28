@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { getPostById, addComment, likePost, getMe } from '@/src/api/auth'
+import { getPostById, addComment, likePost, getMe } from '../../../src/api/auth'
 import { FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiArrowLeft, FiSend } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
