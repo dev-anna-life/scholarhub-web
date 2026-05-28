@@ -90,7 +90,7 @@ function Home() {
     const [leaderboard, setLeaderboard] = useState([])
     const notifRef = useRef(null)
     const prevUnreadRef = useRef(0)
-    const notifSoundRef = useRef(null)
+    const audioCtxRef = useRef(null)
 
     useEffect(() => {
         const handler = (e) => {
@@ -102,9 +102,19 @@ function Home() {
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
+    const ensureAudio = () => {
+        if (!audioCtxRef.current) {
+            audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+        }
+        if (audioCtxRef.current.state === 'suspended') {
+            audioCtxRef.current.resume()
+        }
+    }
+
     const playNotifSound = () => {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)()
+            ensureAudio()
+            const ctx = audioCtxRef.current
             const playTone = (freq, start, duration) => {
                 const osc = ctx.createOscillator()
                 const gain = ctx.createGain()
@@ -244,6 +254,7 @@ function Home() {
     }
 
     const handleBellClick = async () => {
+        ensureAudio()
         setShowNotifications(!showNotifications)
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission()
@@ -326,6 +337,27 @@ function Home() {
         reader.readAsDataURL(file)
     }
 
+    const handleNotifClick = async (notif) => {
+        setShowNotifications(false)
+        if (!notif.read) {
+            try {
+                await markNotificationsRead()
+                setUnreadCount(0)
+                setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+            } catch (_) {}
+        }
+        const from = notif.fromUser || notif.sender
+        if (notif.type === 'message') {
+            router.push('/chat')
+        } else if (notif.type === 'follow') {
+            if (from?._id) router.push(`/profile/${from._id}`)
+        } else if (notif.type === 'like' || notif.type === 'comment') {
+            router.push('/profile')
+        } else {
+            if (from?._id) router.push(`/profile/${from._id}`)
+        }
+    }
+
     const filteredPosts = posts.filter(post => {
         if (activeCategory === '__course__') {
             return courseCats.length === 0 || courseCats.includes(post.category)
@@ -380,19 +412,13 @@ function Home() {
                                         ) : (
                                             notifications.map((notif, i) => {
                                                 const from = notif.fromUser || notif.sender; return (
-                                                <div key={i} className={`px-4 py-3 border-b border-gray-50 flex items-start gap-3 ${!notif.read ? 'bg-primary/5' : ''}`}>
-                                                    <div
-                                                        onClick={() => from?._id && router.push(`/profile/${from._id}`)}
-                                                        className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 cursor-pointer hover:bg-primary/20 transition">
+                                                <div key={i} onClick={() => handleNotifClick(notif)} className={`px-4 py-3 border-b border-gray-50 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition ${!notif.read ? 'bg-primary/5' : ''}`}>
+                                                    <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                                                         {from?.name?.charAt(0) || 'S'}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-xs text-dark">
-                                                            <span
-                                                                onClick={() => from?._id && router.push(`/profile/${from._id}`)}
-                                                                className="font-semibold cursor-pointer hover:text-primary transition">
-                                                                {from?.name}
-                                                            </span>
+                                                            <span className="font-semibold">{from?.name}</span>
                                                             {notif.type === 'follow' ? ' started following you' : notif.type === 'message' ? ' sent you a message' : notif.type === 'like' ? ' liked your post' : notif.type === 'gift' ? ' sent you a gift' : ' commented on your post'}
                                                         </p>
                                                         <p className="text-xs text-gray-400 truncate mt-0.5">{notif.type === 'message' || notif.type === 'gift' ? notif.text : notif.post?.title}</p>
