@@ -111,7 +111,13 @@ function Profile() {
                 </span>
               ) : null}
               <span className="bg-accent/10 text-accent text-xs font-semibold px-3 py-1 rounded-full border border-accent/20 flex items-center gap-1">
-                <FiStar size={11} /> {user.badge || 'Beginner'}
+                <FiStar size={11} /> {(() => {
+                  const subs = user.badgeSubscriptions || []
+                  const active = subs.filter(s => new Date(s.expiresAt) > new Date())
+                  const names = { badge_basic: 'Basic', badge_premium: 'Premium', badge_extra_premium: 'Extra Premium' }
+                  const highest = active.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))[0]
+                  return highest ? names[highest.id] || 'Badge' : user.badge || 'Beginner'
+                })()}
               </span>
             </div>
             {user.interests?.length > 0 && (

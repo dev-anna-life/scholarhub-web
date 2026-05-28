@@ -2,11 +2,11 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiMessageSquare, FiUserPlus, FiUserCheck, FiBookOpen, FiStar, FiAward, FiTrash2, FiAlertTriangle } from "react-icons/fi"
+import { FiArrowLeft, FiMessageSquare, FiUserPlus, FiUserCheck, FiBookOpen, FiStar, FiAward, FiTrash2, FiAlertTriangle, FiSend } from "react-icons/fi"
 import { MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
-import { getUserById, followUser, getPosts, deletePost } from "../api/auth"
+import { getUserById, followUser, getPosts, deletePost, sendCoins } from "../api/auth"
 
 const knownAbbreviations = {
     'university of lagos': 'UNILAG', 'obafemi awolowo university': 'OAU',
@@ -48,6 +48,11 @@ function UserProfile() {
     const [deletingId, setDeletingId] = useState(null)
     const [confirmDelete, setConfirmDelete] = useState(null)
     const [deleteError, setDeleteError] = useState('')
+    const [showSendCoins, setShowSendCoins] = useState(false)
+    const [sendUsername, setSendUsername] = useState('')
+    const [sendAmount, setSendAmount] = useState('')
+    const [sendingCoins, setSendingCoins] = useState(false)
+    const [sendMsg, setSendMsg] = useState(null)
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -164,6 +169,22 @@ function UserProfile() {
         }
     }
 
+    const handleSendCoins = async () => {
+        if (!sendUsername.trim() || !sendAmount || parseInt(sendAmount) < 1) return
+        setSendingCoins(true)
+        setSendMsg(null)
+        try {
+            await sendCoins(sendUsername.trim(), parseInt(sendAmount))
+            setSendMsg({ type: 'success', text: `Sent ${sendAmount} coins to ${sendUsername}` })
+            setSendUsername(''); setSendAmount('')
+            setTimeout(() => { setShowSendCoins(false); setSendMsg(null) }, 1500)
+        } catch (e) {
+            setSendMsg({ type: 'error', text: e.response?.data?.message || 'Failed to send coins' })
+        } finally {
+            setSendingCoins(false)
+        }
+    }
+
     const isOwnProfile = userId?.toString() === (currentUser.id || currentUser._id)?.toString()
 
     if (loading) {
@@ -229,6 +250,13 @@ function UserProfile() {
                                         onClick={() => router.push(`/chat?user=${userId}`)}
                                         className="flex items-center gap-1.5 px-4 py-2 bg-primary/10 text-primary rounded-xl text-xs font-semibold hover:bg-primary/20 transition">
                                         <FiMessageSquare size={13} /> Message
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => { setSendUsername(''); setSendAmount(''); setSendMsg(null); setShowSendCoins(true) }}
+                                        className="flex items-center gap-1.5 px-4 py-2 bg-accent/10 text-accent rounded-xl text-xs font-semibold hover:bg-accent/20 transition">
+                                        <BsCoin size={13} /> Send Coins
                                     </motion.button>
                                 </div>
                             )}
@@ -422,6 +450,38 @@ function UserProfile() {
                                     className="flex-1 py-3 bg-red-500 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition disabled:opacity-50">
                                     {deletingId === confirmDelete ? 'Deleting...' : 'Delete'}
                                 </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {showSendCoins && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+                        onClick={() => setShowSendCoins(false)}>
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+                            <h3 className="text-lg font-bold text-dark mb-2">Send Coins</h3>
+                            <p className="text-xs text-gray-500 mb-4">Enter the recipient's username and amount.</p>
+                            {sendMsg && (
+                                <p className={`text-xs mb-3 ${sendMsg.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>{sendMsg.text}</p>
+                            )}
+                            <div className="space-y-3">
+                                <input type="text" value={sendUsername} onChange={e => setSendUsername(e.target.value)}
+                                    placeholder="Recipient username" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" />
+                                <input type="number" value={sendAmount} onChange={e => setSendAmount(e.target.value)}
+                                    placeholder="Amount" min="1" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" />
+                                <div className="flex gap-2">
+                                    <button onClick={() => setShowSendCoins(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-dark">
+                                        Cancel
+                                    </button>
+                                    <button onClick={handleSendCoins} disabled={sendingCoins || !sendUsername.trim() || !sendAmount}
+                                        className="flex-1 py-2.5 bg-accent text-white rounded-xl text-sm font-semibold disabled:opacity-50">
+                                        {sendingCoins ? 'Sending...' : 'Send'}
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock } from "react-icons/fi"
@@ -68,7 +68,7 @@ function CommunityFeed() {
     const [postSuccess, setPostSuccess] = useState(false)
     const [postError, setPostError] = useState('')
     const [postLoading, setPostLoading] = useState(false)
-    const [newPost, setNewPost] = useState({ title: '', content: '', category: '' })
+    const [newPost, setNewPost] = useState({ title: '', content: '', category: '', image: null, video: null })
     const [memberCount, setMemberCount] = useState(0)
     const [activeCategory, setActiveCategory] = useState('All')
 
@@ -95,6 +95,8 @@ function CommunityFeed() {
                     category: post.category,
                     title: post.title,
                     content: post.content,
+                    image: post.image,
+                    video: post.video,
                     likes: post.likes?.length || 0,
                     liked: post.likes?.includes(user.id) || false,
                     commentCount: post.commentsData?.length || 0,
@@ -159,11 +161,22 @@ function CommunityFeed() {
 
     const handleCreatePost = async () => {
         if (!newPost.title.trim() || !newPost.content.trim()) { setPostError('Title and content are required'); return }
+        const subs = user?.badgeSubscriptions || []
+        const active = subs.filter(s => new Date(s.expiresAt) > new Date())
+        const tiers = [
+            { id: 'badge_extra_premium', limit: 100000 }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
+        ]
+        const highest = tiers.find(t => active.some(s => s.id === t.id))
+        const maxChars = highest ? highest.limit : 250
+        if (newPost.content.length > maxChars) {
+            setPostError(`Character limit exceeded (${maxChars}). Upgrade your badge to write more.`)
+            return
+        }
         setPostLoading(true); setPostError('')
         try {
             await createPost({ ...newPost, community: level })
             setPostSuccess(true)
-            setNewPost({ title: '', content: '', category: community.categories[1] })
+            setNewPost({ title: '', content: '', category: community.categories[1], image: null, video: null })
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false) }, 2000)
         } catch (err) { setPostError(err.response?.data?.message || 'Something went wrong') }
         finally { setPostLoading(false) }
@@ -306,6 +319,13 @@ function CommunityFeed() {
 
                                         <h3 className="font-bold text-dark text-sm md:text-base mb-1.5 leading-snug">{post.title}</h3>
                                         <p className="text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 mb-3">{post.content}</p>
+
+                                        {post.image && (
+                                            <img src={post.image} alt="" className="w-full rounded-xl mb-3 max-h-64 object-cover" />
+                                        )}
+                                        {post.video && (
+                                            <video src={post.video} controls className="w-full rounded-xl mb-3 max-h-64" />
+                                        )}
 
                                         <div className="flex items-center gap-3 pt-2.5 border-t border-gray-50">
                                             <button onClick={() => toggleLike(post.id, post.isReal)}
@@ -489,7 +509,53 @@ function CommunityFeed() {
                                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-3 focus:outline-none focus:border-primary transition" />
                             <textarea placeholder="Share your knowledge, ask a question, or drop a gist..."
                                 value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
-                                rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-4 focus:outline-none focus:border-primary transition resize-none" />
+                                rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-1 focus:outline-none focus:border-primary transition resize-none" />
+                            {(() => {
+                                const subs = user?.badgeSubscriptions || []
+                                const active = subs.filter(s => new Date(s.expiresAt) > new Date())
+                                const tiers = [
+                                    { id: 'badge_extra_premium', limit: 100000 }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
+                                ]
+                                const highest = tiers.find(t => active.some(s => s.id === t.id))
+                                const maxChars = highest ? highest.limit : 250
+                                const len = newPost.content.length
+                                const over = len > maxChars
+                                return (
+                                    <p className={`text-xs text-right mb-2 ${over ? 'text-red-500' : 'text-gray-400'}`}>
+                                        {len}/{maxChars} {highest ? '' : '(free: 250)'}
+                                    </p>
+                                )
+                            })()}
+                            <div className="flex gap-2 mb-3">
+                                <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
+                                <button type="button" onClick={handleImagePick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
+                                    {newPost.image ? '✅ Image' : '📷 Image'}
+                                </button>
+                                {(() => {
+                                    const subs = user?.badgeSubscriptions || []
+                                    const active = subs.filter(s => new Date(s.expiresAt) > new Date())
+                                    if (!active.some(s => s.id === 'badge_extra_premium')) return null
+                                    return (
+                                        <button type="button" onClick={handleVideoPick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
+                                            {newPost.video ? '✅ Video' : '🎬 Video'}
+                                        </button>
+                                    )
+                                })()}
+                                {imageUploading && <span className="text-xs text-gray-400 self-center">Uploading...</span>}
+                            </div>
+                            {newPost.image && (
+                                <div className="relative mb-3">
+                                    <img src={newPost.image} alt="" className="w-full rounded-xl max-h-40 object-cover" />
+                                    <button onClick={() => setNewPost({ ...newPost, image: null })} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow text-xs font-bold text-red-500">&times;</button>
+                                </div>
+                            )}
+                            {newPost.video && (
+                                <div className="relative mb-3">
+                                    <video src={newPost.video} controls className="w-full rounded-xl max-h-40" />
+                                    <button onClick={() => setNewPost({ ...newPost, video: null })} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow text-xs font-bold text-red-500">&times;</button>
+                                </div>
+                            )}
                             {postError && <p className="text-red-500 text-sm mb-3">{postError}</p>}
                             {postSuccess && <p className="text-sm mb-3 text-center font-medium" style={{ color: community.accentColor }}>✅ Post submitted for review!</p>}
                             <div className="flex gap-3">

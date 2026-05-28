@@ -1,17 +1,19 @@
-/* eslint-disable no-unused-vars */
-import { useState } from "react"
+'use client'
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { MdLeaderboard } from "react-icons/md"
 import { HiUserGroup } from "react-icons/hi"
 import { FiHome, FiUser, FiAward, FiSettings, FiMenu, FiX } from "react-icons/fi"
-import { BsRobot } from "react-icons/bs"
+import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
+import { getMe } from "../api/auth"
 
 const navLinks = [
   { label: 'Home', icon: FiHome, path: '/feed' },
   { label: 'Community', icon: HiUserGroup, path: '/community' },
+  { label: 'Shop', icon: BsShop, path: '/shop' },
   { label: 'Profile', icon: FiUser, path: '/profile' },
   { label: 'Leaderboard', icon: MdLeaderboard, path: '/leaderboard' },
   { label: 'Achievements', icon: FiAward, path: '/achievements' },
@@ -22,7 +24,15 @@ const navLinks = [
 
 function Navbar() {
   const [open, setOpen] = useState(false)
+  const [user, setUser] = useState(null)
   const pathname = usePathname()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      getMe().then(r => setUser(r.data)).catch(() => {})
+    }
+  }, [pathname.split('/').slice(0, 2).join('/')])
 
   return (
     <>
@@ -35,6 +45,13 @@ function Navbar() {
         <h1 className="text-2xl font-extrabold mb-10 px-2">
           Scholar<span className="text-accent">Hub</span>
         </h1>
+        {user && (
+          <Link href="/shop" className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 mb-4 mx-2 text-sm text-white hover:bg-white/20 transition">
+            <BsCoin size={16} className="text-yellow-400" />
+            <span className="font-bold">{user.coins ?? 0}</span>
+            <span className="text-gray-400 ml-auto text-xs">Shop</span>
+          </Link>
+        )}
         <nav className="flex flex-col gap-1">
           {navLinks.map(({ label, icon: Icon, path }) => {
             const active = pathname === path
@@ -59,9 +76,17 @@ function Navbar() {
         <h1 className="text-lg font-extrabold">
           Scholar<span className="text-accent">Hub</span>
         </h1>
-        <button onClick={() => setOpen(true)} className="p-1">
-          <FiMenu size={20} />
-        </button>
+        <div className="flex items-center gap-3">
+          {user && (
+            <Link href="/shop" className="flex items-center gap-1 text-sm">
+              <BsCoin size={14} className="text-yellow-400" />
+              <span className="font-bold">{user.coins ?? 0}</span>
+            </Link>
+          )}
+          <button onClick={() => setOpen(true)} className="p-1">
+            <FiMenu size={20} />
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
