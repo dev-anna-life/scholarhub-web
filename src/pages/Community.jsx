@@ -90,7 +90,7 @@ function Community() {
                     </motion.div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                     {communities.filter(c => !user.level || c.level === user.level).map((c, i) => (
                         <motion.div key={c.id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
                             whileHover={{ y: -4 }}
