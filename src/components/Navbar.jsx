@@ -8,6 +8,7 @@ import { HiUserGroup } from "react-icons/hi"
 import { FiHome, FiUser, FiAward, FiSettings, FiMenu, FiX } from "react-icons/fi"
 import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
+import Image from "next/image"
 import { getMe } from "../api/auth"
 
 const navLinks = [
@@ -42,9 +43,12 @@ function Navbar() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="hidden md:flex flex-col fixed left-0 top-0 h-full w-56 bg-dark text-white px-4 py-8 z-50"
       >
-        <h1 className="text-2xl font-extrabold mb-10 px-2">
-          Scholar<span className="text-accent">Hub</span>
-        </h1>
+        <div className="flex items-center gap-2 mb-10 px-2">
+          <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={32} height={32} className="rounded-full" />
+          <h1 className="text-2xl font-extrabold">
+            Scholar<span className="text-accent">Hub</span>
+          </h1>
+        </div>
         {user && (
           <Link href="/shop" className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 mb-4 mx-2 text-sm text-white hover:bg-white/20 transition">
             <BsCoin size={16} className="text-yellow-400" />
@@ -73,9 +77,12 @@ function Navbar() {
       </motion.div>
 
       <div className="md:hidden fixed top-0 left-0 right-0 bg-dark text-white px-4 py-3 flex items-center justify-between z-50 h-12">
-        <h1 className="text-lg font-extrabold">
-          Scholar<span className="text-accent">Hub</span>
-        </h1>
+        <div className="flex items-center gap-2">
+          <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={24} height={24} className="rounded-full" />
+          <h1 className="text-lg font-extrabold">
+            Scholar<span className="text-accent">Hub</span>
+          </h1>
+        </div>
         <div className="flex items-center gap-3">
           {user && (
             <Link href="/shop" className="flex items-center gap-1 text-sm">
@@ -109,9 +116,12 @@ function Navbar() {
               className="md:hidden fixed top-0 left-0 bottom-0 w-72 bg-dark text-white px-5 py-8 z-50 flex flex-col shadow-2xl"
             >
               <div className="flex items-center justify-between mb-8">
-                <h1 className="text-xl font-extrabold text-white">
-                  Scholar<span className="text-accent">Hub</span>
-                </h1>
+                <div className="flex items-center gap-2">
+                  <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={28} height={28} className="rounded-full" />
+                  <h1 className="text-xl font-extrabold text-white">
+                    Scholar<span className="text-accent">Hub</span>
+                  </h1>
+                </div>
                 <button
                   onClick={() => setOpen(false)}
                   className="p-2 rounded-xl hover:bg-white/10 transition"

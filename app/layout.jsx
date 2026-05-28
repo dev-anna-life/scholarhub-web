@@ -5,6 +5,10 @@ import './globals.css'
 export const metadata = {
   title: 'ScholarHub - Africa\'s Student Platform',
   description: 'Connect, learn, and earn coins with fellow African students',
+  icons: {
+    icon: '/scholarhub-logo.svg',
+    apple: '/scholarhub-logo.svg',
+  },
 }
 
 export default function RootLayout({ children }) {
