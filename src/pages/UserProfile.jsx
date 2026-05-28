@@ -95,13 +95,9 @@ function UserProfile() {
 
                 if (userData) {
                     setProfileUser(userData)
-                    setFollowersCount(userData.followers?.length || 0)
-                    setFollowingCount(userData.following?.length || 0)
-                    setFollowing(
-                        userData.followers?.some(f =>
-                            (f._id || f).toString() === (currentUser.id || currentUser._id)
-                        ) || false
-                    )
+                    setFollowersCount(userData.followersCount ?? userData.followers?.length ?? 0)
+                    setFollowingCount(userData.followingCount ?? userData.following?.length ?? 0)
+                    setFollowing(userData.isFollowing ?? false)
                 } else {
                     setProfileUser(null)
                     setLoading(false)
