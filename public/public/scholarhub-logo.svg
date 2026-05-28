@@ -1,0 +1,31 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#008751"/>
+
+  <!-- Open book pages left -->
+  <path d="M100 240 Q160 210 230 230 L230 340 Q160 320 100 350 Z" fill="#ffffff" opacity="0.95"/>
+  <!-- Open book pages right -->
+  <path d="M282 230 Q360 210 412 240 L412 350 Q360 320 282 340 Z" fill="#ffffff" opacity="0.95"/>
+  <!-- Book spine -->
+  <rect x="228" y="228" width="6" height="114" fill="#005c36" rx="2"/>
+
+  <!-- Book lines left page -->
+  <line x1="118" y1="262" x2="218" y2="254" stroke="#008751" stroke-width="2" opacity="0.35"/>
+  <line x1="118" y1="278" x2="218" y2="271" stroke="#008751" stroke-width="2" opacity="0.35"/>
+  <line x1="118" y1="294" x2="218" y2="288" stroke="#008751" stroke-width="2" opacity="0.35"/>
+  <line x1="118" y1="310" x2="218" y2="305" stroke="#008751" stroke-width="2" opacity="0.35"/>
+
+  <!-- Book lines right page -->
+  <line x1="244" y1="254" x2="394" y2="262" stroke="#008751" stroke-width="2" opacity="0.35"/>
+  <line x1="244" y1="271" x2="394" y2="278" stroke="#008751" stroke-width="2" opacity="0.35"/>
+  <line x1="244" y1="288" x2="394" y2="294" stroke="#008751" stroke-width="2" opacity="0.35"/>
+  <line x1="244" y1="305" x2="394" y2="310" stroke="#008751" stroke-width="2" opacity="0.35"/>
+
+  <!-- Graduation cap board -->
+  <polygon points="256,145 170,182 256,212 342,182" fill="#1F2A1F"/>
+  <!-- Cap top -->
+  <rect x="249" y="140" width="14" height="10" fill="#1F2A1F" rx="2"/>
+  <!-- Tassel string -->
+  <line x1="342" y1="182" x2="358" y2="218" stroke="#FF9F1C" stroke-width="3.5"/>
+  <circle cx="358" cy="226" r="8" fill="#FF9F1C"/>
+</svg>
