@@ -126,7 +126,7 @@ export default function PostDetail() {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-dark">{comment.author?.name || 'Scholar'}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{comment.text}</p>
-                    <p className="text-[10px] text-gray-300 mt-0.5">{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : ''}</p>
+                    <p className="text-xs text-gray-300 mt-0.5">{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : ''}</p>
                   </div>
                 </div>
               ))}

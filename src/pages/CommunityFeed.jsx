@@ -4,75 +4,30 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
+import { schoolsByCountry, featuredSchools, getSchoolsForUser } from '../data/schools'
 
 const communityData = {
     secondary: {
         name: 'Secondary School Hub', level: 'Secondary',
-        description: 'Junior and senior secondary students sharing notes, gist, assignments and exam tips.',
+        description: 'For secondary school students',
         color: 'from-[#1F2A1F] to-[#2d4a2d]', accentColor: '#008751',
         lightColor: 'bg-green-50', borderColor: 'border-green-200', textColor: 'text-[#1F2A1F]',
         icon: FiBookOpen,
-        pinned: 'Welcome to the Secondary School Hub! Share your notes, ask questions and help each other grow.',
+        pinned: 'Welcome! Share and learn with fellow students.',
         topContributors: [],
-        categories: ['All', 'Mathematics', 'English', 'Science', 'WAEC Prep', 'JAMB', 'Gist'],
     },
     university: {
         name: 'University Hub', level: 'University',
-        description: 'Undergraduates sharing notes, past questions and campus life',
+        description: 'For university students',
         color: 'from-[#FF9F1C] to-[#ffb347]', accentColor: '#FF9F1C',
         lightColor: 'bg-orange-50', borderColor: 'border-orange-200', textColor: 'text-orange-800',
         icon: FiStar,
-        pinned: 'Internship season is here! Share opportunities, tips and experiences with your fellow students.',
+        pinned: 'Welcome! Share and learn with fellow students.',
         topContributors: [],
-        categories: ['All', 'Lecture Notes', 'Past Questions', 'Campus Gist', 'Internships', 'Projects', 'Research'],
     },
 }
 
-const secondarySchools = [
-  { name: "King's College, Lagos", location: 'Lagos, Nigeria', level: 'Secondary', color: '#1F2A1F' },
-  { name: 'Alliance High School', location: 'Nairobi, Kenya', level: 'Secondary', color: '#008751' },
-  { name: "St. George's College", location: 'Nairobi, Kenya', level: 'Secondary', color: '#2d4a2d' },
-  { name: 'Loyola Jesuit College', location: 'Abuja, Nigeria', level: 'Secondary', color: '#FF9F1C' },
-  { name: 'Achimota School', location: 'Accra, Ghana', level: 'Secondary', color: '#1F2A1F' },
-  { name: 'Ghana National College', location: 'Cape Coast, Ghana', level: 'Secondary', color: '#008751' },
-  { name: "St. John's College", location: 'Johannesburg, South Africa', level: 'Secondary', color: '#2d4a2d' },
-  { name: 'Bishops Diocesan College', location: 'Cape Town, South Africa', level: 'Secondary', color: '#FF9F1C' },
-  { name: "St. Mary's School", location: 'Nairobi, Kenya', level: 'Secondary', color: '#1F2A1F' },
-  { name: 'Government Secondary School, Enugu', location: 'Enugu, Nigeria', level: 'Secondary', color: '#008751' },
-  { name: "Queen's College", location: 'Lagos, Nigeria', level: 'Secondary', color: '#2d4a2d' },
-  { name: 'Federal Government College, Ilorin', location: 'Ilorin, Nigeria', level: 'Secondary', color: '#FF9F1C' },
-  { name: "Lycée Sainte Famille", location: "Abidjan, Côte d'Ivoire", level: 'Secondary', color: '#1F2A1F' },
-  { name: 'International School of Kenya', location: 'Nairobi, Kenya', level: 'Secondary', color: '#008751' },
-  { name: 'SOS Hermann Gmeiner School', location: 'Addis Ababa, Ethiopia', level: 'Secondary', color: '#2d4a2d' },
-  { name: "St. Augustine's College", location: 'Cape Coast, Ghana', level: 'Secondary', color: '#FF9F1C' },
-  { name: 'Mpesa Foundation Academy', location: 'Nairobi, Kenya', level: 'Secondary', color: '#1F2A1F' },
-  { name: 'Hillcrest Secondary School', location: 'Nairobi, Kenya', level: 'Secondary', color: '#008751' },
-  { name: "St. Joseph's College", location: 'Durban, South Africa', level: 'Secondary', color: '#2d4a2d' },
-  { name: "St. Charles Lwanga School", location: 'Kampala, Uganda', level: 'Secondary', color: '#FF9F1C' },
-]
 
-const universities = [
-  { name: 'University of Cape Town', location: 'Cape Town, South Africa', level: 'University', color: '#1F2A1F' },
-  { name: 'University of the Witwatersrand', location: 'Johannesburg, South Africa', level: 'University', color: '#008751' },
-  { name: 'Stellenbosch University', location: 'Stellenbosch, South Africa', level: 'University', color: '#2d4a2d' },
-  { name: 'University of Ibadan', location: 'Ibadan, Nigeria', level: 'University', color: '#FF9F1C' },
-  { name: 'Obafemi Awolowo University', location: 'Ile-Ife, Nigeria', level: 'University', color: '#1F2A1F' },
-  { name: 'University of Lagos', location: 'Lagos, Nigeria', level: 'University', color: '#008751' },
-  { name: 'University of Ghana', location: 'Accra, Ghana', level: 'University', color: '#2d4a2d' },
-  { name: 'University of Nairobi', location: 'Nairobi, Kenya', level: 'University', color: '#FF9F1C' },
-  { name: 'Cairo University', location: 'Giza, Egypt', level: 'University', color: '#1F2A1F' },
-  { name: 'Makerere University', location: 'Kampala, Uganda', level: 'University', color: '#008751' },
-  { name: 'University of Dar es Salaam', location: 'Dar es Salaam, Tanzania', level: 'University', color: '#2d4a2d' },
-  { name: 'Addis Ababa University', location: 'Addis Ababa, Ethiopia', level: 'University', color: '#FF9F1C' },
-  { name: 'University of Pretoria', location: 'Pretoria, South Africa', level: 'University', color: '#1F2A1F' },
-  { name: 'Rhodes University', location: 'Makhanda, South Africa', level: 'University', color: '#008751' },
-  { name: 'Covenant University', location: 'Ota, Nigeria', level: 'University', color: '#2d4a2d' },
-  { name: 'University of Johannesburg', location: 'Johannesburg, South Africa', level: 'University', color: '#FF9F1C' },
-  { name: 'Kwame Nkrumah University of Science and Technology', location: 'Kumasi, Ghana', level: 'University', color: '#1F2A1F' },
-  { name: 'University of Khartoum', location: 'Khartoum, Sudan', level: 'University', color: '#008751' },
-  { name: 'University of Botswana', location: 'Gaborone, Botswana', level: 'University', color: '#2d4a2d' },
-  { name: "Université Cheikh Anta Diop", location: 'Dakar, Senegal', level: 'University', color: '#FF9F1C' },
-]
 
 function CommunityFeed() {
     const params = useParams() || {}
@@ -80,11 +35,7 @@ function CommunityFeed() {
     const router = useRouter()
     const community = communityData[level] || communityData.university
     const [user, setUser] = useState({})
-    const stored = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}
-    const rawLevel = stored.level || user?.level
-    const userLevel = rawLevel === 'JSS' || rawLevel === 'SSS' ? 'secondary' : (rawLevel?.toLowerCase() || '')
-    if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
-
+    const [userLoading, setUserLoading] = useState(true)
     const STORAGE_KEY = `scholarhub_joined_${level}`
     const [joined, setJoined] = useState(false)
     const [posts, setPosts] = useState([])
@@ -100,19 +51,26 @@ function CommunityFeed() {
     const [postLoading, setPostLoading] = useState(false)
     const [newPost, setNewPost] = useState({ title: '', content: '', category: '', image: null, video: null })
     const [memberCount, setMemberCount] = useState(0)
-    const [activeCategory, setActiveCategory] = useState('All')
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
-        setUser(stored)
-        if (!stored.level) {
+        if (stored.level) {
+            setUser(stored)
+            setUserLoading(false)
+        } else {
             getMe().then(res => {
                 setUser(res.data)
                 localStorage.setItem('user', JSON.stringify(res.data))
-            }).catch(() => {})
+                setUserLoading(false)
+            }).catch(() => { setUserLoading(false) })
         }
         setJoined(localStorage.getItem(STORAGE_KEY) === 'true')
     }, [level])
+
+    const rawLevel = user?.level
+    const userLevel = rawLevel === 'JSS' || rawLevel === 'SSS' ? 'secondary' : (rawLevel?.toLowerCase() || '')
+
+    const { schools: displayedSchools, country: userCountry } = getSchoolsForUser(user?.state, level)
 
     useEffect(() => {
         if (!joined) { setPosts([]); return }
@@ -120,10 +78,10 @@ function CommunityFeed() {
             setLoading(true)
             try {
                 const res = await getPosts()
-                const levelPosts = res.data.filter(p =>
-                    p.author?.level?.toLowerCase() === level.toLowerCase()
+                const schoolPosts = res.data.filter(p =>
+                    p.author?.school && p.author?.school === user.school
                 )
-                const realPosts = levelPosts.map(post => ({
+                const realPosts = schoolPosts.map(post => ({
                     id: post._id,
                     authorId: post.author?._id || '',
                     author: post.author?.name || 'Student',
@@ -143,9 +101,9 @@ function CommunityFeed() {
                     isReal: true
                 }))
                 setPosts(realPosts)
-                setMemberCount(levelPosts.length > 0 ? new Set(levelPosts.map(p => p.author?._id)).size : 0)
+                setMemberCount(schoolPosts.length > 0 ? new Set(schoolPosts.map(p => p.author?._id)).size : 0)
                 const authorMap = {}
-                levelPosts.forEach(p => {
+                schoolPosts.forEach(p => {
                     const id = p.author?._id
                     if (!id) return
                     if (!authorMap[id]) authorMap[id] = { name: p.author?.name || 'Student', coins: p.author?.coins || 0, avatar: p.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH' }
@@ -160,6 +118,12 @@ function CommunityFeed() {
         }
         fetchPosts()
     }, [level, joined])
+
+    if (userLoading) {
+        return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
+    }
+
+    if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
 
     const handleJoin = () => { localStorage.setItem(STORAGE_KEY, 'true'); setJoined(true) }
     const handleLeave = () => { localStorage.removeItem(STORAGE_KEY); setJoined(false); setPosts([]) }
@@ -213,7 +177,7 @@ function CommunityFeed() {
         try {
             await createPost({ ...newPost, community: level })
             setPostSuccess(true)
-            setNewPost({ title: '', content: '', category: community.categories[1], image: null, video: null })
+            setNewPost({ title: '', content: '', category: '', image: null, video: null })
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false) }, 2000)
         } catch (err) { setPostError(err.response?.data?.message || 'Something went wrong') }
         finally { setPostLoading(false) }
@@ -223,8 +187,6 @@ function CommunityFeed() {
         if (navigator.share) { navigator.share({ title: post.title, text: post.content, url: window.location.href }) }
         else { navigator.clipboard.writeText(window.location.href); alert('Link copied!') }
     }
-
-    const filteredPosts = posts.filter(p => activeCategory === 'All' || p.category === activeCategory)
 
     return (
         <div className="min-h-screen bg-light md:pl-56 pt-14 md:pt-0">
@@ -293,29 +255,22 @@ function CommunityFeed() {
                                 <p className={`text-sm ${community.textColor} font-medium leading-relaxed w-full`}>{community.pinned}</p>
                             </motion.div>
 
-                            <div className="flex gap-2 overflow-x-auto pb-3 mb-5 scrollbar-hide">
-                                {community.categories.map(cat => (
-                                    <button key={cat} onClick={() => setActiveCategory(cat)}
-                                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${activeCategory === cat ? 'text-white shadow-md' : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-400'}`}
-                                        style={activeCategory === cat ? { backgroundColor: community.accentColor } : {}}>
-                                        {cat}
-                                    </button>
-                                ))}
-                            </div>
-
                             <div className="mb-6">
                               <h2 className="text-lg font-extrabold text-dark mb-3">
-                                {level === 'secondary' ? '🏫 Top Secondary Schools in Africa' : '🎓 Top Universities in Africa'}
+                                {level === 'secondary' ? '🏫 Secondary Schools' : '🎓 Universities'}
                               </h2>
-                              <p className="text-xs text-gray-400 mb-4">Click on any school to see posts from students of that school.</p>
+                              <p className="text-xs text-gray-400 mb-4">
+                                {userCountry ? `Schools in ${userCountry}` : 'Featured schools from across Africa'}
+                              </p>
                               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {(level === 'secondary' ? secondarySchools : universities).map((school, i) => (
+                                {displayedSchools.map((school, i) => (
                                   <motion.div key={school.name} custom={i}
                                     whileHover={{ y: -2 }}
                                     className="bg-white rounded-xl border border-gray-100 p-3 cursor-pointer hover:shadow-md transition-all duration-300 flex items-center gap-3"
                                     onClick={() => window.open(`/school/${encodeURIComponent(school.name)}`, '_blank')}>
-                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: school.color }}>
-                                      {school.name.charAt(0)}
+                                    <div className="w-10 h-10 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 relative"
+                                      style={{ backgroundColor: school.color, clipPath: 'polygon(50% 0%, 100% 15%, 100% 70%, 50% 100%, 0% 70%, 0% 15%)' }}>
+                                      <span className="relative z-10">{school.name.charAt(0)}</span>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-sm font-semibold text-dark truncate">{school.name} <FiExternalLink size={12} className="inline text-gray-400 ml-0.5" /></p>
@@ -341,13 +296,13 @@ function CommunityFeed() {
                                             <div className="h-3 bg-gray-100 rounded w-full" />
                                         </div>
                                     ))
-                                ) : filteredPosts.length === 0 ? (
+                                ) : posts.length === 0 ? (
                                     <div className="text-center py-12 text-gray-400">
                                         <p className="text-4xl mb-3">📭</p>
                                         <p className="font-semibold mb-1">No posts yet</p>
                                         <p className="text-sm">Be the first to post something!</p>
                                     </div>
-                                ) : filteredPosts.map((post, i) => (
+                                ) : posts.map((post, i) => (
                                     <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: i * 0.05 }}
                                         className="bg-white rounded-2xl p-4 md:p-5 border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-300">
@@ -562,10 +517,6 @@ function CommunityFeed() {
                                     <p className="text-xs text-gray-400">Posting to {community.name}</p>
                                 </div>
                             </div>
-                            <select value={newPost.category} onChange={e => setNewPost({ ...newPost, category: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-3 focus:outline-none focus:border-primary transition">
-                                {community.categories.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
                             <input type="text" placeholder="Post title" value={newPost.title}
                                 onChange={e => setNewPost({ ...newPost, title: e.target.value })}
                                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-3 focus:outline-none focus:border-primary transition" />

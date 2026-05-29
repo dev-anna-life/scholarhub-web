@@ -474,7 +474,7 @@ function Signup() {
 
               {(form.level === 'University') && (
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-gray-500 mb-2">Your Course / Field of Study</label>
+                  <label className="block text-xs font-semibold text-gray-500 mb-2">Your Course / Field of Study</label>
                   <div className="max-h-36 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2">
                     {courses.map(c => (
                       <button key={c} type="button" onClick={() => setForm(prev => ({ ...prev, course: c }))}

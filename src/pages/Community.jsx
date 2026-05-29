@@ -8,19 +8,19 @@ import { getLeaderboard, getMe } from "../api/auth"
 const communities = [
     {
         id: 'secondary', name: 'Secondary School Hub', level: 'Secondary',
-        description: 'Junior and senior secondary students sharing notes, gist, assignments and exam tips.',
+        description: 'For secondary school students',
         color: 'from-[#1F2A1F] to-[#2d4a2d]', lightColor: 'bg-green-50',
         borderColor: 'border-green-200', textColor: 'text-[#1F2A1F]', accentColor: '#008751',
         icon: FiBookOpen,
-        tags: ['WAEC Prep', 'JAMB', 'Mathematics', 'English', 'Science'],
+        tags: ['Notes', 'Questions', 'Gist'],
     },
     {
         id: 'university', name: 'University Hub', level: 'University',
-        description: 'Undergraduates sharing lecture notes, past questions, campus gist and career advice.',
+        description: 'For university students',
         color: 'from-[#FF9F1C] to-[#ffb347]', lightColor: 'bg-orange-50',
         borderColor: 'border-orange-200', textColor: 'text-orange-800', accentColor: '#FF9F1C',
         icon: FiStar,
-        tags: ['Lecture Notes', 'Past Questions', 'Campus Gist', 'Internships', 'Projects'],
+        tags: ['Notes', 'Questions', 'Projects', 'Gist'],
     },
 ]
 
@@ -32,21 +32,64 @@ const fadeUp = {
 function Community() {
     const router = useRouter()
     const [user, setUser] = useState({})
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
-        setUser(stored)
-        if (!stored.level) {
+        if (stored.level) {
+            setUser(stored)
+            setLoading(false)
+        } else {
             getMe().then(res => {
                 setUser(res.data)
                 localStorage.setItem('user', JSON.stringify(res.data))
-            }).catch(() => {})
+                setLoading(false)
+            }).catch(() => {
+                setLoading(false)
+            })
         }
     }, [])
 
     const stored = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}
     const effectiveLevel = stored.level || user.level
     const userLevel = effectiveLevel === 'JSS' || effectiveLevel === 'SSS' ? 'Secondary' : effectiveLevel
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-sm text-gray-400">Loading...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (!effectiveLevel) {
+        return (
+            <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
+                <div className="sticky top-0 z-40 bg-light/95 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4">
+                    <div className="max-w-5xl mx-auto">
+                        <h1 className="text-xl md:text-2xl font-extrabold text-dark">Communities</h1>
+                        <p className="text-xs md:text-sm text-gray-400 mt-0.5">Find your people. Share your knowledge</p>
+                    </div>
+                </div>
+                <div className="max-w-5xl mx-auto px-4 py-16 text-center">
+                    <p className="text-4xl mb-3">🎓</p>
+                    <h2 className="text-xl font-bold text-dark mb-2">Set your education level</h2>
+                    <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto leading-relaxed">
+                        You need to set your education level before you can access communities. 
+                        Go to Settings to update your profile.
+                    </p>
+                    <button onClick={() => router.push('/settings')}
+                        className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition">
+                        Go to Settings
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
             <div className="sticky top-0 z-40 bg-light/95 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4">
@@ -77,41 +120,7 @@ function Community() {
                     </motion.div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                    {communities.filter(c => !userLevel || c.level === userLevel).map((c, i) => (
-                        <motion.div key={c.id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
-                            whileHover={{ y: -4 }}
-                            className={`bg-white rounded-2xl border ${c.borderColor} overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl`}
-                            onClick={() => router.push(`/community/${c.id}`)}>
-                            <div className={`bg-gradient-to-r ${c.color} p-4 md:p-5`}>
-                                <div className="flex items-center justify-between mb-3">
-                                    <c.icon size={24} className="text-white" />
-                                    <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-                                        Active
-                                    </span>
-                                </div>
-                                <h2 className="text-white font-extrabold text-lg md:text-xl mb-1">{c.name}</h2>
-                                <p className="text-white/80 text-xs md:text-sm leading-relaxed">{c.description}</p>
-                            </div>
 
-                            <div className="p-4 md:p-5">
-                                <div className="flex flex-wrap gap-1.5 mb-4">
-                                    {c.tags.slice(0, 4).map(tag => (
-                                        <span key={tag}
-                                            className={`${c.lightColor} ${c.textColor} text-xs font-medium px-2 py-0.5 rounded-full border ${c.borderColor}`}>
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                                <button
-                                    className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-white hover:opacity-90"
-                                    style={{ backgroundColor: c.accentColor }}>
-                                    Enter Community <FiArrowRight size={14} />
-                                </button>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
 
             </div>
         </div>

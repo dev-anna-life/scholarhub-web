@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiUser, FiMail, FiLock, FiPhone, FiLogOut, FiTrash2, FiCheck, FiEye, FiEyeOff, FiSettings, FiBell, FiShield, FiMoon, FiSun, FiGlobe, FiChevronRight, FiAlertTriangle, FiX, FiSave, FiEdit2, FiBookOpen } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { getMe, updateProfile, updateSchool, changePassword as changePasswordAPI } from "../api/auth"
 import { courses } from '../data/courses'
+import { getAllSchoolsForLevel } from '../data/schools'
 
 function Settings() {
   const router = useRouter()
@@ -27,6 +28,10 @@ function Settings() {
   const [showEmailForm, setShowEmailForm] = useState(false)
   const [newEmail, setNewEmail] = useState('')
   const [schoolForm, setSchoolForm] = useState({ level: '', school: '', state: '', course: '' })
+  const [schoolQuery, setSchoolQuery] = useState('')
+  const [showSchoolDropdown, setShowSchoolDropdown] = useState(false)
+  const schoolDropdownRef = useRef(null)
+  const schoolInputRef = useRef(null)
   const [saveSuccess, setSaveSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -42,7 +47,9 @@ function Settings() {
         const res = await getMe()
         setUser(res.data)
         setEditForm({ name: res.data.name || '', phone: res.data.phone || '' })
-        setSchoolForm({ level: res.data.level || '', school: res.data.school || '', state: res.data.state || '', course: res.data.course || '' })
+        const initialSchool = res.data.school || ''
+        setSchoolForm({ level: res.data.level || '', school: initialSchool, state: res.data.state || '', course: res.data.course || '' })
+        if (initialSchool) setSchoolQuery(initialSchool)
         setTwoFactor(res.data.twoFactorEnabled || false)
         localStorage.setItem('user', JSON.stringify(res.data))
       } catch (err) {
@@ -60,6 +67,16 @@ function Settings() {
     }
     localStorage.setItem('darkMode', darkMode)
   }, [darkMode])
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (schoolDropdownRef.current && !schoolDropdownRef.current.contains(e.target) && schoolInputRef.current && !schoolInputRef.current.contains(e.target)) {
+        setShowSchoolDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const showSuccess = (msg) => {
     setSaveSuccess(msg)
@@ -260,7 +277,7 @@ function Settings() {
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Full Name</label>
+                        <label className="block text-xs font-semibold text-gray-500 mb-1">Full Name</label>
                         <input
                           type="text"
                           value={editMode ? editForm.name : user.name || ''}
@@ -271,7 +288,7 @@ function Settings() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                        <label className="block text-xs font-semibold text-gray-500 mb-1">Email</label>
                         <div className="flex items-center gap-2">
                           <input
                             type="email"
@@ -292,7 +309,7 @@ function Settings() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Phone</label>
+                        <label className="block text-xs font-semibold text-gray-500 mb-1">Phone</label>
                         <input
                           type="tel"
                           value={editMode ? editForm.phone : user.phone || 'Not set'}
@@ -330,7 +347,7 @@ function Settings() {
                     ) : (
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-500 mb-1">Current Password</label>
+                          <label className="block text-xs font-semibold text-gray-500 mb-1">Current Password</label>
                           <div className="relative">
                             <input
                               type={showPasswords.current ? 'text' : 'password'}
@@ -349,7 +366,7 @@ function Settings() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-500 mb-1">New Password</label>
+                          <label className="block text-xs font-semibold text-gray-500 mb-1">New Password</label>
                           <div className="relative">
                             <input
                               type={showPasswords.new ? 'text' : 'password'}
@@ -368,7 +385,7 @@ function Settings() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-500 mb-1">Confirm New Password</label>
+                          <label className="block text-xs font-semibold text-gray-500 mb-1">Confirm New Password</label>
                           <div className="relative">
                             <input
                               type={showPasswords.confirm ? 'text' : 'password'}
@@ -413,7 +430,7 @@ function Settings() {
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Education Level</label>
+                        <label className="block text-xs font-semibold text-gray-500 mb-1">Education Level</label>
                         <select
                           value={schoolForm.level}
                           onChange={(e) => setSchoolForm(prev => ({ ...prev, level: e.target.value }))}
@@ -427,7 +444,7 @@ function Settings() {
 
                       {(schoolForm.level === 'University') && (
                         <div>
-                          <label className="block text-xs font-medium text-gray-500 mb-1">Course / Field of Study</label>
+                          <label className="block text-xs font-semibold text-gray-500 mb-1">Course / Field of Study</label>
                           <div className="max-h-40 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2">
                             {courses.map(c => (
                               <button key={c} type="button" onClick={() => setSchoolForm(prev => ({ ...prev, course: c }))}
@@ -439,19 +456,54 @@ function Settings() {
                         </div>
                       )}
 
-                      <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">School</label>
+                      <div className="relative">
+                        <label className="block text-xs font-semibold text-gray-500 mb-1">School</label>
                         <input
                           type="text"
-                          value={schoolForm.school}
-                          onChange={(e) => setSchoolForm(prev => ({ ...prev, school: e.target.value }))}
-                          placeholder="Enter your school name"
+                          ref={schoolInputRef}
+                          value={schoolQuery || schoolForm.school}
+                          onFocus={() => setShowSchoolDropdown(true)}
+                          onChange={(e) => {
+                            setSchoolQuery(e.target.value)
+                            setSchoolForm(prev => ({ ...prev, school: '' }))
+                            setShowSchoolDropdown(true)
+                          }}
+                          placeholder="Search your school..."
                           className="w-full px-3 py-2.5 rounded-xl border text-dark bg-white border-gray-200 text-sm"
                         />
+                        {showSchoolDropdown && (
+                          <div ref={schoolDropdownRef} className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm">
+                            {(() => {
+                              const level = schoolForm.level?.toLowerCase()
+                              const all = level ? getAllSchoolsForLevel(level) : []
+                              const filtered = schoolQuery
+                                ? all.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
+                                : all
+                              if (filtered.length === 0) {
+                                return <div className="p-3 text-sm text-gray-400 text-center">No schools found</div>
+                              }
+                              return filtered.map(s => (
+                                <button key={s.name} type="button"
+                                  onMouseDown={() => {
+                                    setSchoolForm(prev => ({ ...prev, school: s.name }))
+                                    setSchoolQuery(s.name)
+                                    setShowSchoolDropdown(false)
+                                  }}
+                                  className={`w-full text-left px-3 py-2 text-sm transition-all flex items-center gap-2 ${schoolForm.school === s.name ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+                                  <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                                    style={{ backgroundColor: s.color }}>
+                                    {s.name.charAt(0)}
+                                  </div>
+                                  {s.name}
+                                </button>
+                              ))
+                            })()}
+                          </div>
+                        )}
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
+                        <label className="block text-xs font-semibold text-gray-500 mb-1">State</label>
                         <input
                           type="text"
                           value={schoolForm.state}
