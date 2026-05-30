@@ -58,18 +58,13 @@ function Community() {
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
-        if (stored.level) {
-            setUser(stored)
+        if (stored.level) setUser(stored)
+        getMe().then(res => {
+            setUser(res.data)
+            localStorage.setItem('user', JSON.stringify(res.data))
+        }).catch(() => {}).finally(() => {
             setLoading(false)
-        } else {
-            getMe().then(res => {
-                setUser(res.data)
-                localStorage.setItem('user', JSON.stringify(res.data))
-                setLoading(false)
-            }).catch(() => {
-                setLoading(false)
-            })
-        }
+        })
     }, [])
 
     const stored = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}
