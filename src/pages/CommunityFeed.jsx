@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
-import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getCountryFromState, getSchoolLogo } from '../data/schools'
+import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getCountryFromState, getSchoolLogo, matchSchool } from '../data/schools'
 
 const communityData = {
     secondary: {
@@ -80,7 +80,7 @@ function CommunityFeed() {
     const filteredFeedSchools = (() => {
         let list = allFeedSchools
         if (feedUserCountry) list = list.filter(s => s.country === feedUserCountry)
-        if (schoolQuery) list = list.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
+        if (schoolQuery) list = list.filter(s => matchSchool(schoolQuery, s))
         return list.slice(0, 20)
     })()
 
@@ -375,11 +375,18 @@ function CommunityFeed() {
                                                 {post.avatar}
                                             </div>
                                             <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-1">
                                                 <p
                                                     onClick={(e) => { e.stopPropagation(); post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`) }}
                                                     className={`font-semibold text-dark text-xs md:text-sm truncate ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:text-primary transition' : ''}`}>
                                                     {post.author}
                                                 </p>
+                                                {post.school && (
+                                                    <img src={getSchoolLogo(post.school).png} alt=""
+                                                        className="w-3.5 h-3.5 object-contain rounded flex-shrink-0"
+                                                        onError={e => e.target.style.display = 'none'} />
+                                                )}
+                                                </div>
                                                 <p className="text-xs text-gray-400">{post.time}</p>
                                             </div>
                                             <div className="flex items-center gap-1.5 flex-shrink-0">

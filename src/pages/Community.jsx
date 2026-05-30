@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { FiArrowRight, FiBookOpen, FiStar, FiSearch, FiLock, FiExternalLink } from "react-icons/fi"
 import { getLeaderboard, getMe } from "../api/auth"
-import { getAllSchoolsForLevel, getCountryFromState, getSchoolLogo } from '../data/schools'
+import { getAllSchoolsForLevel, getCountryFromState, getSchoolLogo, matchSchool } from '../data/schools'
 
 const communities = [
     {
@@ -52,7 +52,7 @@ function Community() {
     const filteredSchools = (() => {
         let list = allSchools
         if (userCountry) list = list.filter(s => s.country === userCountry)
-        if (schoolQuery) list = list.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
+        if (schoolQuery) list = list.filter(s => matchSchool(schoolQuery, s))
         return list.slice(0, 30)
     })()
 

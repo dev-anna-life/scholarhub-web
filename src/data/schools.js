@@ -154,6 +154,46 @@ export function getCountryFromState(state) {
   return null
 }
 
+const schoolAliases = {
+  'unn': 'University of Nigeria Nsukka',
+  'university of nigeria': 'University of Nigeria Nsukka',
+  'unilag': 'University of Lagos',
+  'ui': 'University of Ibadan',
+  'ibadan': 'University of Ibadan',
+  'oau': 'Obafemi Awolowo University',
+  'abu': 'Ahmadu Bello University',
+  'uniben': 'University of Benin',
+  'lasu': 'Lagos State University',
+  'unizik': 'Nnamdi Azikiwe University',
+  'futo': 'Federal University of Technology Owerri',
+  'covenant': 'Covenant University',
+  'knust': 'Kwame Nkrumah University of Science and Technology',
+  'uct': 'University of Cape Town',
+  'wits': 'University of the Witwatersrand',
+  'uj': 'University of Johannesburg',
+  'rhodes': 'Rhodes University',
+  'ucc': 'University of Cape Coast',
+  'ug': 'University of Ghana',
+  'legon': 'University of Ghana',
+  'strathmore': 'Strathmore University',
+  'uon': 'University of Nairobi',
+  'mak': 'Makerere University',
+}
+
+export function matchSchool(query, school) {
+  const q = query.toLowerCase().replace(/[''-]/g, '').trim()
+  const name = school.name.toLowerCase().replace(/[''-]/g, '')
+  const location = (school.location || '').toLowerCase()
+  const country = (school.country || '').toLowerCase()
+  if (name.includes(q) || location.includes(q) || country.includes(q)) return true
+  const alias = schoolAliases[q]
+  if (alias && name.includes(alias.toLowerCase().replace(/[''-]/g, ''))) return true
+  for (const [abbr, full] of Object.entries(schoolAliases)) {
+    if (q.includes(abbr) && name.includes(full.toLowerCase().replace(/[''-]/g, ''))) return true
+  }
+  return false
+}
+
 export function getSchoolsForUser(userState, level) {
   const country = getCountryFromState(userState)
   if (country && schoolsByCountry[country] && schoolsByCountry[country][level]?.length > 0) {

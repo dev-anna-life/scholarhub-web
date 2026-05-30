@@ -7,6 +7,7 @@ import { MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
 import { getUserById, followUser, getPosts, deletePost, sendCoins } from "../api/auth"
+import { getSchoolLogo } from "../data/schools"
 
 const knownAbbreviations = {
     'university of lagos': 'UNILAG', 'obafemi awolowo university': 'OAU',
@@ -270,7 +271,12 @@ function UserProfile() {
                         </div>
 
                         <h2 className="text-xl font-extrabold text-dark mb-0.5">{profileUser.name}</h2>
-                        <p className="text-xs text-gray-400 mb-3">
+                        <p className="text-xs text-gray-400 mb-3 flex items-center gap-1.5">
+                            {profileUser.school && (
+                                <img src={getSchoolLogo(profileUser.school).png} alt=""
+                                    className="w-4 h-4 object-contain rounded"
+                                    onError={e => e.target.style.display = 'none'} />
+                            )}
                             {profileUser.school && profileUser.state
                                 ? `${profileUser.school} • ${profileUser.state}`
                                 : profileUser.school || profileUser.state || 'ScholarHub Member'}

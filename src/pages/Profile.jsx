@@ -7,6 +7,7 @@ import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
 import { useRouter } from "next/navigation"
 import { getMe, getUserPosts, deletePost } from "../api/auth"
+import { getSchoolLogo } from "../data/schools"
 
 function Profile() {
   const router = useRouter()
@@ -84,7 +85,12 @@ function Profile() {
               <div>
                 <h2 className="text-xl font-extrabold text-dark">{user.name || 'Student'}</h2>
                 <p className="text-sm text-gray-400">{user.email}</p>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5">
+                  {user.school && (
+                    <img src={getSchoolLogo(user.school).png} alt=""
+                      className="w-4 h-4 object-contain rounded"
+                      onError={e => e.target.style.display = 'none'} />
+                  )}
                   {user.school && user.state ? `${user.school} • ${user.state}` : user.school || user.state || ''}
                 </p>
               </div>
