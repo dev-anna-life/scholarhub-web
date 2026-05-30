@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
-import { schoolsByCountry, featuredSchools, getSchoolsForUser } from '../data/schools'
+import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getCountryFromState, getSchoolLogo } from '../data/schools'
 
 const communityData = {
     secondary: {
@@ -51,6 +51,10 @@ function CommunityFeed() {
     const [postLoading, setPostLoading] = useState(false)
     const [newPost, setNewPost] = useState({ title: '', content: '', category: '', image: null, video: null })
     const [memberCount, setMemberCount] = useState(0)
+    const [schoolQuery, setSchoolQuery] = useState('')
+    const [showSchoolDropdown, setShowSchoolDropdown] = useState(false)
+    const schoolSearchRef = useRef(null)
+    const schoolInputRef = useRef(null)
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
@@ -71,6 +75,24 @@ function CommunityFeed() {
     const userLevel = rawLevel === 'JSS' || rawLevel === 'SSS' ? 'secondary' : (rawLevel?.toLowerCase() || '')
 
     const { schools: displayedSchools, country: userCountry } = getSchoolsForUser(user?.state, level)
+    const feedUserCountry = user?.state ? getCountryFromState(user.state) : null
+    const allFeedSchools = getAllSchoolsForLevel('secondary').concat(getAllSchoolsForLevel('university'))
+    const filteredFeedSchools = (() => {
+        let list = allFeedSchools
+        if (feedUserCountry) list = list.filter(s => s.country === feedUserCountry)
+        if (schoolQuery) list = list.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
+        return list.slice(0, 20)
+    })()
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (schoolSearchRef.current && !schoolSearchRef.current.contains(e.target) && e.target !== schoolInputRef.current) {
+                setShowSchoolDropdown(false)
+            }
+        }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [])
 
     useEffect(() => {
         if (!joined) { setPosts([]); return }
@@ -255,6 +277,41 @@ function CommunityFeed() {
                                 <p className={`text-sm ${community.textColor} font-medium leading-relaxed w-full`}>{community.pinned}</p>
                             </motion.div>
 
+                            <div className="relative mb-4">
+                              <FiSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                              <input ref={schoolInputRef} type="text" value={schoolQuery}
+                                onFocus={() => setShowSchoolDropdown(true)}
+                                onChange={e => { setSchoolQuery(e.target.value); setShowSchoolDropdown(true) }}
+                                placeholder={`Search schools in ${feedUserCountry || 'your area'}...`}
+                                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:border-primary transition" />
+                              {showSchoolDropdown && filteredFeedSchools.length > 0 && (
+                                <div ref={schoolSearchRef} className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
+                                  {filteredFeedSchools.map(s => {
+                                    const logo = getSchoolLogo(s.name)
+                                    return (
+                                    <button key={s.name} type="button"
+                                      onMouseDown={() => { window.open(`/school/${encodeURIComponent(s.name)}`, '_blank'); setShowSchoolDropdown(false); setSchoolQuery('') }}
+                                      className="w-full text-left px-3 py-2 text-sm transition-all flex items-center gap-2 text-gray-700 hover:bg-gray-50">
+                                      <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100"
+                                        style={{ backgroundColor: s.color }}>
+                                        <img src={logo.png} alt=""
+                                          className="w-full h-full object-contain"
+                                          onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+                                        <span className="hidden w-full h-full items-center justify-center text-white text-[10px] font-bold"
+                                          style={{ backgroundColor: s.color }}>
+                                          {s.name.charAt(0)}
+                                        </span>
+                                      </div>
+                                      <span className="flex-1">{s.name}</span>
+                                      <span className="text-[10px] text-gray-400">{s.country}</span>
+                                      <FiExternalLink size={11} className="text-gray-300" />
+                                    </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
+
                             <div className="mb-6">
                               <h2 className="text-lg font-extrabold text-dark mb-3">
                                 {level === 'secondary' ? '🏫 Secondary Schools' : '🎓 Universities'}
@@ -263,14 +320,22 @@ function CommunityFeed() {
                                 {userCountry ? `Schools in ${userCountry}` : 'Featured schools from across Africa'}
                               </p>
                               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {displayedSchools.map((school, i) => (
+                                {displayedSchools.map((school, i) => {
+                                  const logo = getSchoolLogo(school.name)
+                                  return (
                                   <motion.div key={school.name} custom={i}
                                     whileHover={{ y: -2 }}
                                     className="bg-white rounded-xl border border-gray-100 p-3 cursor-pointer hover:shadow-md transition-all duration-300 flex items-center gap-3"
                                     onClick={() => window.open(`/school/${encodeURIComponent(school.name)}`, '_blank')}>
-                                    <div className="w-10 h-10 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 relative"
-                                      style={{ backgroundColor: school.color, clipPath: 'polygon(50% 0%, 100% 15%, 100% 70%, 50% 100%, 0% 70%, 0% 15%)' }}>
-                                      <span className="relative z-10">{school.name.charAt(0)}</span>
+                                    <div className="w-10 h-10 flex items-center justify-center flex-shrink-0 relative overflow-hidden rounded-lg"
+                                      style={{ backgroundColor: school.color }}>
+                                      <img src={logo.png} alt=""
+                                        className="w-full h-full object-contain p-1"
+                                        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+                                      <span className="hidden absolute inset-0 items-center justify-center text-white text-xs font-bold"
+                                        style={{ backgroundColor: school.color }}>
+                                        {school.name.charAt(0)}
+                                      </span>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="text-sm font-semibold text-dark truncate">{school.name} <FiExternalLink size={12} className="inline text-gray-400 ml-0.5" /></p>

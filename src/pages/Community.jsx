@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { FiArrowRight, FiBookOpen, FiStar, FiSearch, FiLock, FiExternalLink } from "react-icons/fi"
 import { getLeaderboard, getMe } from "../api/auth"
-import { getAllSchoolsForLevel, getCountryFromState } from '../data/schools'
+import { getAllSchoolsForLevel, getCountryFromState, getSchoolLogo } from '../data/schools'
 
 const communities = [
     {
@@ -127,19 +127,28 @@ function Community() {
                         className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:border-primary transition" />
                     {showDropdown && filteredSchools.length > 0 && (
                         <div ref={searchRef} className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
-                            {filteredSchools.map(s => (
+                            {filteredSchools.map(s => {
+                                const logo = getSchoolLogo(s.name)
+                                return (
                                 <button key={s.name} type="button"
                                     onMouseDown={() => { router.push(`/school/${encodeURIComponent(s.name)}`); setShowDropdown(false); setSchoolQuery('') }}
                                     className="w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 text-gray-700 hover:bg-gray-50">
-                                    <div className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                                    <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100"
                                         style={{ backgroundColor: s.color }}>
-                                        {s.name.charAt(0)}
+                                        <img src={logo.png} alt=""
+                                            className="w-full h-full object-contain"
+                                            onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+                                        <span className="hidden w-full h-full items-center justify-center text-white text-[10px] font-bold"
+                                            style={{ backgroundColor: s.color }}>
+                                            {s.name.charAt(0)}
+                                        </span>
                                     </div>
                                     <span className="flex-1">{s.name}</span>
                                     <span className="text-[10px] text-gray-400">{s.country}</span>
                                     <FiExternalLink size={12} className="text-gray-300" />
                                 </button>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </div>

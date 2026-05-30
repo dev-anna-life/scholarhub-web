@@ -162,6 +162,17 @@ export function getSchoolsForUser(userState, level) {
   return { schools: featuredSchools[level], country: null }
 }
 
+export function getSchoolLogo(name) {
+  const slug = name.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  const png = `/images/schools/${slug}.png`
+  const svg = `/images/schools/${slug}.svg`
+  return { png, svg, slug }
+}
+
 export function getAllSchoolsForLevel(level) {
   const all = []
   for (const [country, data] of Object.entries(schoolsByCountry)) {
