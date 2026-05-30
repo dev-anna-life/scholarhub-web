@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin } from "react-icons/fi"
+import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
 import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getCountryFromState, getSchoolLogo, matchSchool } from '../data/schools'
 
