@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { FiUsers, FiArrowRight, FiBookOpen, FiTrendingUp, FiStar, FiZap, FiAward, FiSearch } from "react-icons/fi"
+import { FiArrowRight, FiBookOpen, FiStar, FiSearch, FiLock, FiExternalLink } from "react-icons/fi"
 import { getLeaderboard, getMe } from "../api/auth"
+import { getAllSchoolsForLevel } from '../data/schools'
 
 const communities = [
     {
@@ -12,7 +13,6 @@ const communities = [
         color: 'from-[#1F2A1F] to-[#2d4a2d]', lightColor: 'bg-green-50',
         borderColor: 'border-green-200', textColor: 'text-[#1F2A1F]', accentColor: '#008751',
         icon: FiBookOpen,
-        tags: ['Notes', 'Questions', 'Gist'],
     },
     {
         id: 'university', name: 'University Hub', level: 'University',
@@ -20,7 +20,6 @@ const communities = [
         color: 'from-[#FF9F1C] to-[#ffb347]', lightColor: 'bg-orange-50',
         borderColor: 'border-orange-200', textColor: 'text-orange-800', accentColor: '#FF9F1C',
         icon: FiStar,
-        tags: ['Notes', 'Questions', 'Projects', 'Gist'],
     },
 ]
 
@@ -33,6 +32,25 @@ function Community() {
     const router = useRouter()
     const [user, setUser] = useState({})
     const [loading, setLoading] = useState(true)
+    const [schoolQuery, setSchoolQuery] = useState('')
+    const [showDropdown, setShowDropdown] = useState(false)
+    const searchRef = useRef(null)
+    const inputRef = useRef(null)
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (searchRef.current && !searchRef.current.contains(e.target) && e.target !== inputRef.current) {
+                setShowDropdown(false)
+            }
+        }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [])
+
+    const allSchools = getAllSchoolsForLevel('secondary').concat(getAllSchoolsForLevel('university'))
+    const filteredSchools = schoolQuery
+        ? allSchools.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase())).slice(0, 30)
+        : []
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
@@ -100,6 +118,33 @@ function Community() {
             </div>
 
             <div className="max-w-5xl mx-auto px-4 py-4 md:py-8">
+
+                <div className="relative mb-6">
+                    <FiSearch size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input ref={inputRef} type="text" value={schoolQuery}
+                        onFocus={() => setShowDropdown(true)}
+                        onChange={e => { setSchoolQuery(e.target.value); setShowDropdown(true) }}
+                        placeholder="Search any school..."
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:border-primary transition" />
+                    {showDropdown && filteredSchools.length > 0 && (
+                        <div ref={searchRef} className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
+                            {filteredSchools.map(s => (
+                                <button key={s.name} type="button"
+                                    onMouseDown={() => { router.push(`/school/${encodeURIComponent(s.name)}`); setShowDropdown(false); setSchoolQuery('') }}
+                                    className="w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 text-gray-700 hover:bg-gray-50">
+                                    <div className="w-5 h-5 rounded flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                                        style={{ backgroundColor: s.color }}>
+                                        {s.name.charAt(0)}
+                                    </div>
+                                    <span className="flex-1">{s.name}</span>
+                                    <span className="text-[10px] text-gray-400">{s.country}</span>
+                                    <FiExternalLink size={12} className="text-gray-300" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 {effectiveLevel && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                         className="bg-dark rounded-2xl p-4 md:p-5 mb-6 md:mb-8">
@@ -120,7 +165,47 @@ function Community() {
                     </motion.div>
                 )}
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+                    {communities.map((c, i) => {
+                        const isLocked = c.level !== userLevel
+                        return (
+                            <motion.div key={c.id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
+                                whileHover={isLocked ? {} : { y: -4 }}
+                                className={`bg-white rounded-2xl border ${c.borderColor} overflow-hidden transition-all duration-300 ${isLocked ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer group hover:shadow-xl'}`}>
+                                <div className={`bg-gradient-to-r ${c.color} p-4 md:p-5 ${isLocked ? 'opacity-60' : ''}`}>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <c.icon size={24} className="text-white" />
+                                        {isLocked ? (
+                                            <span className="bg-black/30 text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                                                <FiLock size={11} /> Locked
+                                            </span>
+                                        ) : (
+                                            <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                                                Active
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h2 className="text-white font-extrabold text-lg md:text-xl mb-1">{c.name}</h2>
+                                    <p className="text-white/80 text-xs md:text-sm leading-relaxed">{c.description}</p>
+                                </div>
 
+                                <div className="p-4 md:p-5">
+                                    {isLocked ? (
+                                        <div className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-gray-100 text-gray-400">
+                                            <FiLock size={14} /> Not available for {userLevel}
+                                        </div>
+                                    ) : (
+                                        <button onClick={() => router.push(`/community/${c.id}`)}
+                                            className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-white hover:opacity-90"
+                                            style={{ backgroundColor: c.accentColor }}>
+                                            Enter Community <FiArrowRight size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )
+                    })}
+                </div>
 
             </div>
         </div>
