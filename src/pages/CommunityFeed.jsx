@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
-import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getCountryFromState, getSchoolLogo, matchSchool } from '../data/schools'
+import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
 
 const communityData = {
     secondary: {
@@ -75,11 +75,9 @@ function CommunityFeed() {
     const userLevel = rawLevel === 'JSS' || rawLevel === 'SSS' ? 'secondary' : (rawLevel?.toLowerCase() || '')
 
     const { schools: displayedSchools, country: userCountry } = getSchoolsForUser(user?.state, level)
-    const feedUserCountry = user?.state ? getCountryFromState(user.state) : null
     const allFeedSchools = getAllSchoolsForLevel('secondary').concat(getAllSchoolsForLevel('university'))
     const filteredFeedSchools = (() => {
         let list = allFeedSchools
-        if (feedUserCountry) list = list.filter(s => s.country === feedUserCountry)
         if (schoolQuery) list = list.filter(s => matchSchool(schoolQuery, s))
         return list.slice(0, 20)
     })()
@@ -282,7 +280,7 @@ function CommunityFeed() {
                               <input ref={schoolInputRef} type="text" value={schoolQuery}
                                 onFocus={() => setShowSchoolDropdown(true)}
                                 onChange={e => { setSchoolQuery(e.target.value); setShowSchoolDropdown(true) }}
-                                placeholder={`Search schools in ${feedUserCountry || 'your area'}...`}
+                                placeholder='Search any school...'
                                 className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:border-primary transition" />
                               {showSchoolDropdown && filteredFeedSchools.length > 0 && (
                                 <div ref={schoolSearchRef} className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
