@@ -285,22 +285,22 @@ function CommunityFeed() {
                                 placeholder={`Search schools in ${feedUserCountry || 'your area'}...`}
                                 className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:border-primary transition" />
                               {showSchoolDropdown && filteredFeedSchools.length > 0 && (
-                                <div ref={schoolSearchRef} className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
+                                <div ref={schoolSearchRef} className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
                                   {filteredFeedSchools.map(s => (
                                     <button key={s.name} type="button"
                                       onMouseDown={() => { window.open(`/school/${encodeURIComponent(s.name)}`, '_blank'); setShowSchoolDropdown(false); setSchoolQuery('') }}
-                                      className="w-full text-left px-3 py-2 text-sm transition-all flex items-center gap-2 text-gray-700 hover:bg-gray-50">
-                                      <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100"
+                                      className="w-full text-left px-4 py-3 text-sm transition-all flex items-center gap-3 text-gray-700 hover:bg-gray-50">
+                                      <div className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100"
                                         style={{ backgroundColor: s.color }}>
                                         <img src={getSchoolLogo(s.name).png} alt=""
-                                          className="w-full h-full object-contain"
+                                          className="w-full h-full object-contain p-0.5"
                                           onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
-                                        <span className="hidden w-full h-full items-center justify-center text-white text-[10px] font-bold"
+                                        <span className="hidden w-full h-full items-center justify-center text-white text-xs font-bold"
                                           style={{ backgroundColor: s.color }}>
                                           {s.name.charAt(0)}
                                         </span>
                                       </div>
-                                      <span className="flex-1">{s.name}</span>
+                                      <span className="flex-1 font-medium">{s.name}</span>
                                       <span className="text-[10px] text-gray-400">{s.country}</span>
                                       <FiExternalLink size={11} className="text-gray-300" />
                                     </button>
