@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { FiArrowRight, FiBookOpen, FiStar, FiSearch, FiLock, FiExternalLink } from "react-icons/fi"
 import { getLeaderboard, getMe } from "../api/auth"
-import { getAllSchoolsForLevel } from '../data/schools'
+import { getAllSchoolsForLevel, getCountryFromState } from '../data/schools'
 
 const communities = [
     {
@@ -47,10 +47,14 @@ function Community() {
         return () => document.removeEventListener('mousedown', handler)
     }, [])
 
+    const userCountry = user?.state ? getCountryFromState(user.state) : null
     const allSchools = getAllSchoolsForLevel('secondary').concat(getAllSchoolsForLevel('university'))
-    const filteredSchools = schoolQuery
-        ? allSchools.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase())).slice(0, 30)
-        : []
+    const filteredSchools = (() => {
+        let list = allSchools
+        if (userCountry) list = list.filter(s => s.country === userCountry)
+        if (schoolQuery) list = list.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
+        return list.slice(0, 30)
+    })()
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
@@ -124,7 +128,7 @@ function Community() {
                     <input ref={inputRef} type="text" value={schoolQuery}
                         onFocus={() => setShowDropdown(true)}
                         onChange={e => { setSchoolQuery(e.target.value); setShowDropdown(true) }}
-                        placeholder="Search any school..."
+                        placeholder={`Search schools in ${userCountry || 'your area'}...`}
                         className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:border-primary transition" />
                     {showDropdown && filteredSchools.length > 0 && (
                         <div ref={searchRef} className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
