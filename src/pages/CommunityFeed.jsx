@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch } from "react-icons/fi"
-import { createPost, getPosts, likePost, getComments, addComment, getMe } from "../api/auth"
+import { createPost, getPosts, likePost, getComments, addComment, getMe, getMyCommunities, getCommunityFeed } from "../api/auth"
 import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
 
 const communityData = {
@@ -55,6 +55,11 @@ function CommunityFeed() {
     const [showSchoolDropdown, setShowSchoolDropdown] = useState(false)
     const schoolSearchRef = useRef(null)
     const schoolInputRef = useRef(null)
+    const imageInputRef = useRef(null)
+    const videoInputRef = useRef(null)
+    const [imageUploading, setImageUploading] = useState(false)
+    const [myCommunities, setMyCommunities] = useState([])
+    const [selectedVisibility, setSelectedVisibility] = useState({ department: true, faculty: false, school: false, general: false })
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
@@ -93,15 +98,43 @@ function CommunityFeed() {
     }, [])
 
     useEffect(() => {
+        if (joined && user.school && user.faculty && user.department) {
+            getMyCommunities().then(res => setMyCommunities(res.data.communities || [])).catch(() => {})
+        } else {
+            setMyCommunities([])
+        }
+    }, [joined, user])
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        setImageUploading(true)
+        const reader = new FileReader()
+        reader.onloadend = () => { setNewPost(prev => ({ ...prev, image: reader.result })); setImageUploading(false) }
+        reader.readAsDataURL(file)
+    }
+
+    const handleVideoChange = (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        setImageUploading(true)
+        const reader = new FileReader()
+        reader.onloadend = () => { setNewPost(prev => ({ ...prev, video: reader.result })); setImageUploading(false) }
+        reader.readAsDataURL(file)
+    }
+
+    const handleImagePick = () => imageInputRef.current?.click()
+    const handleVideoPick = () => videoInputRef.current?.click()
+
+    useEffect(() => {
         if (!joined) { setPosts([]); return }
         const fetchPosts = async () => {
             setLoading(true)
             try {
-                const res = await getPosts()
-                const schoolPosts = res.data.filter(p =>
-                    p.author?.school && p.author?.school === user.school
-                )
-                const realPosts = schoolPosts.map(post => ({
+                const res = await getCommunityFeed()
+                const cascadeData = res.data || []
+                const allPosts = cascadeData.flatMap(section => section.posts || [])
+                const realPosts = allPosts.map(post => ({
                     id: post._id,
                     authorId: post.author?._id || '',
                     author: post.author?.name || 'Student',
@@ -113,17 +146,19 @@ function CommunityFeed() {
                     image: post.image,
                     video: post.video,
                     likes: post.likes?.length || 0,
-                    liked: post.likes?.includes(user.id) || false,
+                    liked: post.liked || false,
                     commentCount: post.commentsData?.length || 0,
                     time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
                     trending: post.trending || false,
                     saved: false,
-                    isReal: true
+                    isReal: true,
+                    visibility: post.communities ? 'multi' : post.author?.department || '',
                 }))
                 setPosts(realPosts)
-                setMemberCount(schoolPosts.length > 0 ? new Set(schoolPosts.map(p => p.author?._id)).size : 0)
+                const authorSet = new Set(realPosts.filter(p => p.authorId).map(p => p.authorId))
+                setMemberCount(authorSet.size)
                 const authorMap = {}
-                schoolPosts.forEach(p => {
+                allPosts.forEach(p => {
                     const id = p.author?._id
                     if (!id) return
                     if (!authorMap[id]) authorMap[id] = { name: p.author?.name || 'Student', coins: p.author?.coins || 0, avatar: p.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH' }
@@ -195,7 +230,10 @@ function CommunityFeed() {
         }
         setPostLoading(true); setPostError('')
         try {
-            await createPost({ ...newPost, community: level })
+            const visibilities = Object.entries(selectedVisibility).filter(([, v]) => v).map(([k]) => k)
+            const selectedComs = myCommunities.filter(c => visibilities.includes(c.type))
+            const communityIds = selectedComs.map(c => c._id)
+            await createPost({ ...newPost, communityIds })
             setPostSuccess(true)
             setNewPost({ title: '', content: '', category: '', image: null, video: null })
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false) }, 2000)
@@ -604,6 +642,20 @@ function CommunityFeed() {
                                     </p>
                                 )
                             })()}
+                            <div className="flex flex-wrap gap-2 mb-3 p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                                <span className="text-xs font-semibold text-gray-500 w-full mb-1">Post to:</span>
+                                {[
+                                    { key: 'department', label: 'My Department' },
+                                    { key: 'faculty', label: 'My Faculty' },
+                                    { key: 'school', label: 'My School' },
+                                    { key: 'general', label: 'General University Hub' },
+                                ].filter(opt => myCommunities.some(c => c.type === opt.key)).map(opt => (
+                                    <button key={opt.key} type="button" onClick={() => setSelectedVisibility(prev => ({ ...prev, [opt.key]: !prev[opt.key] }))}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedVisibility[opt.key] ? 'bg-primary text-white' : 'bg-white text-gray-500 border border-gray-200 hover:border-primary'}`}>
+                                        {opt.key === 'department' ? '✓ ' : ''}{opt.label}
+                                    </button>
+                                ))}
+                            </div>
                             <div className="flex gap-2 mb-3">
                                 <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                                 <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />

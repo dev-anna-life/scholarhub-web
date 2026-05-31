@@ -182,7 +182,7 @@ function SchoolFeed() {
         if (!newPost.title.trim() || !newPost.content.trim()) { setPostError('Title and content are required'); return }
         setPostLoading(true); setPostError('')
         try {
-            await createPost({ ...newPost, community: 'school' })
+            await createPost({ ...newPost })
             setPostSuccess(true)
             setNewPost({ title: '', content: '' })
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false) }, 2000)
