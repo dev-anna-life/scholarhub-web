@@ -52,3 +52,11 @@ export const giftShopItem = (itemId, recipientUsername) => API.post('/shop/gift'
 export const sendCoins = (recipientUsername, amount) => API.post('/shop/send-coins', { recipientUsername, amount })
 export const redeemAirtime = (itemId, network, phone) => API.post('/shop/redeem-airtime', { itemId, phone, network })
 export const redeemData = (itemId, network, phone) => API.post('/shop/redeem-data', { itemId, phone, network })
+
+export const getCommunities = (params) => API.get('/communities', { params })
+export const createCommunity = (data) => API.post('/communities', data)
+export const joinCommunity = (communityId, action) => API.post('/communities/join', { communityId, action })
+export const getMyCommunities = () => API.get('/communities/my')
+export const getCommunityFeed = () => API.get('/communities/feed')
+export const requestSchool = (data) => API.post('/school-requests', data)
+export const getSchoolRequests = (status) => API.get('/school-requests', { params: { status } })

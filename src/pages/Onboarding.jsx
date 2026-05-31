@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { updateSchool, getMe } from "../api/auth"
+import { updateSchool, getMe, requestSchool } from "../api/auth"
 import { courses } from '../data/courses'
+import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
 import { FiBookOpen, FiCheck, FiArrowRight, FiSearch } from "react-icons/fi"
 import { getAllSchoolsForLevel } from '../data/schools'
 
@@ -19,14 +20,26 @@ export default function Onboarding() {
   const [level, setLevel] = useState('')
   const [course, setCourse] = useState('')
   const [school, setSchool] = useState('')
+  const [faculty, setFaculty] = useState('')
+  const [department, setDepartment] = useState('')
   const [state, setState] = useState('')
   const [schoolQuery, setSchoolQuery] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
+  const [facultyQuery, setFacultyQuery] = useState('')
+  const [showFacultyDropdown, setShowFacultyDropdown] = useState(false)
+  const [deptQuery, setDeptQuery] = useState('')
+  const [showDeptDropdown, setShowDeptDropdown] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [userData, setUserData] = useState(null)
+  const [showRequestSchool, setShowRequestSchool] = useState(false)
+  const [requestName, setRequestName] = useState('')
+  const [requestLocation, setRequestLocation] = useState('')
+  const [requestSent, setRequestSent] = useState(false)
   const dropdownRef = useRef(null)
   const inputRef = useRef(null)
+  const facultyRef = useRef(null)
+  const deptRef = useRef(null)
 
   useEffect(() => {
     getMe().then(res => setUserData(res.data)).catch(() => router.push('/login'))
@@ -37,28 +50,68 @@ export default function Onboarding() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target) && e.target !== inputRef.current) {
         setShowDropdown(false)
       }
+      if (facultyRef.current && !facultyRef.current.contains(e.target) && e.target !== facultyRef.current) {
+        setShowFacultyDropdown(false)
+      }
+      if (deptRef.current && !deptRef.current.contains(e.target) && e.target !== deptRef.current) {
+        setShowDeptDropdown(false)
+      }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  useEffect(() => {
+    if (course) {
+      const sugDept = getSuggestedDepartment(course)
+      const sugFac = getSuggestedFaculty(course)
+      if (sugDept && !department) setDepartment(sugDept)
+      if (sugFac && !faculty) setFaculty(sugFac)
+    }
+  }, [course])
 
   const allSchools = level ? getAllSchoolsForLevel(level.toLowerCase()) : []
   const filteredSchools = schoolQuery
     ? allSchools.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
     : allSchools
 
-  const canSubmit = level && (level !== 'University' || course) && school
+  const filteredFaculties = facultyQuery
+    ? faculties.filter(f => f.toLowerCase().includes(facultyQuery.toLowerCase()))
+    : faculties
+
+  const availableDepts = faculty ? (faculties.includes(faculty) ? departmentsByFaculty[faculty] || [] : []) : []
+  const filteredDepts = deptQuery
+    ? availableDepts.filter(d => d.toLowerCase().includes(deptQuery.toLowerCase()))
+    : availableDepts
+
+  const universityComplete = level === 'University' && school && faculty && department
+  const secondaryComplete = level === 'Secondary' && school && state
+  const canSubmit = level && (level !== 'University' || universityComplete) && (level !== 'Secondary' || secondaryComplete)
 
   const handleSubmit = async () => {
     if (!canSubmit || loading) return
     setLoading(true)
     setError('')
     try {
-      const res = await updateSchool({ level, school, course, state })
+      const res = await updateSchool({ level, school, course, state, faculty, department })
       localStorage.setItem('user', JSON.stringify(res.data.user))
       router.push('/feed')
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRequestSchool = async () => {
+    if (!requestName.trim()) return
+    setLoading(true)
+    try {
+      await requestSchool({ name: requestName, location: requestLocation, level })
+      setRequestSent(true)
+      setShowRequestSchool(false)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to submit request')
     } finally {
       setLoading(false)
     }
@@ -84,7 +137,7 @@ export default function Onboarding() {
             <AnimatePresence mode="wait">
               {!level ? (
                 <motion.div key="level" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                  <label className="block text-sm font-medium text-gray-600 mb-3">I am a...</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-3">I am a...</label>
                   <div className="grid grid-cols-2 gap-3">
                     {levels.map(l => (
                       <button key={l} onClick={() => setLevel(l)}
@@ -100,65 +153,169 @@ export default function Onboarding() {
               ) : (
                 <motion.div key="details" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                   {level === 'University' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-2">Course / Field of Study</label>
-                      <div className="max-h-36 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2 mb-4">
-                        {courses.map(c => (
-                          <button key={c} type="button" onClick={() => setCourse(c)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${course === c ? 'bg-[#008751] text-white' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-[#008751]'}`}>
-                            {c}
-                          </button>
-                        ))}
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">Course / Field of Study</label>
+                        <div className="max-h-36 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2 mb-4">
+                          {courses.map(c => (
+                            <button key={c} type="button" onClick={() => setCourse(c)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${course === c ? 'bg-[#008751] text-white' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-[#008751]'}`}>
+                              {c}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+
+                      <div className="mb-3 relative">
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">School</label>
+                        <div className="relative">
+                          <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input ref={inputRef} type="text" value={schoolQuery}
+                            onFocus={() => setShowDropdown(true)}
+                            onChange={e => { setSchoolQuery(e.target.value); setSchool(''); setShowDropdown(true) }}
+                            placeholder="Search university..."
+                            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
+                          {school && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
+                        </div>
+                        {showDropdown && (
+                          <div ref={dropdownRef} className="mt-2 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                            {filteredSchools.length === 0 ? (
+                              <div className="p-3 text-sm text-gray-400 text-center">
+                                <p>School not found?</p>
+                                <button onClick={() => { setShowDropdown(false); setShowRequestSchool(true) }}
+                                  className="text-[#008751] font-medium text-xs mt-1 underline">Request to add it</button>
+                              </div>
+                            ) : filteredSchools.map(s => (
+                              <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
+                                className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+                                <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                                  style={{ backgroundColor: s.color }}>
+                                  {s.name.charAt(0)}
+                                </div>
+                                {s.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mb-3 relative">
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">Faculty</label>
+                        <FiSearch size={16} className="absolute left-3 top-[38px] text-gray-400 z-10" />
+                        <input ref={facultyRef} type="text" value={facultyQuery}
+                          onFocus={() => setShowFacultyDropdown(true)}
+                          onChange={e => { setFacultyQuery(e.target.value); setFaculty(''); setDepartment(''); setShowFacultyDropdown(true) }}
+                          placeholder={course ? `Suggested: ${getSuggestedFaculty(course) || 'Search faculty...'}` : 'Search faculty...'}
+                          className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
+                        {faculty && <FiCheck size={16} className="absolute right-3 top-[30px] text-green-500" />}
+                        {showFacultyDropdown && (
+                          <div ref={facultyRef} className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                            {filteredFaculties.map(f => (
+                              <button key={f} onClick={() => { setFaculty(f); setFacultyQuery(f); setShowFacultyDropdown(false); setDepartment('') }}
+                                className={`w-full text-left px-3 py-2 text-sm ${faculty === f ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+                                {f}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mb-3 relative">
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">Department</label>
+                        <FiSearch size={16} className="absolute left-3 top-[38px] text-gray-400 z-10" />
+                        <input ref={deptRef} type="text" value={deptQuery}
+                          onFocus={() => setShowDeptDropdown(true)}
+                          onChange={e => { setDeptQuery(e.target.value); setDepartment(''); setShowDeptDropdown(true) }}
+                          placeholder={course ? `Suggested: ${getSuggestedDepartment(course) || 'Select department...'}` : 'Select department...'}
+                          className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white"
+                          disabled={!faculty} />
+                        {department && <FiCheck size={16} className="absolute right-3 top-[30px] text-green-500" />}
+                        {showDeptDropdown && faculty && (
+                          <div ref={deptRef} className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                            {filteredDepts.length === 0 ? (
+                              <div className="p-3 text-sm text-gray-400 text-center">{deptQuery ? 'No matching departments' : 'Select a faculty first'}</div>
+                            ) : filteredDepts.map(d => (
+                              <button key={d} onClick={() => { setDepartment(d); setDeptQuery(d); setShowDeptDropdown(false) }}
+                                className={`w-full text-left px-3 py-2 text-sm ${department === d ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+                                {d}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
                   )}
 
-                  <div className="mb-4 relative">
-                    <label className="block text-sm font-medium text-gray-600 mb-2">School</label>
-                    <div className="relative">
-                      <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input ref={inputRef} type="text" value={schoolQuery}
-                        onFocus={() => setShowDropdown(true)}
-                        onChange={e => { setSchoolQuery(e.target.value); setSchool(''); setShowDropdown(true) }}
-                        placeholder={`Search ${level} schools...`}
-                        className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
-                      {school && (
-                        <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />
-                      )}
-                    </div>
-                    {showDropdown && (
-                      <div ref={dropdownRef} className="mt-2 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
-                        {filteredSchools.length === 0 ? (
-                          <div className="p-3 text-sm text-gray-400 text-center">No schools found</div>
-                        ) : filteredSchools.map(s => (
-                          <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
-                            className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
-                            <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                              style={{ backgroundColor: s.color }}>
-                              {s.name.charAt(0)}
-                            </div>
-                            {s.name}
-                          </button>
-                        ))}
+                  {level === 'Secondary' && (
+                    <>
+                      <div className="mb-3 relative">
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">School</label>
+                        <div className="relative">
+                          <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input ref={inputRef} type="text" value={schoolQuery}
+                            onFocus={() => setShowDropdown(true)}
+                            onChange={e => { setSchoolQuery(e.target.value); setSchool(''); setShowDropdown(true) }}
+                            placeholder="Search secondary school..."
+                            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
+                          {school && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
+                        </div>
+                        {showDropdown && (
+                          <div ref={dropdownRef} className="mt-2 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                            {filteredSchools.length === 0 ? (
+                              <div className="p-3 text-sm text-gray-400 text-center">
+                                <p>School not found?</p>
+                                <button onClick={() => { setShowDropdown(false); setShowRequestSchool(true) }}
+                                  className="text-[#008751] font-medium text-xs mt-1 underline">Request to add it</button>
+                              </div>
+                            ) : filteredSchools.map(s => (
+                              <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
+                                className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+                                <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                                  style={{ backgroundColor: s.color }}>
+                                  {s.name.charAt(0)}
+                                </div>
+                                {s.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-600 mb-2">State / Region</label>
-                    <input type="text" value={state} onChange={e => setState(e.target.value)}
-                      placeholder="Enter your state or region"
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
-                  </div>
+                      <div className="mb-3">
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">State / Region</label>
+                        <input type="text" value={state} onChange={e => setState(e.target.value)}
+                          placeholder="Enter your state or region"
+                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
+                      </div>
+                    </>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {showRequestSchool && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="border border-gray-200 rounded-xl p-4 space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700">Request a New School</h3>
+                <input type="text" value={requestName} onChange={e => setRequestName(e.target.value)}
+                  placeholder="School name" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white" />
+                <input type="text" value={requestLocation} onChange={e => setRequestLocation(e.target.value)}
+                  placeholder="Location (optional)" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white" />
+                <div className="flex gap-2">
+                  <button onClick={() => { setShowRequestSchool(false); setRequestName(''); setRequestLocation('') }}
+                    className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-600">Cancel</button>
+                  <button onClick={handleRequestSchool} disabled={loading || !requestName.trim()}
+                    className="px-4 py-2 rounded-xl bg-[#008751] text-white text-xs font-medium disabled:opacity-50">Submit Request</button>
+                </div>
+                {requestSent && <p className="text-green-600 text-xs">Request submitted! We'll review it shortly.</p>}
+              </motion.div>
+            )}
 
             {error && <p className="text-red-500 text-xs text-center">{error}</p>}
 
             <div className="flex gap-3">
               {level && (
-                <button onClick={() => { setLevel(''); setCourse(''); setSchool(''); setSchoolQuery('') }}
+                <button onClick={() => { setLevel(''); setCourse(''); setSchool(''); setSchoolQuery(''); setFaculty(''); setDepartment('') }}
                   className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all">
                   Back
                 </button>

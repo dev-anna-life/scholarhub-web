@@ -27,7 +27,7 @@ function Settings() {
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false })
   const [showEmailForm, setShowEmailForm] = useState(false)
   const [newEmail, setNewEmail] = useState('')
-  const [schoolForm, setSchoolForm] = useState({ level: '', school: '', state: '', course: '' })
+  const [schoolForm, setSchoolForm] = useState({ level: '', school: '', state: '', course: '', faculty: '', department: '' })
   const [schoolQuery, setSchoolQuery] = useState('')
   const [showSchoolDropdown, setShowSchoolDropdown] = useState(false)
   const schoolDropdownRef = useRef(null)
@@ -48,7 +48,7 @@ function Settings() {
         setUser(res.data)
         setEditForm({ name: res.data.name || '', phone: res.data.phone || '' })
         const initialSchool = res.data.school || ''
-        setSchoolForm({ level: res.data.level || '', school: initialSchool, state: res.data.state || '', course: res.data.course || '' })
+        setSchoolForm({ level: res.data.level || '', school: initialSchool, state: res.data.state || '', course: res.data.course || '', faculty: res.data.faculty || '', department: res.data.department || '' })
         if (initialSchool) setSchoolQuery(initialSchool)
         setTwoFactor(res.data.twoFactorEnabled || false)
         localStorage.setItem('user', JSON.stringify(res.data))
@@ -443,17 +443,33 @@ function Settings() {
                       </div>
 
                       {(schoolForm.level === 'University') && (
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-500 mb-1">Course / Field of Study</label>
-                          <div className="max-h-40 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2">
-                            {courses.map(c => (
-                              <button key={c} type="button" onClick={() => setSchoolForm(prev => ({ ...prev, course: c }))}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${schoolForm.course === c ? 'bg-primary text-white' : 'bg-gray-50 text-dark border border-gray-200 hover:border-primary'}`}>
-                                {c}
-                              </button>
-                            ))}
+                        <>
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 mb-1">Course / Field of Study</label>
+                            <div className="max-h-40 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2">
+                              {courses.map(c => (
+                                <button key={c} type="button" onClick={() => setSchoolForm(prev => ({ ...prev, course: c }))}
+                                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${schoolForm.course === c ? 'bg-primary text-white' : 'bg-gray-50 text-dark border border-gray-200 hover:border-primary'}`}>
+                                  {c}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 mb-1">Faculty</label>
+                            <input type="text" value={schoolForm.faculty || ''}
+                              onChange={e => setSchoolForm(prev => ({ ...prev, faculty: e.target.value }))}
+                              placeholder="Enter your faculty"
+                              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white text-dark" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 mb-1">Department</label>
+                            <input type="text" value={schoolForm.department || ''}
+                              onChange={e => setSchoolForm(prev => ({ ...prev, department: e.target.value }))}
+                              placeholder="Enter your department"
+                              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white text-dark" />
+                          </div>
+                        </>
                       )}
 
                       <div className="relative">
