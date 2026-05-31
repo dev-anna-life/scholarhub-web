@@ -163,9 +163,9 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
         )}
       </div>
       <AnimatePresence>
-        {showDropdown && suggestions.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
-            className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                {showDropdown && suggestions.length > 0 && (
+                  <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                    className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
             {suggestions.map((school, i) => (
               <button key={i} type="button" onClick={() => handleSelect(school)} onMouseEnter={() => setActiveIndex(i)}
                 className={`w-full text-left px-3 py-2.5 text-sm transition-colors flex items-center gap-2 ${activeIndex === i ? 'bg-primary/10 text-primary' : 'text-dark hover:bg-primary/5'}`}>

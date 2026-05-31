@@ -502,7 +502,7 @@ function Settings() {
                           className="w-full px-3 py-2.5 rounded-xl border text-dark bg-white border-gray-200 text-sm"
                         />
                         {showSchoolDropdown && (
-                          <div ref={schoolDropdownRef} className="absolute z-20 mt-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm">
+                          <div ref={schoolDropdownRef} className="absolute z-20 bottom-full mb-1 w-full max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm">
                             {(() => {
                               const level = schoolForm.level?.toLowerCase()
                               const all = level ? getAllSchoolsForLevel(level) : []

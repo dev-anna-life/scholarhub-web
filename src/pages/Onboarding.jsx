@@ -217,7 +217,7 @@ export default function Onboarding() {
                           {state && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
                         </div>
                         {showStateDropdown && (
-                          <div className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                          <div className="absolute bottom-full mb-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 w-full">
                             {(state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).length === 0 ? (
                               <div className="p-3 text-sm text-gray-400 text-center">Type your state or region</div>
                             ) : (state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).map((s, i) => (
@@ -238,9 +238,8 @@ export default function Onboarding() {
                             placeholder={country ? `Search ${country} universities...` : 'Search university...'}
                             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
                           {school && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
-                        </div>
-                        {showDropdown && (
-                          <div ref={dropdownRef} className="mt-2 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                          {showDropdown && (
+                            <div ref={dropdownRef} className="absolute bottom-full mb-1 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 w-full">
                             {schoolLoading ? (
                               <div className="p-3 text-sm text-gray-400 text-center">Searching...</div>
                             ) : schoolSuggestions.length === 0 ? (
@@ -261,6 +260,7 @@ export default function Onboarding() {
                             ))}
                           </div>
                         )}
+                        </div>
                       </div>
 
                       <div className="mb-3 relative">
@@ -273,7 +273,7 @@ export default function Onboarding() {
                           className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
                         {faculty && <FiCheck size={16} className="absolute right-3 top-[30px] text-green-500" />}
                         {showFacultyDropdown && (
-                          <div ref={facultyRef} className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                          <div ref={facultyRef} className="bottom-full mb-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
                             {filteredFaculties.map(f => (
                               <button key={f} onClick={() => { setFaculty(f); setFacultyQuery(f); setShowFacultyDropdown(false); setDepartment('') }}
                                 className={`w-full text-left px-3 py-2 text-sm ${faculty === f ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
@@ -295,7 +295,7 @@ export default function Onboarding() {
                           disabled={!faculty} />
                         {department && <FiCheck size={16} className="absolute right-3 top-[30px] text-green-500" />}
                         {showDeptDropdown && faculty && (
-                          <div ref={deptRef} className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                          <div ref={deptRef} className="bottom-full mb-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
                             {filteredDepts.length === 0 ? (
                               <div className="p-3 text-sm text-gray-400 text-center">{deptQuery ? 'No matching departments' : 'Select a faculty first'}</div>
                             ) : filteredDepts.map(d => (
@@ -324,7 +324,7 @@ export default function Onboarding() {
                           {state && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
                         </div>
                         {showStateDropdown && (
-                          <div className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                          <div className="absolute bottom-full mb-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 w-full">
                             {(state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).length === 0 ? (
                               <div className="p-3 text-sm text-gray-400 text-center">Type your state or region</div>
                             ) : (state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).map((s, i) => (
@@ -345,9 +345,8 @@ export default function Onboarding() {
                             placeholder={country ? `Search ${country} secondary schools...` : 'Search secondary school...'}
                             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
                           {school && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
-                        </div>
-                        {showDropdown && (
-                          <div ref={dropdownRef} className="mt-2 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                          {showDropdown && (
+                            <div ref={dropdownRef} className="absolute bottom-full mb-1 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 w-full">
                             {schoolLoading ? (
                               <div className="p-3 text-sm text-gray-400 text-center">Searching...</div>
                             ) : schoolSuggestions.length === 0 ? (
@@ -368,6 +367,7 @@ export default function Onboarding() {
                             ))}
                           </div>
                         )}
+                        </div>
                       </div>
 
                       <div className="mb-3">
