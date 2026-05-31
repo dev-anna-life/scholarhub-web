@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiEye, FiEyeOff, FiSearch, FiX, FiCheck } from "react-icons/fi";
 import Link from "next/link"
 import { useRouter } from "next/navigation";
-import { signupUser, updateSchool, searchSchools } from "../api/auth"
+import { signupUser, updateSchool, searchSchools, requestSchool } from "../api/auth"
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuth } from "../api/auth";
 import { courses } from '../data/courses'
@@ -91,6 +91,11 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
   const [selected, setSelected] = useState(!!value)
   const [activeIndex, setActiveIndex] = useState(-1)
   const [loading, setLoading] = useState(false)
+  const [showRequestForm, setShowRequestForm] = useState(false)
+  const [requestName, setRequestName] = useState('')
+  const [requestLocation, setRequestLocation] = useState('')
+  const [requestSent, setRequestSent] = useState(false)
+  const [requestLoading, setRequestLoading] = useState(false)
   const wrapperRef = useRef(null)
   const inputRef = useRef(null)
   const timerRef = useRef(null)
@@ -99,6 +104,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
     const handler = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setShowDropdown(false)
+        setShowRequestForm(false)
       }
     }
     document.addEventListener('mousedown', handler)
@@ -147,26 +153,42 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
     onChange(school)
   }
 
+  const handleRequestSchool = async () => {
+    if (!requestName.trim()) return
+    setRequestLoading(true)
+    try {
+      await requestSchool({ name: requestName, location: requestLocation, level: currentLevel?.toLowerCase() })
+      setRequestSent(true)
+      setShowRequestForm(false)
+    } catch (err) {
+      console.error('Request failed', err)
+    } finally {
+      setRequestLoading(false)
+    }
+  }
+
+  const showNotFound = !loading && query && suggestions.length === 0 && !selected
+
   return (
     <div ref={wrapperRef} className="relative">
       <div className="relative">
         <FiSearch className="absolute left-3 top-3.5 text-gray-400" size={16} />
         <input ref={inputRef} type="text" value={query}
-          onChange={e => { setQuery(e.target.value); setSelected(false); onChange(e.target.value) }}
-          onFocus={() => { setActiveIndex(-1); setShowDropdown(suggestions.length > 0) }}
+          onChange={e => { setQuery(e.target.value); setSelected(false); onChange(e.target.value); setRequestSent(false) }}
+          onFocus={() => { setActiveIndex(-1); if (!showRequestForm) setShowDropdown(suggestions.length > 0) }}
           placeholder="Search your school..."
           className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : selected ? 'border-primary' : ''}`}
           autoComplete="off" />
         {query && (
-          <button type="button" onClick={() => { setQuery(''); setSelected(false); onChange(''); setSuggestions([]) }} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
+          <button type="button" onClick={() => { setQuery(''); setSelected(false); onChange(''); setSuggestions([]); setShowRequestForm(false) }} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
             <FiX size={15} />
           </button>
         )}
       </div>
       <AnimatePresence>
-                {showDropdown && suggestions.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                    className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+        {showDropdown && suggestions.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
             {suggestions.map((school, i) => (
               <button key={i} type="button" onClick={() => handleSelect(school)} onMouseEnter={() => setActiveIndex(i)}
                 className={`w-full text-left px-3 py-2.5 text-sm transition-colors flex items-center gap-2 ${activeIndex === i ? 'bg-primary/10 text-primary' : 'text-dark hover:bg-primary/5'}`}>
@@ -178,7 +200,34 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
             ))}
           </motion.div>
         )}
+        {showNotFound && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+            <div className="p-4 text-center">
+              <p className="text-sm text-gray-400">School not found?</p>
+              <button onClick={() => { setShowRequestForm(true); setShowDropdown(false); setRequestName(query) }}
+                className="text-[#008751] font-medium text-xs mt-1 underline">Request to add it</button>
+            </div>
+          </motion.div>
+        )}
+        {showRequestForm && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-gray-700">Request a New School</h3>
+            <input type="text" value={requestName} onChange={e => setRequestName(e.target.value)}
+              placeholder="School name" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white" />
+            <input type="text" value={requestLocation} onChange={e => setRequestLocation(e.target.value)}
+              placeholder="Location (optional)" className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white" />
+            <div className="flex gap-2">
+              <button onClick={() => { setShowRequestForm(false); setRequestLocation('') }}
+                className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-600">Cancel</button>
+              <button onClick={handleRequestSchool} disabled={requestLoading || !requestName.trim()}
+                className="px-4 py-2 rounded-xl bg-[#008751] text-white text-xs font-medium disabled:opacity-50">Submit Request</button>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
+      {requestSent && <p className="text-green-600 text-xs mt-1">✓ Request submitted!</p>}
       {selected && <p className="text-primary text-xs mt-1">✓ Selected</p>}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
