@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { getMe, updateProfile, updateSchool, changePassword as changePasswordAPI } from "../api/auth"
 import { courses } from '../data/courses'
-import { getAllSchoolsForLevel } from '../data/schools'
+import { getAllSchoolsForLevel, matchSchool } from '../data/schools'
 
 function Settings() {
   const router = useRouter()
@@ -27,7 +27,7 @@ function Settings() {
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false })
   const [showEmailForm, setShowEmailForm] = useState(false)
   const [newEmail, setNewEmail] = useState('')
-  const [schoolForm, setSchoolForm] = useState({ level: '', school: '', state: '', course: '', faculty: '', department: '' })
+  const [schoolForm, setSchoolForm] = useState({ level: '', school: '', state: '', course: '', track: '', faculty: '', department: '' })
   const [schoolQuery, setSchoolQuery] = useState('')
   const [showSchoolDropdown, setShowSchoolDropdown] = useState(false)
   const schoolDropdownRef = useRef(null)
@@ -48,7 +48,7 @@ function Settings() {
         setUser(res.data)
         setEditForm({ name: res.data.name || '', phone: res.data.phone || '' })
         const initialSchool = res.data.school || ''
-        setSchoolForm({ level: res.data.level || '', school: initialSchool, state: res.data.state || '', course: res.data.course || '', faculty: res.data.faculty || '', department: res.data.department || '' })
+        setSchoolForm({ level: res.data.level || '', school: initialSchool, state: res.data.state || '', course: res.data.course || '', track: res.data.track || '', faculty: res.data.faculty || '', department: res.data.department || '' })
         if (initialSchool) setSchoolQuery(initialSchool)
         setTwoFactor(res.data.twoFactorEnabled || false)
         localStorage.setItem('user', JSON.stringify(res.data))
@@ -442,6 +442,20 @@ function Settings() {
                         </select>
                       </div>
 
+                      {(schoolForm.level === 'Secondary') && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 mb-1">Track</label>
+                          <div className="flex gap-2">
+                            {['Science', 'Art', 'Commercial'].map(t => (
+                              <button key={t} type="button" onClick={() => setSchoolForm(prev => ({ ...prev, track: t }))}
+                                className={`flex-1 px-3 py-2 rounded-xl border text-sm font-medium transition-all ${schoolForm.track === t ? 'bg-primary text-white border-primary' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {(schoolForm.level === 'University') && (
                         <>
                           <div>
@@ -493,7 +507,7 @@ function Settings() {
                               const level = schoolForm.level?.toLowerCase()
                               const all = level ? getAllSchoolsForLevel(level) : []
                               const filtered = schoolQuery
-                                ? all.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
+                                ? all.filter(s => matchSchool(schoolQuery, s))
                                 : all
                               if (filtered.length === 0) {
                                 return <div className="p-3 text-sm text-gray-400 text-center">No schools found</div>

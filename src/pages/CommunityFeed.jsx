@@ -36,7 +36,6 @@ function CommunityFeed() {
     const community = communityData[level] || communityData.university
     const [user, setUser] = useState({})
     const [userLoading, setUserLoading] = useState(true)
-    const STORAGE_KEY = `scholarhub_joined_${level}`
     const [joined, setJoined] = useState(false)
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(false)
@@ -66,14 +65,16 @@ function CommunityFeed() {
         if (stored.level) {
             setUser(stored)
             setUserLoading(false)
+            setJoined(!!(stored.school && (stored.level?.toLowerCase() === level)))
         } else {
             getMe().then(res => {
-                setUser(res.data)
-                localStorage.setItem('user', JSON.stringify(res.data))
+                const u = res.data
+                setUser(u)
+                localStorage.setItem('user', JSON.stringify(u))
                 setUserLoading(false)
+                setJoined(!!(u.school && (u.level?.toLowerCase() === level)))
             }).catch(() => { setUserLoading(false) })
         }
-        setJoined(localStorage.getItem(STORAGE_KEY) === 'true')
     }, [level])
 
     const rawLevel = user?.level
@@ -180,8 +181,8 @@ function CommunityFeed() {
 
     if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
 
-    const handleJoin = () => { localStorage.setItem(STORAGE_KEY, 'true'); setJoined(true) }
-    const handleLeave = () => { localStorage.removeItem(STORAGE_KEY); setJoined(false); setPosts([]) }
+    const handleJoin = () => setJoined(true)
+    const handleLeave = () => { setJoined(false); setPosts([]) }
 
     const toggleLike = async (id, isReal) => {
         setPosts(prev => prev.map(p => p.id === id ? { ...p, likes: p.liked ? p.likes - 1 : p.likes + 1, liked: !p.liked } : p))

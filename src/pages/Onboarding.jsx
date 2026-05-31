@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { updateSchool, getMe, requestSchool } from "../api/auth"
+import { updateSchool, getMe, requestSchool, searchSchools } from "../api/auth"
 import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
 import { FiBookOpen, FiCheck, FiArrowRight, FiSearch } from "react-icons/fi"
-import { getAllSchoolsForLevel } from '../data/schools'
+import { getCountryFromState } from '../data/schools'
 
 const levels = ['Secondary', 'University']
 
@@ -13,12 +13,26 @@ const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 }
+const stateOptions = [
+  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue',
+  'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu',
+  'FCT (Abuja)', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina',
+  'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo',
+  'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara',
+  'Nairobi, Kenya', 'Mombasa, Kenya', 'Kampala, Uganda',
+  'Accra, Ghana', 'Kumasi, Ghana', 'Cape Coast, Ghana',
+  'Cape Town, South Africa', 'Johannesburg, South Africa', 'Durban, South Africa', 'Pretoria, South Africa',
+  'Addis Ababa, Ethiopia', 'Cairo, Egypt', 'Dar es Salaam, Tanzania',
+  'Khartoum, Sudan', 'Gaborone, Botswana', 'Dakar, Senegal',
+  'Abidjan, Côte d\'Ivoire',
+]
 
 export default function Onboarding() {
   const router = useRouter()
   const [step, setStep] = useState(0)
   const [level, setLevel] = useState('')
   const [course, setCourse] = useState('')
+  const [track, setTrack] = useState('')
   const [school, setSchool] = useState('')
   const [faculty, setFaculty] = useState('')
   const [department, setDepartment] = useState('')
@@ -33,6 +47,11 @@ export default function Onboarding() {
   const [error, setError] = useState('')
   const [userData, setUserData] = useState(null)
   const [showRequestSchool, setShowRequestSchool] = useState(false)
+  const [showStateDropdown, setShowStateDropdown] = useState(false)
+  const [schoolSuggestions, setSchoolSuggestions] = useState([])
+  const [schoolLoading, setSchoolLoading] = useState(false)
+  const stateRef = useRef(null)
+  const schoolTimerRef = useRef(null)
   const [requestName, setRequestName] = useState('')
   const [requestLocation, setRequestLocation] = useState('')
   const [requestSent, setRequestSent] = useState(false)
@@ -42,13 +61,21 @@ export default function Onboarding() {
   const deptRef = useRef(null)
 
   useEffect(() => {
-    getMe().then(res => setUserData(res.data)).catch(() => router.push('/login'))
+    getMe().then(res => {
+      const u = res.data
+      setUserData(u)
+      if (u.level) setLevel(u.level)
+      if (u.state) setState(u.state)
+    }).catch(() => router.push('/login'))
   }, [])
 
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target) && e.target !== inputRef.current) {
         setShowDropdown(false)
+      }
+      if (stateRef.current && !stateRef.current.contains(e.target)) {
+        setShowStateDropdown(false)
       }
       if (facultyRef.current && !facultyRef.current.contains(e.target) && e.target !== facultyRef.current) {
         setShowFacultyDropdown(false)
@@ -70,10 +97,22 @@ export default function Onboarding() {
     }
   }, [course])
 
-  const allSchools = level ? getAllSchoolsForLevel(level.toLowerCase()) : []
-  const filteredSchools = schoolQuery
-    ? allSchools.filter(s => s.name.toLowerCase().includes(schoolQuery.toLowerCase()))
-    : allSchools
+  const country = state ? getCountryFromState(state) : null
+
+  useEffect(() => {
+    if (schoolTimerRef.current) clearTimeout(schoolTimerRef.current)
+    if (!country || !level) { setSchoolSuggestions([]); return }
+    const lvl = level.toLowerCase() === 'secondary' ? 'secondary' : 'university'
+    schoolTimerRef.current = setTimeout(async () => {
+      setSchoolLoading(true)
+      try {
+        const { data } = await searchSchools(country, lvl, schoolQuery || '', state)
+        setSchoolSuggestions(data.schools)
+      } catch { setSchoolSuggestions([]) }
+      setSchoolLoading(false)
+    }, schoolQuery ? 300 : 200)
+    return () => { if (schoolTimerRef.current) clearTimeout(schoolTimerRef.current) }
+  }, [schoolQuery, country, level, state])
 
   const filteredFaculties = facultyQuery
     ? faculties.filter(f => f.toLowerCase().includes(facultyQuery.toLowerCase()))
@@ -85,7 +124,7 @@ export default function Onboarding() {
     : availableDepts
 
   const universityComplete = level === 'University' && school && faculty && department
-  const secondaryComplete = level === 'Secondary' && school && state
+  const secondaryComplete = level === 'Secondary' && school && track && state
   const canSubmit = level && (level !== 'University' || universityComplete) && (level !== 'Secondary' || secondaryComplete)
 
   const handleSubmit = async () => {
@@ -93,7 +132,7 @@ export default function Onboarding() {
     setLoading(true)
     setError('')
     try {
-      const res = await updateSchool({ level, school, course, state, faculty, department })
+      const res = await updateSchool({ level, school, course, track, state, faculty, department })
       localStorage.setItem('user', JSON.stringify(res.data.user))
       router.push('/feed')
     } catch (err) {
@@ -166,6 +205,29 @@ export default function Onboarding() {
                         </div>
                       </div>
 
+                      <div className="mb-3 relative" ref={stateRef}>
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">State / Region</label>
+                        <div className="relative">
+                          <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input type="text" value={state}
+                            onFocus={() => setShowStateDropdown(true)}
+                            onChange={e => { setState(e.target.value); setShowStateDropdown(true) }}
+                            placeholder="Your state or region..."
+                            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
+                          {state && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
+                        </div>
+                        {showStateDropdown && (
+                          <div className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                            {(state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).length === 0 ? (
+                              <div className="p-3 text-sm text-gray-400 text-center">Type your state or region</div>
+                            ) : (state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).map((s, i) => (
+                              <button key={i} onClick={() => { setState(s); setShowStateDropdown(false) }}
+                                className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50">{s}</button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="mb-3 relative">
                         <label className="block text-sm font-semibold text-gray-600 mb-2">School</label>
                         <div className="relative">
@@ -173,23 +235,25 @@ export default function Onboarding() {
                           <input ref={inputRef} type="text" value={schoolQuery}
                             onFocus={() => setShowDropdown(true)}
                             onChange={e => { setSchoolQuery(e.target.value); setSchool(''); setShowDropdown(true) }}
-                            placeholder="Search university..."
+                            placeholder={country ? `Search ${country} universities...` : 'Search university...'}
                             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
                           {school && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
                         </div>
                         {showDropdown && (
                           <div ref={dropdownRef} className="mt-2 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
-                            {filteredSchools.length === 0 ? (
+                            {schoolLoading ? (
+                              <div className="p-3 text-sm text-gray-400 text-center">Searching...</div>
+                            ) : schoolSuggestions.length === 0 ? (
                               <div className="p-3 text-sm text-gray-400 text-center">
                                 <p>School not found?</p>
                                 <button onClick={() => { setShowDropdown(false); setShowRequestSchool(true) }}
                                   className="text-[#008751] font-medium text-xs mt-1 underline">Request to add it</button>
                               </div>
-                            ) : filteredSchools.map(s => (
+                            ) : schoolSuggestions.map(s => (
                               <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
                                 className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
                                 <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                  style={{ backgroundColor: s.color }}>
+                                  style={{ backgroundColor: s.color || '#008751' }}>
                                   {s.name.charAt(0)}
                                 </div>
                                 {s.name}
@@ -248,6 +312,29 @@ export default function Onboarding() {
 
                   {level === 'Secondary' && (
                     <>
+                      <div className="mb-3 relative" ref={stateRef}>
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">State / Region</label>
+                        <div className="relative">
+                          <FiSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input type="text" value={state}
+                            onFocus={() => setShowStateDropdown(true)}
+                            onChange={e => { setState(e.target.value); setShowStateDropdown(true) }}
+                            placeholder="Your state or region..."
+                            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
+                          {state && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
+                        </div>
+                        {showStateDropdown && (
+                          <div className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
+                            {(state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).length === 0 ? (
+                              <div className="p-3 text-sm text-gray-400 text-center">Type your state or region</div>
+                            ) : (state ? stateOptions.filter(s => s.toLowerCase().includes(state.toLowerCase())) : stateOptions).map((s, i) => (
+                              <button key={i} onClick={() => { setState(s); setShowStateDropdown(false) }}
+                                className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50">{s}</button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="mb-3 relative">
                         <label className="block text-sm font-semibold text-gray-600 mb-2">School</label>
                         <div className="relative">
@@ -255,23 +342,25 @@ export default function Onboarding() {
                           <input ref={inputRef} type="text" value={schoolQuery}
                             onFocus={() => setShowDropdown(true)}
                             onChange={e => { setSchoolQuery(e.target.value); setSchool(''); setShowDropdown(true) }}
-                            placeholder="Search secondary school..."
+                            placeholder={country ? `Search ${country} secondary schools...` : 'Search secondary school...'}
                             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
                           {school && <FiCheck size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" />}
                         </div>
                         {showDropdown && (
                           <div ref={dropdownRef} className="mt-2 max-h-52 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
-                            {filteredSchools.length === 0 ? (
+                            {schoolLoading ? (
+                              <div className="p-3 text-sm text-gray-400 text-center">Searching...</div>
+                            ) : schoolSuggestions.length === 0 ? (
                               <div className="p-3 text-sm text-gray-400 text-center">
                                 <p>School not found?</p>
                                 <button onClick={() => { setShowDropdown(false); setShowRequestSchool(true) }}
                                   className="text-[#008751] font-medium text-xs mt-1 underline">Request to add it</button>
                               </div>
-                            ) : filteredSchools.map(s => (
+                            ) : schoolSuggestions.map(s => (
                               <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
                                 className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
                                 <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                  style={{ backgroundColor: s.color }}>
+                                  style={{ backgroundColor: s.color || '#008751' }}>
                                   {s.name.charAt(0)}
                                 </div>
                                 {s.name}
@@ -282,10 +371,17 @@ export default function Onboarding() {
                       </div>
 
                       <div className="mb-3">
-                        <label className="block text-sm font-semibold text-gray-600 mb-2">State / Region</label>
-                        <input type="text" value={state} onChange={e => setState(e.target.value)}
-                          placeholder="Enter your state or region"
-                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white" />
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">Track</label>
+                        <div className="flex gap-2">
+                          {['Science', 'Art', 'Commercial'].map(t => (
+                            <button key={t} onClick={() => setTrack(t)}
+                              className={`flex-1 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                                track === t ? 'bg-[#008751] text-white border-[#008751]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                              }`}>
+                              {t}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </>
                   )}
