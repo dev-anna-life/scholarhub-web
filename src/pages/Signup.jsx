@@ -17,7 +17,8 @@ const fadeUp = {
 }
 
 const levels = ['Secondary', 'University']
-const interests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
+const secondaryInterests = ['Sciences', 'Mathematics', 'English & Literature', 'Arts & Creativity', 'Commerce / Business', 'Technology / ICT', 'History & Government', 'Sports']
+const universityInterests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
 const tracks = ['Science', 'Art', 'Commercial']
 const stateOptions = [
   'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue',
@@ -502,7 +503,7 @@ function Signup() {
               <p className="text-sm text-gray-400 mb-5">Choose subjects you love — pick as many as you want</p>
 
               <div className="flex flex-wrap gap-2 mb-6">
-                {interests.map(item => (
+                {(form.level === 'Secondary' ? secondaryInterests : universityInterests).map(item => (
                   <motion.button key={item} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     onClick={() => toggleInterest(item)}
                     className={`px-4 py-2 rounded-full border text-sm transition-all ${form.interests.includes(item) ? 'bg-primary text-white border-primary' : 'bg-white text-dark border-gray-200 hover:border-primary'}`}>
