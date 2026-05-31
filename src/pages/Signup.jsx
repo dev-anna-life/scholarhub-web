@@ -65,7 +65,7 @@ function StateSelect({ value, onChange, error }) {
         )}
       </div>
       {showDropdown && (
-        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+        <div className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
           {filtered.length === 0 ? (
             <p className="p-3 text-sm text-gray-400 text-center">Type your state or region</p>
           ) : filtered.map((s, i) => (
