@@ -1,3 +1,5 @@
+import universityLogos from './universityLogos.json'
+
 export const schoolsByCountry = {
   Nigeria: {
     secondary: [
@@ -203,6 +205,9 @@ export function getSchoolsForUser(userState, level) {
 }
 
 export function getSchoolLogo(name) {
+  const wiki = universityLogos[name]
+  if (wiki) return { png: wiki, svg: wiki, slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-'), fromWiki: true }
+
   const slug = name.toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
@@ -210,7 +215,7 @@ export function getSchoolLogo(name) {
     .replace(/^-|-$/g, '')
   const png = `/images/schools/${slug}.png`
   const svg = `/images/schools/${slug}.svg`
-  return { png, svg, slug }
+  return { png, svg, slug, fromWiki: false }
 }
 
 export function getAllSchoolsForLevel(level) {
