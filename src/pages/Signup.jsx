@@ -157,7 +157,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
     if (!requestName.trim()) return
     setRequestLoading(true)
     try {
-      await requestSchool({ name: requestName, location: requestLocation, level: currentLevel?.toLowerCase() })
+      await requestSchool({ name: requestName, location: requestLocation, level: currentLevel })
       setRequestSent(true)
       setShowRequestForm(false)
     } catch (err) {
