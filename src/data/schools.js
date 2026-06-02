@@ -206,7 +206,10 @@ export function getSchoolsForUser(userState, level) {
 
 export function getSchoolLogo(name) {
   const wiki = universityLogos[name]
-  if (wiki) return { png: wiki, svg: wiki, slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-'), fromWiki: true }
+  if (wiki) {
+    const fixed = wiki.replace(/\/\d+px-/g, '/120px-')
+    return { png: fixed, svg: fixed, slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-'), fromWiki: true }
+  }
 
   const slug = name.toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
