@@ -5,7 +5,7 @@ import { updateSchool, getMe, requestSchool, searchSchools } from "../api/auth"
 import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
 import { FiBookOpen, FiCheck, FiArrowRight, FiSearch } from "react-icons/fi"
-import { getCountryFromState } from '../data/schools'
+import { getCountryFromState, getSchoolLogo } from '../data/schools'
 
 const levels = ['Secondary', 'University']
 
@@ -251,10 +251,7 @@ export default function Onboarding() {
                             ) : schoolSuggestions.map(s => (
                               <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
                                 className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
-                                <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                  style={{ backgroundColor: s.color || '#008751' }}>
-                                  {s.name.charAt(0)}
-                                </div>
+                                {(() => { const { png } = getSchoolLogo(s.name); return <img src={png} alt="" className="w-5 h-5 rounded object-contain flex-shrink-0" /> })()}
                                 {s.name}
                               </button>
                             ))}
@@ -358,10 +355,7 @@ export default function Onboarding() {
                             ) : schoolSuggestions.map(s => (
                               <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
                                 className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
-                                <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                  style={{ backgroundColor: s.color || '#008751' }}>
-                                  {s.name.charAt(0)}
-                                </div>
+                                {(() => { const { png } = getSchoolLogo(s.name); return <img src={png} alt="" className="w-5 h-5 rounded object-contain flex-shrink-0" /> })()}
                                 {s.name}
                               </button>
                             ))}

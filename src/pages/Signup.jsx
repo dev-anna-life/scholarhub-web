@@ -8,7 +8,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { googleAuth } from "../api/auth";
 import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
-import { getCountryFromState } from '../data/schools'
+import { getCountryFromState, getSchoolLogo } from '../data/schools'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -125,7 +125,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
         setLoading(true)
         try {
           const { data } = await searchSchools(country, level, '', state)
-          setSuggestions(data.schools.map(s => s.name))
+          setSuggestions(data.schools)
           setShowDropdown(true)
         } catch { setSuggestions([]) }
         setLoading(false)
@@ -137,7 +137,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
       setLoading(true)
       try {
         const { data } = await searchSchools(country, level, query, state)
-        setSuggestions(data.schools.map(s => s.name))
+        setSuggestions(data.schools)
         setShowDropdown(data.schools.length > 0)
       } catch { setSuggestions([]) }
       setLoading(false)
@@ -147,10 +147,11 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
   }, [query, currentLevel, country, state])
 
   const handleSelect = (school) => {
-    setQuery(school)
+    const name = typeof school === 'string' ? school : school.name
+    setQuery(name)
     setSelected(true)
     setShowDropdown(false)
-    onChange(school)
+    onChange(name)
   }
 
   const handleRequestSchool = async () => {
@@ -192,10 +193,8 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
             {suggestions.map((school, i) => (
               <button key={i} type="button" onClick={() => handleSelect(school)} onMouseEnter={() => setActiveIndex(i)}
                 className={`w-full text-left px-3 py-2.5 text-sm transition-colors flex items-center gap-2 ${activeIndex === i ? 'bg-primary/10 text-primary' : 'text-dark hover:bg-primary/5'}`}>
-                <span className="w-6 h-6 bg-primary/10 rounded-md flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
-                  {school.split(' ').filter(w => w.length > 2).map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                </span>
-                <span className="truncate">{school}</span>
+                {(() => { const { png } = getSchoolLogo(school.name || school); return <img src={png} alt="" className="w-6 h-6 rounded-md object-contain flex-shrink-0" /> })()}
+                <span className="truncate">{school.name || school}</span>
               </button>
             ))}
           </motion.div>
