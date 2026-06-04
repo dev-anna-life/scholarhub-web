@@ -206,9 +206,25 @@ export function getSchoolsForUser(userState, level) {
   return { schools: featuredSchools[level], country: null }
 }
 
+const logoKeys = Object.keys(universityLogos)
+const logoKeyCache = {}
+function findLogoKey(name) {
+  if (logoKeyCache[name]) return logoKeyCache[name]
+  if (universityLogos[name]) { logoKeyCache[name] = name; return name }
+  const lower = name.toLowerCase()
+  const match = logoKeys.find(k => k.toLowerCase() === lower)
+  if (match) { logoKeyCache[name] = match; return match }
+  const prefix = logoKeys.find(k => k.toLowerCase().startsWith(lower + ',') || k.toLowerCase().startsWith(lower + ' '))
+  if (prefix) { logoKeyCache[name] = prefix; return prefix }
+  const partial = logoKeys.find(k => k.toLowerCase().includes(lower))
+  if (partial) { logoKeyCache[name] = partial; return partial }
+  return null
+}
+
 export function getSchoolLogo(name) {
-  const wiki = universityLogos[name]
-  if (wiki) {
+  const key = findLogoKey(name)
+  if (key) {
+    const wiki = universityLogos[key]
     const fixed = wiki.replace(/\/\d+px-/g, '/120px-')
     return { png: fixed, svg: fixed, slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-'), fromWiki: true }
   }
