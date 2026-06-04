@@ -193,7 +193,15 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
             {suggestions.map((school, i) => (
               <button key={i} type="button" onClick={() => handleSelect(school)} onMouseEnter={() => setActiveIndex(i)}
                 className={`w-full text-left px-3 py-2.5 text-sm transition-colors flex items-center gap-2 ${activeIndex === i ? 'bg-primary/10 text-primary' : 'text-dark hover:bg-primary/5'}`}>
-                {(() => { const { png } = getSchoolLogo(school.name || school); return <img src={png} alt="" className="w-6 h-6 rounded-md object-contain flex-shrink-0" /> })()}
+                <div className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 relative">
+                  <img src={getSchoolLogo(school.name || school).png} alt=""
+                    className="w-full h-full object-contain"
+                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+                  <span className="hidden absolute inset-0 items-center justify-center text-primary text-xs font-bold bg-primary/10"
+                    style={{ backgroundColor: (school.color || '#008751') + '20', color: school.color || '#008751' }}>
+                    {(school.name || school).charAt(0)}
+                  </span>
+                </div>
                 <span className="truncate">{school.name || school}</span>
               </button>
             ))}
