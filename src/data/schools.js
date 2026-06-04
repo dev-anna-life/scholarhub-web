@@ -1,4 +1,5 @@
 import universityLogos from './universityLogos.json'
+import nigerianSecondary from './nigerianSecondary.json'
 
 export const schoolsByCountry = {
   Nigeria: {
@@ -8,6 +9,7 @@ export const schoolsByCountry = {
       { name: "Queen's College", location: 'Lagos, Nigeria', level: 'Secondary', color: '#2d4a2d' },
       { name: 'Government Secondary School, Enugu', location: 'Enugu, Nigeria', level: 'Secondary', color: '#FF9F1C' },
       { name: 'Federal Government College, Ilorin', location: 'Ilorin, Nigeria', level: 'Secondary', color: '#1F2A1F' },
+      ...nigerianSecondary,
     ],
     university: [
       { name: 'University of Ibadan', location: 'Ibadan, Nigeria', level: 'University', color: '#FF9F1C' },
