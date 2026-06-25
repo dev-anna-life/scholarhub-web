@@ -23,7 +23,14 @@ export const approvePost = (id) => API.put(`/admin/posts/${id}/approve`)
 export const rejectPost = (id) => API.put(`/admin/posts/${id}/reject`)
 export const getAllUsers = () => API.get('/admin/users')
 export const getUserPosts = () => API.get('/posts/my')
-export const getPosts = () => API.get('/posts')
+export const getPosts = (page = 1, search = '', tab = '', category = '', communityId = '') => {
+  let url = `/posts?page=${page}&limit=20`
+  if (search) url += `&search=${encodeURIComponent(search)}`
+  if (tab) url += `&tab=${tab}`
+  if (category) url += `&category=${encodeURIComponent(category)}`
+  if (communityId) url += `&communityId=${communityId}`
+  return API.get(url)
+}
 export const getPostById = (id) => API.get(`/posts/${id}`)
 export const likePost = (id) => API.post(`/posts/${id}/like`)
 export const getComments = (id) => API.get(`/posts/${id}/comments`)
@@ -46,7 +53,13 @@ export const resolveSOS = (id) => API.patch(`/sos/${id}/resolve`)
 export const getUserById = (id) => API.get(`/chat/users/${id}`)
 export const deletePost = (id) => API.delete(`/posts/${id}`)
 export const followUser = (id) => API.post(`/auth/user/${id}/follow`)
+export const adminDeleteUser = (userId) => API.delete(`/admin/users/${userId}`)
+
+export const savePost = (id) => API.post(`/posts/${id}/save`)
+export const getSavedPosts = () => API.get('/posts/saved')
+
 export const getShopItems = () => API.get('/shop/items')
+export const shopAction = (endpoint, data) => API.post(`/shop/${endpoint}`, data)
 export const buyShopItem = (itemId, recipientUsername) => API.post('/shop/buy', { itemId, recipientUsername })
 export const giftShopItem = (itemId, recipientUsername) => API.post('/shop/gift', { itemId, recipientUsername })
 export const sendCoins = (recipientUsername, amount) => API.post('/shop/send-coins', { recipientUsername, amount })

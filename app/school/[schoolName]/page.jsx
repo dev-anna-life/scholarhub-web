@@ -1,3 +1,3 @@
 'use client'
-import SchoolFeed from '../../../src/pages/SchoolFeed'
+import SchoolFeed from '../../../src/views/SchoolFeed'
 export default function Page() { return <SchoolFeed /> }

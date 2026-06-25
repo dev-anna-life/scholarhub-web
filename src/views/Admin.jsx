@@ -1,9 +1,9 @@
-/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion"
-import { FiCheck, FiX, FiUsers, FiFileText, FiClock, FiTrendingUp, FiLogOut, FiEye } from "react-icons/fi"
-import { getAdminStats, getPendingPosts, approvePost, rejectPost, getAllUsers } from "../api/auth";
-import { useRouter } from "next/navigation"
+import { FiCheck, FiX, FiUsers, FiFileText, FiClock, FiTrendingUp, FiLogOut, FiEye, FiTrash2 } from "react-icons/fi"
+import { getAdminStats, getPendingPosts, approvePost, rejectPost, getAllUsers, getPosts, deletePost } from "../api/auth";
+import axios from "axios"
+import { useRouter } from 'next/navigation'
 
 function Admin() {
     const router = useRouter()
@@ -11,26 +11,36 @@ function Admin() {
     const [pendingPosts, setPendingPosts] = useState([])
     const [users, setUsers] = useState([])
     const [stats, setStats] = useState({})
+    const [allPosts, setAllPosts] = useState([])
     const [loading, setLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState(null)
     const [selectedPost, setSelectedPost] = useState(null)
 
     useEffect(() => {
-        fetchAll()
+        const user = JSON.parse(localStorage.getItem('user') || '{}')
+        if (!user.email) { router.push('/login'); return }
+        axios.get('https://scholarhub-api.vercel.app/api/auth/check-admin', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }).then(res => {
+            if (!res.data.isAdmin) router.push('/feed')
+            else fetchAll()
+        }).catch(() => router.push('/feed'))
     }, [])
 
 
     const fetchAll = async () => {
         setLoading(true)
         try {
-            const [statsRes, postRes, usersRes] = await Promise.all([
+            const [statsRes, postRes, usersRes, allPostsRes] = await Promise.all([
                 getAdminStats(),
                 getPendingPosts(),
-                getAllUsers()
+                getAllUsers(),
+                getPosts().catch(() => ({ data: [] })),
             ])
             setStats(statsRes.data)
             setPendingPosts(postRes.data)
             setUsers(usersRes.data)
+            setAllPosts(allPostsRes.data)
         } catch (err) {
             console.error(err)
         } finally {
@@ -69,6 +79,55 @@ function Admin() {
             setSelectedPost(null)
         } catch (err) {
             console.error(err)
+        } finally {
+            setActionLoading(null)
+        }
+    }
+
+    const handleDeletePost = async (id) => {
+        if (!confirm('Permanently delete this post?')) return
+        setActionLoading(id)
+        try {
+            const token = localStorage.getItem('token')
+            await axios.delete(`https://scholarhub-api.vercel.app/api/admin/posts/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            setAllPosts(prev => prev.filter(p => p._id !== id))
+            setPendingPosts(prev => prev.filter(p => p._id !== id))
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setActionLoading(null)
+        }
+    }
+
+    const handleCleanup = async () => {
+        if (!confirm('Delete orphaned chat conversations (with deleted users)?')) return
+        try {
+            const token = localStorage.getItem('token')
+            const res = await axios.post('https://scholarhub-api.vercel.app/api/admin/cleanup', {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            alert(`Cleaned up: ${res.data.deletedConversations} conversations, ${res.data.deletedMessages} messages`)
+        } catch (err) {
+            alert('Cleanup failed: ' + (err.response?.data?.message || err.message))
+        }
+    }
+
+    const handleDeleteUser = async (userId, userName) => {
+        if (!confirm(`Delete user "${userName}" and all their data? This cannot be undone.`)) return
+        setActionLoading(userId)
+        try {
+            const token = localStorage.getItem('token')
+            await axios.delete(`https://scholarhub-api.vercel.app/api/admin/users/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            setUsers(prev => prev.filter(u => u._id !== userId))
+        } catch (err) {
+            console.error(err)
+            const status = err.response?.status
+            const msg = err.response?.data?.message || err.response?.data?.error || err.message
+            alert(`Delete failed (${status || 'network'}): ${msg || 'Unknown error'}`)
         } finally {
             setActionLoading(null)
         }
@@ -120,9 +179,10 @@ function Admin() {
             ))}
         </div>
         
-         <div className="flex gap-2 mb-6">
+         <div className="flex gap-2 mb-6 items-center">
               {[
                 { id: 'pending', label: `Pending (${stats.pendingPosts ?? 0})` },
+                { id: 'allposts', label: `All Posts (${allPosts.length})` },
                 { id: 'users', label: `Users (${stats.totalUsers ?? 0})` },
               ].map(tab => (
                 <button
@@ -137,6 +197,10 @@ function Admin() {
                   {tab.label}
                 </button>
               ))}
+              <button onClick={handleCleanup}
+                className="ml-auto px-4 py-2 bg-red-500/10 text-red-400 rounded-xl text-xs font-semibold hover:bg-red-500/20 transition">
+                Cleanup Orphan Chats
+              </button>
             </div>
 
             {activeTab === 'pending' && (
@@ -202,6 +266,57 @@ function Admin() {
               </div>
             )}
 
+        {activeTab === 'allposts' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {allPosts.length === 0 ? (
+              <div className="col-span-2 text-center py-16 text-gray-500">
+                <p className="text-lg font-semibold text-white">No posts yet</p>
+              </div>
+            ) : (
+              allPosts.map((post, i) => (
+                <motion.div
+                  key={post._id || i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="bg-gray-900 rounded-2xl p-5 border border-gray-800 hover:border-gray-700 transition"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 bg-primary/20 rounded-xl flex items-center justify-center text-primary text-xs font-bold">
+                      {post.author?.name?.charAt(0) || 'S'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white text-sm">{post.author?.name || 'Unknown'}</p>
+                      <p className="text-xs text-gray-500">{post.author?.level} {post.author?.school ? `• ${post.author.school}` : ''}</p>
+                    </div>
+                    <span className="bg-yellow-500/10 text-yellow-400 text-xs font-semibold px-2.5 py-1 rounded-full">
+                      {post.category}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-white text-sm mb-2 leading-snug">{post.title}</h3>
+                  <p className="text-gray-400 text-xs leading-relaxed line-clamp-3 mb-4">{post.content}</p>
+                  <p className="text-xs text-gray-600 mb-4">
+                    {post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', {
+                      day: 'numeric', month: 'short', year: 'numeric',
+                      hour: '2-digit', minute: '2-digit'
+                    }) : ''}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleDeletePost(post._id)}
+                      disabled={actionLoading === post._id}
+                      className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition flex items-center justify-center gap-1.5"
+                    >
+                      <FiX size={14} />
+                      {actionLoading === post._id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </div>
+        )}
+
         {activeTab === 'users' && (
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-800">
@@ -235,6 +350,16 @@ function Admin() {
                         }`}>
                           {user.isVerified ? 'Verified' : 'Free'}
                         </span>
+                      </div>
+                      <div className="flex-shrink-0 ml-2">
+                        <button
+                          onClick={() => handleDeleteUser(user._id, user.name)}
+                          disabled={actionLoading === user._id}
+                          className="p-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition"
+                          title="Delete user"
+                        >
+                          <FiTrash2 size={14} />
+                        </button>
                       </div>
                     </motion.div>
                   ))}

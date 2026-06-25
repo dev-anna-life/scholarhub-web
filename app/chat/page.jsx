@@ -1,6 +1,6 @@
 'use client'
 import { Suspense } from 'react'
-import Chat from '../../src/pages/Chat'
+import Chat from '../../src/views/Chat'
 
 function ChatFallback() {
   return (
@@ -20,3 +20,4 @@ export default function Page() {
     </Suspense>
   )
 }
+

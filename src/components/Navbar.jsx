@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { MdLeaderboard } from "react-icons/md"
 import { HiUserGroup } from "react-icons/hi"
-import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell } from "react-icons/fi"
+import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiShield } from "react-icons/fi"
 import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
 import Image from "next/image"
@@ -20,6 +20,8 @@ const navLinks = [
   { label: 'Settings', icon: FiSettings, path: '/settings' },
   { label: 'Study Bot', icon: BsRobot, path: '/study-bot' },
   { label: 'Messages', icon: FiMessageSquare, path: '/chat' },
+  { label: 'Search', icon: FiSearch, path: '/search' },
+  { label: 'Admin', icon: FiShield, path: '/admin' },
 ]
 
 function Navbar() {

@@ -1,3 +1,4 @@
 'use client'
-import Leaderboard from '../../src/pages/Leaderboard'
+import Leaderboard from '../../src/views/Leaderboard'
 export default function Page() { return <Leaderboard /> }
+

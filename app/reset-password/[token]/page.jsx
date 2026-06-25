@@ -1,3 +1,3 @@
 'use client'
-import ResetPassword from '../../../src/pages/ResetPassword'
+import ResetPassword from '../../../src/views/ResetPassword'
 export default function Page() { return <ResetPassword /> }

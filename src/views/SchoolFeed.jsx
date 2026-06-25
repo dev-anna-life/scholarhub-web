@@ -429,10 +429,10 @@ function SchoolFeed() {
                             </div>
                             <input type="text" placeholder="Post title" value={newPost.title}
                                 onChange={e => setNewPost({ ...newPost, title: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-3 focus:outline-none focus:border-primary transition" />
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm mb-3 bg-white text-dark focus:outline-none focus:border-primary transition" />
                             <textarea placeholder="Share your knowledge, ask a question..."
                                 value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
-                                rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-4 focus:outline-none focus:border-primary transition resize-none" />
+                                rows={5} className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm mb-4 bg-white text-dark focus:outline-none focus:border-primary transition resize-none" />
                             {postError && <p className="text-red-500 text-sm mb-3">{postError}</p>}
                             {postSuccess && <p className="text-green-600 text-sm mb-3 text-center font-medium">✅ Post submitted for review!</p>}
                             <div className="flex gap-3">

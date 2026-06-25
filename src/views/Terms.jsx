@@ -10,7 +10,7 @@ function Terms() {
     <div className="min-h-screen bg-light pt-16 md:pt-0 relative z-10">
       <div className="max-w-3xl mx-auto px-4 py-8 md:pl-10">
         <button
-          onClick={() => router.push(-1)}
+          onClick={() => router.back()}
           className="text-sm text-gray-500 hover:text-primary mb-6 flex items-center gap-1"
         >
           ← Back
@@ -84,7 +84,7 @@ function Terms() {
 
             <section>
               <h2 className="text-lg font-bold text-dark mb-2">10. Contact</h2>
-              <p>For questions about these terms, contact us at <span className="text-primary">support@scholarhub.com</span>.</p>
+               <p>For questions about these terms, contact us at <span className="text-primary">scholarhubng1@gmail.com</span>.</p>
             </section>
           </div>
         </motion.div>

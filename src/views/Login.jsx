@@ -138,8 +138,4 @@ function Login() {
   )
 }
 
-export async function getServerSideProps() {
-  return { props: {} }
-}
-
 export default Login

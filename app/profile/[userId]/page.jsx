@@ -1,3 +1,3 @@
 'use client'
-import UserProfile from '../../../src/pages/UserProfile'
+import UserProfile from '../../../src/views/UserProfile'
 export default function Page() { return <UserProfile /> }

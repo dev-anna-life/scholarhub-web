@@ -623,10 +623,10 @@ function CommunityFeed() {
                             </div>
                             <input type="text" placeholder="Post title" value={newPost.title}
                                 onChange={e => setNewPost({ ...newPost, title: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-3 focus:outline-none focus:border-primary transition" />
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm mb-3 bg-white text-dark focus:outline-none focus:border-primary transition" />
                             <textarea placeholder="Share your knowledge, ask a question, or drop a gist..."
                                 value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
-                                rows={5} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm mb-1 focus:outline-none focus:border-primary transition resize-none" />
+                                rows={5} className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm mb-1 bg-white text-dark focus:outline-none focus:border-primary transition resize-none" />
                             {(() => {
                                 const subs = user?.badgeSubscriptions || []
                                 const active = subs.filter(s => new Date(s.expiresAt) > new Date())
