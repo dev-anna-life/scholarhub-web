@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { FiArrowRight, FiBookOpen, FiStar, FiLock, FiUsers, FiPlus, FiCheck, FiAward } from "react-icons/fi"
+import { FiArrowRight, FiBookOpen, FiStar, FiLock, FiUsers, FiPlus, FiCheck, FiAward, FiGlobe } from "react-icons/fi"
 import { getMe, getMyCommunities, getCommunities, joinCommunity } from "../api/auth"
-import { faculties } from '../data/faculties'
 
-const communityIcons = { department: FiBookOpen, faculty: FiStar, school: FiBookOpen, general: FiStar }
+const communityIcons = { department: FiBookOpen, faculty: FiStar, school: FiUsers, general: FiGlobe }
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -23,7 +22,6 @@ function Community() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const stored = JSON.parse(localStorage.getItem('user') || '{}')
         const res = await getMe()
         const userData = res.data
         setUser(userData)
@@ -80,7 +78,7 @@ function Community() {
           </div>
         </div>
         <div className="max-w-5xl mx-auto px-4 py-16 text-center">
-          <FiAward size={36} className="mb-3" />
+          <FiAward size={36} className="mb-3 mx-auto text-primary" />
           <h2 className="text-xl font-bold text-dark mb-2">Set your education level</h2>
           <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto leading-relaxed">
             You need to set your education level before you can access communities. Go to Settings to update your profile.
@@ -94,28 +92,43 @@ function Community() {
     )
   }
 
-  const typeLabels = { department: 'Department', faculty: 'Faculty', school: 'School', general: 'General' }
-  const typeColors = { department: 'bg-blue-100 text-blue-700', faculty: 'bg-purple-100 text-purple-700', school: 'bg-green-100 text-green-700', general: 'bg-orange-100 text-orange-700' }
+  const typeLabels = {
+    department: 'Dept · Your School',
+    faculty: 'Faculty · Your School',
+    school: 'School Hub',
+    general: 'Global Community'
+  }
+  const typeColors = {
+    department: 'bg-blue-100 text-blue-700',
+    faculty: 'bg-purple-100 text-purple-700',
+    school: 'bg-green-100 text-green-700',
+    general: 'bg-orange-100 text-orange-700'
+  }
+
+  // Split my communities into school-specific and global
+  const schoolComs = myComs.filter(c => c.type !== 'general')
+  const globalComs = myComs.filter(c => c.type === 'general')
 
   return (
     <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
-        <div className="sticky top-0 z-40 bg-dark px-4 md:px-6 py-3 md:py-4">
-          <div className="max-w-5xl mx-auto">
-            <h1 className="text-xl md:text-2xl font-extrabold text-white">Communities</h1>
-            <p className="text-xs md:text-sm mt-0.5 text-white/70">Find your people. Share your knowledge</p>
-          </div>
+      <div className="sticky top-0 z-40 bg-dark px-4 md:px-6 py-3 md:py-4">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-xl md:text-2xl font-extrabold text-white">Communities</h1>
+          <p className="text-xs md:text-sm mt-0.5 text-white/70">Find your people. Share your knowledge</p>
         </div>
+      </div>
 
-        <div className="max-w-5xl mx-auto px-4 py-4 md:py-8">
+      <div className="max-w-5xl mx-auto px-4 py-4 md:py-8">
 
-        {myComs.length > 0 && (
+        {/* School-specific communities */}
+        {schoolComs.length > 0 && (
           <div className="mb-8">
             <h2 className="text-lg font-extrabold text-dark mb-4 flex items-center gap-2">
-              <FiUsers size={18} className="text-primary" /> Your Communities
+              <FiUsers size={18} className="text-primary" /> Your School Communities
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {myComs.sort((a, b) => {
-                const order = { department: 0, faculty: 1, school: 2, general: 3 }
+              {schoolComs.sort((a, b) => {
+                const order = { department: 0, faculty: 1, school: 2 }
                 return order[a.type] - order[b.type]
               }).map((c, i) => (
                 <motion.div key={c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
@@ -124,15 +137,15 @@ function Community() {
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${typeColors[c.type].split(' ')[0]}`}>
                       {(() => {
                         const Icon = communityIcons[c.type] || FiBookOpen
-                        return <Icon size={18} className={typeColors[c.type].split(' ')[1].replace('text-', 'text-')} />
+                        return <Icon size={18} className={typeColors[c.type].split(' ')[1]} />
                       })()}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-dark">{c.type === 'general' ? 'General' : c.name}</p>
+                      <p className="text-sm font-semibold text-dark">{c.name}</p>
                       <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${typeColors[c.type]}`}>{typeLabels[c.type] || c.type}</span>
                     </div>
                   </div>
-                  <button onClick={() => router.push(c.type === 'general' ? `/community/${user.level?.toLowerCase()}` : `/community/c/${c._id}?name=${encodeURIComponent(c.name)}`)}
+                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}`)}
                     className="flex items-center gap-1 text-primary text-xs font-semibold hover:underline">
                     View <FiArrowRight size={12} />
                   </button>
@@ -142,6 +155,37 @@ function Community() {
           </div>
         )}
 
+        {/* Global cross-school communities */}
+        {globalComs.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-extrabold text-dark mb-1 flex items-center gap-2">
+              <FiGlobe size={18} className="text-orange-500" /> Global Communities
+            </h2>
+            <p className="text-xs text-gray-400 mb-4">Connect with students from all schools in the same department</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {globalComs.map((c, i) => (
+                <motion.div key={c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
+                  className="bg-white rounded-xl border border-orange-100 p-4 flex items-center justify-between hover:shadow-md transition">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-100">
+                      <FiGlobe size={18} className="text-orange-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-dark">{c.name}</p>
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">Global Community</span>
+                    </div>
+                  </div>
+                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}`)}
+                    className="flex items-center gap-1 text-orange-500 text-xs font-semibold hover:underline">
+                    View <FiArrowRight size={12} />
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* More departments to join in your faculty */}
         {user.faculty && facultyComs.length > 0 && (
           <div className="mb-8">
             <h2 className="text-lg font-extrabold text-dark mb-4 flex items-center gap-2">
@@ -166,7 +210,8 @@ function Community() {
           </div>
         )}
 
-        {(!user.faculty || facultyComs.length === 0) && (
+        {/* Fallback hub cards when no communities yet */}
+        {myComs.length === 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
             {[
               {
