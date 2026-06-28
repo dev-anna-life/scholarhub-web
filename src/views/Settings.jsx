@@ -705,7 +705,7 @@ function Settings() {
 
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                         <div>
-                          <p className="text-sm font-medium text-dark">Two-Factor Auth</p>
+                          <p className="text-sm font-medium text-dark">Two Factor Auth</p>
                           <p className="text-xs text-gray-400 mt-0.5">Add extra security to your account</p>
                         </div>
                         <span className="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full font-medium">Coming Soon</span>

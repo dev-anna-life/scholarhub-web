@@ -19,12 +19,8 @@ function Admin() {
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user') || '{}')
         if (!user.email) { router.push('/login'); return }
-        axios.get('https://scholarhub-api.vercel.app/api/auth/check-admin', {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }).then(res => {
-            if (!res.data.isAdmin) router.push('/feed')
-            else fetchAll()
-        }).catch(() => router.push('/feed'))
+        if (!localStorage.getItem('token')) { router.push('/login'); return }
+        fetchAll()
     }, [])
 
 
@@ -320,7 +316,7 @@ function Admin() {
         {activeTab === 'users' && (
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-800">
-                  <h2 className="font-bold text-white text-sm">All Users — sorted by coins</h2>
+                  <h2 className="font-bold text-white text-sm">All Users sorted by coins</h2>
                 </div>
                 <div className="divide-y divide-gray-800">
                   {users.map((user, i) => (

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { updateSchool, getMe, requestSchool, searchSchools } from "../api/auth"
 import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
-import { FiBookOpen, FiCheck, FiArrowRight, FiSearch } from "react-icons/fi"
+import { FiBookOpen, FiCheck, FiArrowRight, FiSearch, FiAward } from "react-icons/fi"
 import { getCountryFromState, getSchoolLogo } from '../data/schools'
 
 const levels = ['Secondary', 'University']
@@ -182,7 +182,7 @@ export default function Onboarding() {
                       <button key={l} onClick={() => setLevel(l)}
                         className="p-4 rounded-2xl border-2 text-center transition-all hover:border-[#008751] hover:bg-[#008751]/5"
                         style={{ borderColor: level === l ? '#008751' : '#e5e7eb', backgroundColor: level === l ? '#f0fdf4' : 'white' }}>
-                        <span className="text-2xl block mb-1">{l === 'Secondary' ? '📚' : '🎓'}</span>
+                                                        <span className="block mb-1">{l === 'Secondary' ? <FiBookOpen size={24} className="mx-auto" /> : <FiAward size={24} className="mx-auto" />}</span>
                         <span className="text-sm font-semibold text-gray-800">{l}</span>
                         <span className="text-xs text-gray-400 block mt-0.5">{l === 'Secondary' ? 'High School' : 'Undergraduate'}</span>
                       </button>

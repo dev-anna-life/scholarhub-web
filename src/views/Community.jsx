@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { FiArrowRight, FiBookOpen, FiStar, FiSearch, FiLock, FiExternalLink, FiUsers, FiPlus, FiCheck } from "react-icons/fi"
+import { FiArrowRight, FiBookOpen, FiStar, FiLock, FiUsers, FiPlus, FiCheck, FiAward } from "react-icons/fi"
 import { getMe, getMyCommunities, getCommunities, joinCommunity } from "../api/auth"
-import { getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
 import { faculties } from '../data/faculties'
 
 const communityIcons = { department: FiBookOpen, faculty: FiStar, school: FiBookOpen, general: FiStar }
@@ -20,20 +19,6 @@ function Community() {
   const [myComs, setMyComs] = useState([])
   const [facultyComs, setFacultyComs] = useState([])
   const [joining, setJoining] = useState(null)
-  const [schoolQuery, setSchoolQuery] = useState('')
-  const [showDropdown, setShowDropdown] = useState(false)
-  const searchRef = useRef(null)
-  const inputRef = useRef(null)
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target) && e.target !== inputRef.current) {
-        setShowDropdown(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,13 +48,6 @@ function Community() {
     fetchData()
   }, [])
 
-  const allSchools = getAllSchoolsForLevel('secondary').concat(getAllSchoolsForLevel('university'))
-  const filteredSchools = (() => {
-    let list = allSchools
-    if (schoolQuery) list = list.filter(s => matchSchool(schoolQuery, s))
-    return list.slice(0, 30)
-  })()
-
   const handleJoin = async (communityId) => {
     setJoining(communityId)
     try {
@@ -95,14 +73,14 @@ function Community() {
   if (!user.level) {
     return (
       <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
-        <div className="sticky top-0 z-40 bg-light/95 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4">
+        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-xl md:text-2xl font-extrabold text-dark">Communities</h1>
-            <p className="text-xs md:text-sm text-gray-400 mt-0.5">Find your people. Share your knowledge</p>
+            <h1 className="text-xl md:text-2xl font-extrabold" style={{color: '#111827'}}>Communities</h1>
+            <p className="text-xs md:text-sm mt-0.5" style={{color: '#6B7280'}}>Find your people. Share your knowledge</p>
           </div>
         </div>
         <div className="max-w-5xl mx-auto px-4 py-16 text-center">
-          <p className="text-4xl mb-3">🎓</p>
+          <FiAward size={36} className="mb-3" />
           <h2 className="text-xl font-bold text-dark mb-2">Set your education level</h2>
           <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto leading-relaxed">
             You need to set your education level before you can access communities. Go to Settings to update your profile.
@@ -121,46 +99,14 @@ function Community() {
 
   return (
     <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
-      <div className="sticky top-0 z-40 bg-light/95 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-xl md:text-2xl font-extrabold text-dark">Communities</h1>
-          <p className="text-xs md:text-sm text-gray-400 mt-0.5">Find your people. Share your knowledge</p>
+        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
+          <div className="max-w-5xl mx-auto">
+            <h1 className="text-xl md:text-2xl font-extrabold" style={{color: '#111827'}}>Communities</h1>
+            <p className="text-xs md:text-sm mt-0.5" style={{color: '#6B7280'}}>Find your people. Share your knowledge</p>
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-4 md:py-8">
-
-        <div className="relative mb-6">
-          <FiSearch size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input ref={inputRef} type="text" value={schoolQuery}
-            onFocus={() => setShowDropdown(true)}
-            onChange={e => { setSchoolQuery(e.target.value); setShowDropdown(true) }}
-            placeholder='Search any school...'
-            className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:border-primary transition" />
-          {showDropdown && filteredSchools.length > 0 && (
-            <div ref={searchRef} className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-md">
-              {filteredSchools.map(s => (
-                <button key={s.name} type="button"
-                  onMouseDown={() => { router.push(`/school/${encodeURIComponent(s.name)}`); setShowDropdown(false); setSchoolQuery('') }}
-                  className="w-full text-left px-4 py-3 text-sm transition-all flex items-center gap-3 text-gray-700 hover:bg-gray-50">
-                  <div className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-100"
-                    style={{ backgroundColor: s.color }}>
-                    <img src={getSchoolLogo(s.name).png} alt=""
-                      className="w-full h-full object-contain p-0.5"
-                      onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
-                    <span className="hidden w-full h-full items-center justify-center text-white text-xs font-bold"
-                      style={{ backgroundColor: s.color }}>
-                      {s.name.charAt(0)}
-                    </span>
-                  </div>
-                  <span className="flex-1 font-medium">{s.name}</span>
-                  <span className="text-[10px] text-gray-400">{s.country}</span>
-                  <FiExternalLink size={12} className="text-gray-300" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <div className="max-w-5xl mx-auto px-4 py-4 md:py-8">
 
         {myComs.length > 0 && (
           <div className="mb-8">
@@ -182,11 +128,11 @@ function Community() {
                       })()}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-dark">{c.name}</p>
+                      <p className="text-sm font-semibold text-dark">{c.type === 'general' ? 'General' : c.name}</p>
                       <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${typeColors[c.type]}`}>{typeLabels[c.type] || c.type}</span>
                     </div>
                   </div>
-                  <button onClick={() => router.push(`/community/${user.level?.toLowerCase()}`)}
+                  <button onClick={() => router.push(c.type === 'general' ? `/community/${user.level?.toLowerCase()}` : `/community/c/${c._id}?name=${encodeURIComponent(c.name)}`)}
                     className="flex items-center gap-1 text-primary text-xs font-semibold hover:underline">
                     View <FiArrowRight size={12} />
                   </button>
@@ -228,7 +174,7 @@ function Community() {
                 name: user.level?.toLowerCase() === 'secondary' ? 'Secondary School Hub' : 'University Hub',
                 level: user.level || 'University',
                 description: `For ${user.level?.toLowerCase() === 'secondary' ? 'secondary school' : 'university'} students`,
-                color: user.level?.toLowerCase() === 'secondary' ? 'from-[#1F2A1F] to-[#2d4a2d]' : 'from-[#FF9F1C] to-[#ffb347]',
+                color: user.level?.toLowerCase() === 'secondary' ? 'from-[#1F2A1F] to-[#2d4a2d]' : 'from-[#d97f00] to-[#FF9F1C]',
                 accentColor: user.level?.toLowerCase() === 'secondary' ? '#008751' : '#FF9F1C',
                 icon: user.level?.toLowerCase() === 'secondary' ? FiBookOpen : FiStar,
               },
@@ -237,7 +183,7 @@ function Community() {
                 name: user.level?.toLowerCase() === 'secondary' ? 'University Hub' : 'Secondary School Hub',
                 level: user.level?.toLowerCase() === 'secondary' ? 'University' : 'Secondary',
                 description: `For ${user.level?.toLowerCase() === 'secondary' ? 'university' : 'secondary school'} students`,
-                color: user.level?.toLowerCase() === 'secondary' ? 'from-[#FF9F1C] to-[#ffb347]' : 'from-[#1F2A1F] to-[#2d4a2d]',
+                color: user.level?.toLowerCase() === 'secondary' ? 'from-[#d97f00] to-[#FF9F1C]' : 'from-[#1F2A1F] to-[#2d4a2d]',
                 accentColor: user.level?.toLowerCase() === 'secondary' ? '#FF9F1C' : '#008751',
                 icon: user.level?.toLowerCase() === 'secondary' ? FiStar : FiBookOpen,
               },

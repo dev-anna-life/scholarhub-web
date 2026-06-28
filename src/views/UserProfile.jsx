@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiMessageSquare, FiUserPlus, FiUserCheck, FiBookOpen, FiStar, FiAward, FiTrash2, FiAlertTriangle, FiSend } from "react-icons/fi"
+import { FiArrowLeft, FiMessageSquare, FiUserPlus, FiUserCheck, FiBookOpen, FiStar, FiAward, FiTrash2, FiAlertTriangle, FiSend, FiCheck, FiX, FiClock, FiHeart, FiMessageCircle } from "react-icons/fi"
 import { MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
@@ -201,7 +201,6 @@ function UserProfile() {
         return (
             <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center">
                 <div className="text-center">
-                    <p className="text-2xl mb-2">😕</p>
                     <p className="font-bold text-dark mb-1">User not found</p>
                     <button onClick={() => router.back()} className="text-primary text-sm font-medium">Go back</button>
                 </div>
@@ -383,8 +382,8 @@ function UserProfile() {
                                                 post.status === 'approved' ? 'bg-primary/10 text-primary' :
                                                 post.status === 'rejected' ? 'bg-red-50 text-red-500' :
                                                 'bg-yellow-50 text-yellow-600'}`}>
-                                                {post.status === 'approved' ? '✅ Approved' :
-                                                 post.status === 'rejected' ? '❌ Rejected' : '⏳ Pending'}
+                                                {post.status === 'approved' ? <><FiCheck size={14} className="inline mr-1" /> Approved</> :
+                                                 post.status === 'rejected' ? <><FiX size={14} className="inline mr-1" /> Rejected</> : <><FiClock size={14} className="inline mr-1" /> Pending</>}
                                             </span>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-gray-400">
@@ -404,10 +403,10 @@ function UserProfile() {
                                         <div className="flex items-center gap-2">
                                             <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">{post.category}</span>
                                             <span className="text-xs text-gray-400 flex items-center gap-1">
-                                                ❤️ {post.likes}
+                                                <FiHeart size={12} className="text-red-400" /> {post.likes}
                                             </span>
                                             <span className="text-xs text-gray-400 flex items-center gap-1">
-                                                💬 {post.commentCount}
+                                                <FiMessageCircle size={12} /> {post.commentCount}
                                             </span>
                                         </div>
                                     </motion.div>

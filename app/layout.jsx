@@ -3,7 +3,7 @@ import ClientLayout from './ClientLayout'
 import './globals.css'
 
 export const metadata = {
-  title: 'ScholarHub - Africa\'s Student Platform',
+  title: 'ScholarHub, Africa\'s Student Platform',
   description: 'Connect, learn, and earn coins with fellow African students',
   icons: {
     icon: '/scholarhub-logo.svg',
@@ -13,7 +13,20 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('darkMode') === 'true' || (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
       <body>
         <GoogleOAuthProvider clientId="513890880200-6ndbr026fbjdesrn0j3lippsu2map8rg.apps.googleusercontent.com">
           <ClientLayout>

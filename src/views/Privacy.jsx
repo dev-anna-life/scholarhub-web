@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { motion } from "framer-motion"
-import { FiShield } from "react-icons/fi"
+import { FiShield, FiArrowLeft } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 
 function Privacy() {
@@ -13,7 +13,7 @@ function Privacy() {
           onClick={() => router.push(-1)}
           className="text-sm text-gray-500 hover:text-primary mb-6 flex items-center gap-1"
         >
-          ← Back
+          <FiArrowLeft size={14} /> Back
         </button>
 
         <motion.div

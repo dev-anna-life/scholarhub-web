@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { MdLeaderboard } from "react-icons/md"
 import { HiUserGroup } from "react-icons/hi"
-import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiShield } from "react-icons/fi"
+import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiPlus, FiGlobe } from "react-icons/fi"
 import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
 import Image from "next/image"
@@ -21,7 +21,6 @@ const navLinks = [
   { label: 'Study Bot', icon: BsRobot, path: '/study-bot' },
   { label: 'Messages', icon: FiMessageSquare, path: '/chat' },
   { label: 'Search', icon: FiSearch, path: '/search' },
-  { label: 'Admin', icon: FiShield, path: '/admin' },
 ]
 
 function Navbar() {
@@ -286,13 +285,40 @@ function Navbar() {
                   ScholarHub © 2026
                 </p>
                 <p className="text-xs text-gray-600 text-center mt-1">
-                  Built for African students 🌍
+                  Built for African students <FiGlobe size={10} className="inline" />
                 </p>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark border-t border-white/10 z-50 flex items-center justify-around px-2 pb-1 pt-1" style={{ paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
+        <Link href="/feed" className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition ${pathname === '/feed' ? 'text-primary' : 'text-gray-400 hover:text-gray-200'}`}>
+          <FiHome size={20} />
+          <span className="text-[10px] font-medium">Home</span>
+        </Link>
+        <Link href="/search" className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition ${pathname === '/search' ? 'text-primary' : 'text-gray-400 hover:text-gray-200'}`}>
+          <FiSearch size={20} />
+          <span className="text-[10px] font-medium">Search</span>
+        </Link>
+        <Link href="/study-bot" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition relative -mt-3">
+          <div className={`w-11 h-11 rounded-full flex items-center justify-center transition ${pathname === '/study-bot' ? 'bg-primary text-white' : 'bg-primary/20 text-primary'}`}>
+            <BsRobot size={22} />
+          </div>
+          <span className={`text-[10px] font-medium ${pathname === '/study-bot' ? 'text-primary' : 'text-gray-400'}`}>Study</span>
+        </Link>
+        <Link href="/feed?create=true" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition">
+          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/40">
+            <FiPlus size={20} />
+          </div>
+          <span className="text-[10px] font-medium text-gray-400">Create</span>
+        </Link>
+        <Link href="/chat" className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition ${pathname === '/chat' ? 'text-primary' : 'text-gray-400 hover:text-gray-200'}`}>
+          <FiMessageSquare size={20} />
+          <span className="text-[10px] font-medium">Messages</span>
+        </Link>
+      </nav>
     </>
   )
 }

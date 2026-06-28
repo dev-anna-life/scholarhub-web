@@ -59,7 +59,6 @@ function StudyBot() {
         }
 
         const updatedMessages = [...messages, userMessage]
-
         setMessages(updatedMessages)
         setInput('')
         setLoading(true)

@@ -115,7 +115,7 @@ export default function PostDetail() {
           </div>
 
           {(!c.commentsData || c.commentsData.length === 0) ? (
-            <p className="text-gray-400 text-sm text-center py-4">No comments yet — be the first!</p>
+            <p className="text-gray-400 text-sm text-center py-4">No comments yet, be the first!</p>
           ) : (
             <div className="flex flex-col gap-3 max-h-80 overflow-y-auto">
               {c.commentsData.map((comment, ci) => (

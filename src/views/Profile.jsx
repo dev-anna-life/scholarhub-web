@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle } from "react-icons/fi"
+import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle, FiCheck, FiX, FiClock } from "react-icons/fi"
 import { MdLeaderboard, MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
@@ -62,7 +62,7 @@ function Profile() {
     { label: 'Coins', value: user.coins ?? 50, icon: BsCoin, color: 'text-accent' },
     { label: 'Posts', value: myPostCount, icon: FiBookOpen, color: 'text-primary' },
     { label: 'Streak', value: `${currentStreak}/7`, icon: MdLocalFireDepartment, color: 'text-orange-500' },
-    { label: 'Rank', value: '#—', icon: GiTrophy, color: 'text-purple-500' },
+    { label: 'Rank', value: '#-', icon: GiTrophy, color: 'text-purple-500' },
   ]
 
 
@@ -160,7 +160,7 @@ function Profile() {
           </div>
           <p className="text-xs mt-2 text-center font-medium">
             {currentStreak >= 7 ? (
-              <span className="text-accent">🎉 7-day streak complete! +100 coins earned!</span>
+              <span className="text-accent">7 day streak complete! +100 coins earned!</span>
             ) : (
               <span className="text-gray-500">{7 - currentStreak} more {7 - currentStreak === 1 ? 'day' : 'days'} to earn 100 bonus coins!</span>
             )}
@@ -201,8 +201,8 @@ function Profile() {
                         post.status === 'approved' ? 'bg-primary/10 text-primary' :
                         post.status === 'rejected' ? 'bg-red-50 text-red-500' :
                         'bg-yellow-50 text-yellow-600'}`}>
-                        {post.status === 'approved' ? '✅ Approved' :
-                         post.status === 'rejected' ? '❌ Rejected' : '⏳ Pending'}
+                        {post.status === 'approved' ? <><FiCheck size={14} className="inline mr-1" /> Approved</> :
+                         post.status === 'rejected' ? <><FiX size={14} className="inline mr-1" /> Rejected</> : <><FiClock size={14} className="inline mr-1" /> Pending</>}
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-400">

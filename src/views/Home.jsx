@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage } from "react-icons/fi"
+import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiUsers, FiInbox, FiHome, FiCheck } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
 import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, savePost, getSavedPosts } from '../api/auth'
 import SOSButton from '../components/SOSButton'
@@ -47,11 +47,15 @@ function Home() {
     const [showTopics, setShowTopics] = useState(false)
     const topicsBtnRef = useRef(null)
     const [topicsPos, setTopicsPos] = useState({ left: 0, top: 0 })
-    const feedCategories = ['Sciences', 'Mathematics', 'Technology', 'Law', 'Medicine', 'Arts & Lit', 'Commerce', 'Campus Gist', 'Entertainment']
+    const feedCategories = ['Sciences', 'Mathematics', 'Technology', 'Law', 'Medicine', 'Arts & Lit', 'Commerce', 'Campus Gist', 'Entertainment', 'Talent']
     const categories = feedCategories
 
     useEffect(() => {
         try { setUser(JSON.parse(localStorage.getItem('user') || '{}')) } catch (e) {}
+        if (window.location.search.includes('create=true')) {
+            setShowCreatePost(true)
+            window.history.replaceState({}, '', '/feed')
+        }
     }, [])
 
     useEffect(() => {
@@ -529,6 +533,32 @@ function Home() {
                         </button>
                     </div>
 
+                    <AnimatePresence>
+                        {showTopics && (
+                        <motion.div data-topics-dropdown
+                            initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                            transition={{ duration: 0.12 }}
+                            className="fixed z-50 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden"
+                            style={{ left: topicsPos.left, top: topicsPos.top, minWidth: 160 }}>
+                            {categories.map(cat => (
+                                <button key={cat} onClick={() => {
+                                    if (!categoryTabs.includes(cat)) {
+                                        setCategoryTabs([...categoryTabs, cat])
+                                        setActiveTab('category')
+                                    }
+                                    setShowTopics(false)
+                                }}
+                                    className={`w-full text-left px-3 py-2 text-xs font-semibold transition ${categoryTabs.includes(cat) ? 'text-primary bg-primary/5' : 'text-gray-600 hover:bg-gray-50'}`}>
+                                    {cat}
+                                    {categoryTabs.includes(cat) && <FiCheck size={14} className="float-right text-primary" />}
+                                </button>
+                            ))}
+                        </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <div className="flex flex-col gap-3">
                         {loading ? (
                             [1, 2, 3].map(i => (
@@ -549,7 +579,7 @@ function Home() {
                             activeTab === 'following' ? (
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                                     className="text-center py-12 text-gray-400">
-                                    <p className="text-4xl mb-3">👥</p>
+                                    <FiUsers size={36} className="mb-3" />
                                     <p className="text-base font-semibold mb-1">Follow people to see their posts</p>
                                     <p className="text-sm mb-6">When you follow someone, their posts will show up here.</p>
                                     {leaderboard.length > 0 && (
@@ -582,16 +612,16 @@ function Home() {
                             ) : activeTab === 'community' && activeCommunity ? (
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                                     className="text-center py-16 text-gray-400">
-                                    <p className="text-4xl mb-3">🏛️</p>
+                                    <FiHome size={36} className="mb-3" />
                                     <p className="text-base font-semibold mb-1">No posts in {activeCommunity.name}</p>
                                     <p className="text-sm">Be the first to share something in this community!</p>
                                 </motion.div>
                             ) : (
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                                     className="text-center py-16 text-gray-400">
-                                    <p className="text-4xl mb-3">📭</p>
+                                    <FiInbox size={36} className="mb-3" />
                                     <p className="text-base font-semibold mb-1">No posts found</p>
-                                    <p className="text-sm">{searchQuery ? 'Try a different search term' : 'No posts yet — be the first to create one!'}</p>
+                                    <p className="text-sm">{searchQuery ? 'Try a different search term' : 'No posts yet, be the first to create one!'}</p>
                                 </motion.div>
                             )
                         ) : (
@@ -674,7 +704,7 @@ function Home() {
                                                         {!commentsMap[post.id] ? (
                                                             <p className="text-xs text-gray-400 text-center py-2">Loading comments...</p>
                                                         ) : commentsMap[post.id].length === 0 ? (
-                                                            <p className="text-xs text-gray-400 text-center py-2">No comments yet — be the first!</p>
+                                                            <p className="text-xs text-gray-400 text-center py-2">No comments yet, be the first!</p>
                                                         ) : (
                                                             commentsMap[post.id].map((comment, ci) => (
                                                                 <div key={ci} className="flex items-start gap-2">
@@ -874,7 +904,7 @@ function Home() {
                                     )}
                                 </div>
                                 {postError && <p className="text-red-500 text-xs">{postError}</p>}
-                                {postSuccess && <p className="text-green-500 text-xs font-medium">Post created! 🎉</p>}
+                                {postSuccess && <p className="text-green-500 text-xs font-medium">Post created!</p>}
                                 <button onClick={handleCreatePost} disabled={postLoading}
                                     className="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:opacity-90 transition disabled:opacity-50">
                                     {postLoading ? 'Posting...' : 'Post'}

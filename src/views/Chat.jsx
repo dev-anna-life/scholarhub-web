@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSend, FiSearch, FiArrowLeft, FiX, FiMessageCircle } from "react-icons/fi"
+import { FiSend, FiSearch, FiArrowLeft, FiX, FiMessageCircle, FiCheck } from "react-icons/fi"
 import { getConversations, getMessages, sendMessage, markMessagesAsRead, searchUsers } from "../api/auth"
 import { useSearchParams } from "next/navigation"
 
@@ -421,7 +421,7 @@ function Chat() {
                                                     </div>
                                                     <p className="text-xs text-gray-400 mt-0.5 px-1">
                                                         {formatTime(msg.createdAt)}
-                                                        {isMe && !msg.temp && <span className="ml-1 text-primary">✓</span>}
+                                                        {isMe && !msg.temp && <span className="ml-1 text-primary"><FiCheck size={12} /></span>}
                                                     </p>
                                                 </div>
                                             </motion.div>

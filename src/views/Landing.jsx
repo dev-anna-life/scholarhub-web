@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX } from "react-icons/fi"
+import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { getLeaderboard } from "../api/auth"
 
@@ -17,7 +17,7 @@ const fadeUp = {
 
 const features = [
   { icon: FiBookOpen, title: "Share Knowledge", desc: "Post study notes, past questions, exam tips and educational content for students across Africa." },
-  { icon: FiUsers, title: "Join Communities", desc: "Connect with students at your level — Secondary or University. Find your tribe." },
+  { icon: FiUsers, title: "Join Communities", desc: "Connect with students at your level, Secondary or University. Find your tribe." },
   { icon: FiAward, title: "Earn & Grow", desc: "Get rewarded with coins for every approved post. Streak daily and earn even more." },
   { icon: FiZap, title: "Stay Updated", desc: "Get the latest on JAMB, WAEC, NECO, campus gist and education news across Africa." },
 ]
@@ -271,7 +271,7 @@ const handleCommunityClick = (id) => {
                 className={`reveal border rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-2 transition-all duration-300 cursor-pointer ${c.color}`}
               >
                 <p className={`text-2xl font-extrabold mb-1 ${c.id === 'sss' ? 'text-accent' : c.badge}`}>
-                  {c.id === 'jss' ? '📚' : c.id === 'sss' ? '⚡' : '🎓'}
+                  {c.id === 'jss' ? <FiBookOpen size={24} /> : c.id === 'sss' ? <FiZap size={24} /> : <FiAward size={24} />}
                 </p>
                 <p className="font-semibold text-dark text-sm mt-1">{c.name}</p>
                 <p className="text-xs text-gray-400 mt-1 mb-3">{c.desc}</p>
@@ -331,7 +331,7 @@ const handleCommunityClick = (id) => {
               </div>
             ) : (
               topScholars.map((s, i) => {
-                const rankStr = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`
+                const rankStr = i === 0 ? '1st' : i === 1 ? '2nd' : i === 2 ? '3rd' : `${i + 1}`
                 const school = s.school || s.university || ''
                 const name = s.name || s.username || 'Student'
                 return (
@@ -372,7 +372,7 @@ const handleCommunityClick = (id) => {
         <h1 className="text-xl font-extrabold text-white mb-2">
           Scholar<span className="text-accent">Hub</span>
         </h1>
-        <p className="text-gray-400 text-sm">© 2026 ScholarHub. Built for African students. 🌍</p>
+        <p className="text-gray-400 text-sm flex items-center justify-center gap-1">© 2026 ScholarHub. Built for African students. <FiGlobe size={14} className="inline" /></p>
       </footer>
 
     </div>

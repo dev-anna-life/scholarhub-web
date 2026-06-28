@@ -78,7 +78,7 @@ function StateSelect({ value, onChange, error }) {
           ))}
         </div>
       )}
-      {selected && <p className="text-primary text-xs mt-1">✓ Selected</p>}
+      {selected && <p className="text-primary text-xs mt-1"><FiCheck size={10} className="inline mr-0.5" />Selected</p>}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   )
@@ -234,8 +234,8 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
           </motion.div>
         )}
       </AnimatePresence>
-      {requestSent && <p className="text-green-600 text-xs mt-1">✓ Request submitted!</p>}
-      {selected && <p className="text-primary text-xs mt-1">✓ Selected</p>}
+      {requestSent && <p className="text-green-600 text-xs mt-1"><FiCheck size={10} className="inline mr-0.5" />Request submitted!</p>}
+      {selected && <p className="text-primary text-xs mt-1"><FiCheck size={10} className="inline mr-0.5" />Selected</p>}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   )
@@ -556,7 +556,7 @@ function Signup() {
           {step === 3 && (
             <motion.div key="step3" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
               <h2 className="text-xl font-bold text-dark mb-1">Pick your interests</h2>
-              <p className="text-sm text-gray-400 mb-5">Choose subjects you love — pick as many as you want</p>
+              <p className="text-sm text-gray-400 mb-5">Choose subjects you love, pick as many as you want</p>
 
               <div className="flex flex-wrap gap-2 mb-6">
                 {(form.level === 'Secondary' ? secondaryInterests : universityInterests).map(item => (

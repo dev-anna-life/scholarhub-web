@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { motion } from "framer-motion"
-import { FiFileText } from "react-icons/fi"
+import { FiFileText, FiArrowLeft } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 
 function Terms() {
@@ -13,7 +13,7 @@ function Terms() {
           onClick={() => router.back()}
           className="text-sm text-gray-500 hover:text-primary mb-6 flex items-center gap-1"
         >
-          ← Back
+          <FiArrowLeft size={14} /> Back
         </button>
 
         <motion.div

@@ -55,7 +55,7 @@ function Search() {
                 {!loading && results.length === 0 && query.trim().length >= 2 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         className="text-center py-16 text-gray-400">
-                        <p className="text-4xl mb-3">🔍</p>
+                        <FiSearch size={36} className="text-gray-300 mx-auto mb-3" />
                         <p className="text-base font-semibold mb-1">No students found</p>
                         <p className="text-sm">Try a different name, username or school</p>
                     </motion.div>
@@ -64,7 +64,7 @@ function Search() {
                 {!loading && query.trim().length < 2 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         className="text-center py-16 text-gray-400">
-                        <p className="text-4xl mb-3">👤</p>
+                        <FiUser size={36} className="text-gray-300 mx-auto mb-3" />
                         <p className="text-base font-semibold mb-1">Search for students</p>
                         <p className="text-sm">Type a name, username or school to find students</p>
                     </motion.div>

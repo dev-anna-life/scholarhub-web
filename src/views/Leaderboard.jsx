@@ -1,10 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { FiSearch, FiX } from "react-icons/fi"
+import { FiSearch, FiX, FiAward } from "react-icons/fi"
 import { MdLocalFireDepartment } from "react-icons/md"
 import { GiTrophy } from "react-icons/gi"
-import { FiAward } from "react-icons/fi"
 import { getLeaderboard } from "../api/auth"
 
 const knownAbbreviations = {
@@ -92,9 +91,9 @@ function Leaderboard() {
     const rest = filtered.slice(3)
 
     const podiumOrder = [
-        { user: top3[1], rank: 2, medal: '🥈', height: 'h-20', color: 'bg-gray-100' },
-        { user: top3[0], rank: 1, medal: '🥇', height: 'h-28', color: 'bg-accent/20' },
-        { user: top3[2], rank: 3, medal: '🥉', height: 'h-14', color: 'bg-orange-50' },
+        { user: top3[1], rank: 2, medal: '2nd', height: 'h-20', color: 'bg-gray-100' },
+        { user: top3[0], rank: 1, medal: '1st', height: 'h-28', color: 'bg-accent/20' },
+        { user: top3[2], rank: 3, medal: '3rd', height: 'h-14', color: 'bg-orange-50' },
     ]
 
     return (
@@ -232,7 +231,7 @@ function Leaderboard() {
                                         )}
 
                                         <div className={`w-full ${height} ${color} rounded-t-xl flex items-start justify-center pt-2 border border-gray-100`}>
-                                            <span className="text-xl">{medal}</span>
+                                            <span className="text-base font-extrabold text-gray-600">{medal}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -257,9 +256,9 @@ function Leaderboard() {
                                             className={`px-4 py-3.5 flex items-center gap-3 transition-all ${isMe ? 'bg-primary/5 border-l-4 border-primary' : 'hover:bg-gray-50'}`}
                                         >
                                             <div className="w-7 text-center flex-shrink-0">
-                                                {rank === 1 ? <span className="text-lg">🥇</span>
-                                                    : rank === 2 ? <span className="text-lg">🥈</span>
-                                                        : rank === 3 ? <span className="text-lg">🥉</span>
+                                                {rank === 1 ? <FiAward size={20} className="text-yellow-500" />
+                                                    : rank === 2 ? <FiAward size={20} className="text-gray-400" />
+                                                        : rank === 3 ? <FiAward size={20} className="text-orange-600" />
                                                             : <span className="text-xs font-bold text-gray-400">#{rank}</span>}
                                             </div>
 

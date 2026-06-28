@@ -643,3 +643,8 @@ button {
     z-index: 50;
   }
 }
+
+/* Dark mode: badge card headers need dark bg so price text is visible */
+.dark .badge-header-basic { background: #1a261a !important; }
+.dark .badge-header-premium { background: #2a2210 !important; }
+.dark .badge-header-extra { background: #1e1428 !important; }

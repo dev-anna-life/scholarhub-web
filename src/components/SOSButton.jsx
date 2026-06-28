@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { triggerSOS } from "../api/auth"
-import { FiPhone } from "react-icons/fi"
+import { FiPhone, FiCheck } from "react-icons/fi"
 import { MdMedicalServices, MdEmergency } from "react-icons/md"
 import { FaFireAlt } from "react-icons/fa"
 import { IoShieldCheckmark } from "react-icons/io5"
@@ -44,7 +44,7 @@ function SOSButton() {
 
     return (
         <>
-            <div className="fixed bottom-24 right-4 md:bottom-32 md:right-8 z-40 flex flex-col items-center">
+            <div className="fixed bottom-24 md:bottom-32 right-3 md:right-8 z-40 flex flex-col items-center">
                 <AnimatePresence>
                     {sent && (
                         <motion.div
@@ -53,7 +53,7 @@ function SOSButton() {
                             exit={{ opacity: 0, y: 10 }}
                             className="absolute bottom-16 right-0 bg-green-500 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-lg whitespace-nowrap"
                         >
-                            ✅ SOS sent! Help is on the way
+                            <FiCheck size={14} className="inline mr-1" /> SOS sent! Help is on the way
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -61,15 +61,11 @@ function SOSButton() {
                 <motion.button
                     onClick={() => setShowModal(true)}
                     whileTap={{ scale: 0.95 }}
-                    className="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex flex-col items-center justify-center shadow-lg shadow-red-500/40"
+                    className="w-10 h-10 md:w-12 md:h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex flex-col items-center justify-center shadow-lg shadow-red-500/40"
                 >
-                    <MdEmergency size={18} />
-                    <span className="text-xs font-semibold mt-0.5">SOS</span>
+                    <MdEmergency size={16} className="md:size-[18px]" />
+                    <span className="text-[9px] md:text-xs font-semibold mt-0.5">SOS</span>
                 </motion.button>
-
-<p className="text-center text-xs text-gray-400 mt-1 whitespace-nowrap">
-    Tap for emergency
-</p>
             </div>
 
             <AnimatePresence>

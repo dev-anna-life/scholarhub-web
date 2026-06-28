@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch } from "react-icons/fi"
+import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch, FiCheck, FiInbox, FiFileText } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe, getMyCommunities, getCommunityFeed } from "../api/auth"
 import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
 
@@ -179,7 +179,7 @@ function CommunityFeed() {
         return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
     }
 
-    if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
+    if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2"><FiLock size={28} /></p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
 
     const handleJoin = () => setJoined(true)
     const handleLeave = () => { setJoined(false); setPosts([]) }
@@ -273,14 +273,14 @@ function CommunityFeed() {
                                     <FiTrendingUp size={13} /><span>Active now</span>
                                 </div>
                                 {joined && (
-                                    <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">✓ Member</span>
+                                    <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full"><FiCheck size={12} className="inline mr-1" />Member</span>
                                 )}
                             </div>
                         </div>
                         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                             onClick={joined ? handleLeave : handleJoin}
                             className={`self-start px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${joined ? 'bg-white/20 text-white border border-white/40 hover:bg-white/30' : 'bg-white text-gray-800 hover:opacity-90'}`}>
-                            {joined ? '✓ Joined' : 'Join Community'}
+                            {joined ? <><FiCheck size={14} className="inline mr-1" /> Joined</> : 'Join Community'}
                         </motion.button>
                     </div>
                 </div>
@@ -310,7 +310,7 @@ function CommunityFeed() {
                         <>
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                                 className={`${community.lightColor} border ${community.borderColor} rounded-2xl p-4 mb-5 flex items-start gap-3`}>
-                                <span className="text-base flex-shrink-0 mt-0.5">📌</span>
+                                <FiMapPin size={16} className="flex-shrink-0 mt-0.5" />
                                 <p className={`text-sm ${community.textColor} font-medium leading-relaxed w-full`}>{community.pinned}</p>
                             </motion.div>
 
@@ -348,7 +348,7 @@ function CommunityFeed() {
 
                             <div className="mb-6">
                               <h2 className="text-lg font-extrabold text-dark mb-3">
-                                {level === 'secondary' ? '🏫 Secondary Schools' : '🎓 Universities'}
+                                {level === 'secondary' ? 'Secondary Schools' : 'Universities'}
                               </h2>
                               <p className="text-xs text-gray-400 mb-4">
                                 {userCountry ? `Schools in ${userCountry}` : 'Featured schools from across Africa'}
@@ -395,7 +395,7 @@ function CommunityFeed() {
                                     ))
                                 ) : posts.length === 0 ? (
                                     <div className="text-center py-12 text-gray-400">
-                                        <p className="text-4xl mb-3">📭</p>
+                                        <FiInbox size={36} className="text-gray-300 mx-auto mb-3" />
                                         <p className="font-semibold mb-1">No posts yet</p>
                                         <p className="text-sm">Be the first to post something!</p>
                                     </div>
@@ -485,7 +485,7 @@ function CommunityFeed() {
                                                         {!commentsMap[post.id] ? (
                                                             <p className="text-xs text-gray-400 text-center py-2">Loading comments...</p>
                                                         ) : commentsMap[post.id].length === 0 ? (
-                                                            <p className="text-xs text-gray-400 text-center py-2">No comments yet - be the first!</p>
+                                                            <p className="text-xs text-gray-400 text-center py-2">No comments yet, be the first!</p>
                                                         ) : (
                                                             commentsMap[post.id].map((comment, ci) => (
                                                                 <div key={ci} className="flex items-start gap-2">
@@ -545,7 +545,7 @@ function CommunityFeed() {
                             <div className="flex flex-col gap-3">
                                 {topContributors.map((c, i) => (
                                     <div key={c.name} className="flex items-center gap-2.5">
-                                        <span className="text-base">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+                                        <span className="text-base">{i === 0 ? <FiAward size={16} className="text-yellow-500" /> : i === 1 ? <FiAward size={16} className="text-gray-400" /> : <FiAward size={16} className="text-amber-700" />}</span>
                                         <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                                             style={{ backgroundColor: community.accentColor }}>
                                             {c.avatar}
@@ -561,7 +561,7 @@ function CommunityFeed() {
                     )}
 
                     <div className="bg-white rounded-2xl p-4 border border-gray-100">
-                        <h3 className="font-bold text-dark text-sm mb-3">📜 Community Rules</h3>
+                        <h3 className="font-bold text-dark text-sm mb-3 flex items-center gap-2"><FiFileText size={16} /> Community Rules</h3>
                         <div className="flex flex-col gap-2">
                             {['Be respectful to everyone', 'Share only educational content', 'No spam or self-promotion', 'Credit original sources', 'No hate speech'].map((rule, i) => (
                                 <div key={i} className="flex items-start gap-2">
@@ -583,7 +583,7 @@ function CommunityFeed() {
                                 <p className="text-gray-400 text-xs">Coins</p>
                             </div>
                             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-                                <p className="text-white font-extrabold text-lg">{user.level || '—'}</p>
+                                <p className="text-white font-extrabold text-lg">{user.level || '-'}</p>
                                 <p className="text-gray-400 text-xs">Level</p>
                             </div>
                         </div>
@@ -653,7 +653,7 @@ function CommunityFeed() {
                                 ].filter(opt => myCommunities.some(c => c.type === opt.key)).map(opt => (
                                     <button key={opt.key} type="button" onClick={() => setSelectedVisibility(prev => ({ ...prev, [opt.key]: !prev[opt.key] }))}
                                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedVisibility[opt.key] ? 'bg-primary text-white' : 'bg-white text-gray-500 border border-gray-200 hover:border-primary'}`}>
-                                        {opt.key === 'department' ? '✓ ' : ''}{opt.label}
+                                        {opt.key === 'department' ? <FiCheck size={12} className="inline mr-1" /> : ''}{opt.label}
                                     </button>
                                 ))}
                             </div>
@@ -661,7 +661,7 @@ function CommunityFeed() {
                                 <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                                 <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
                                 <button type="button" onClick={handleImagePick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
-                                    {newPost.image ? '✅ Image' : '📷 Image'}
+                                    {newPost.image ? <><FiCheck size={14} className="inline mr-1" /> Image</> : '📷 Image'}
                                 </button>
                                 {(() => {
                                     const subs = user?.badgeSubscriptions || []
@@ -669,7 +669,7 @@ function CommunityFeed() {
                                     if (!active.some(s => s.id === 'badge_extra_premium')) return null
                                     return (
                                         <button type="button" onClick={handleVideoPick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
-                                            {newPost.video ? '✅ Video' : '🎬 Video'}
+                                            {newPost.video ? <><FiCheck size={14} className="inline mr-1" /> Video</> : '🎬 Video'}
                                         </button>
                                     )
                                 })()}
@@ -688,14 +688,14 @@ function CommunityFeed() {
                                 </div>
                             )}
                             {postError && <p className="text-red-500 text-sm mb-3">{postError}</p>}
-                            {postSuccess && <p className="text-sm mb-3 text-center font-medium" style={{ color: community.accentColor }}>✅ Post submitted for review!</p>}
+                            {postSuccess && <p className="text-sm mb-3 text-center font-medium" style={{ color: community.accentColor }}><FiCheck size={14} className="inline mr-1" /> Post submitted for review!</p>}
                             <div className="flex gap-3">
                                 <button onClick={() => setShowCreatePost(false)}
                                     className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-dark hover:border-primary transition">Cancel</button>
                                 <button onClick={handleCreatePost} disabled={postLoading}
                                     className="flex-1 py-3 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition"
                                     style={{ backgroundColor: community.accentColor }}>
-                                    {postLoading ? 'Submitting...' : postSuccess ? '✅ Submitted!' : 'Submit for Review'}
+                                    {postLoading ? 'Submitting...' : postSuccess ? <><FiCheck size={14} className="inline mr-1" /> Submitted!</> : 'Submit for Review'}
                                 </button>
                             </div>
                         </motion.div>

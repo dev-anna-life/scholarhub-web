@@ -54,7 +54,7 @@ function Login() {
           <h1 className="text-3xl font-extrabold text-dark">
             Scholar<span className="text-accent">Hub</span>
           </h1>
-          <p className="text-sm text-gray-400 mt-2">Welcome Back 👋</p>
+          <p className="text-sm text-gray-400 mt-2">Welcome Back</p>
         </div>
 
         <div id="google-login-wrapper" className="w-full mb-4 overflow-hidden">

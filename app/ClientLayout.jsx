@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Navbar from '../src/components/Navbar'
 
+import { Toaster } from 'react-hot-toast'
+
 const noNavPages = ['/', '/login', '/signup', '/onboarding', '/forgot-password', '/admin']
 
 export default function ClientLayout({ children }) {
@@ -19,6 +21,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       {showNav && <Navbar />}
       {children}
     </>

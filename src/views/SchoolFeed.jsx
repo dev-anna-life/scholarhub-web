@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiBookOpen, FiSend, FiLock, FiMapPin } from "react-icons/fi"
+import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiBookOpen, FiSend, FiLock, FiMapPin, FiCheck, FiInbox } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment } from "../api/auth"
 
 function SchoolFeed() {
@@ -86,7 +86,7 @@ function SchoolFeed() {
     }, [])
     const effectiveLevel = userData.level === 'JSS' || userData.level === 'SSS' ? 'Secondary' : userData.level
     if (schoolLevel && effectiveLevel && effectiveLevel !== schoolLevel) {
-        return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2">🔒</p><p className="font-bold text-dark mb-1">This school is not available for your level</p><p className="text-sm text-gray-400">You can only access schools in your education level.</p></div></div>
+        return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2"><FiLock size={28} /></p><p className="font-bold text-dark mb-1">This school is not available for your level</p><p className="text-sm text-gray-400">You can only access schools in your education level.</p></div></div>
     }
 
     useEffect(() => {
@@ -222,14 +222,14 @@ function SchoolFeed() {
                                     <FiBookOpen size={13} /><span>School Community</span>
                                 </div>
                                 {joined && (
-                                    <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">✓ Member</span>
+                                    <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full"><FiCheck size={12} className="inline mr-1" />Member</span>
                                 )}
                             </div>
                         </div>
                         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                             onClick={joined ? handleLeave : handleJoin}
                             className={`self-start px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${joined ? 'bg-white/20 text-white border border-white/40 hover:bg-white/30' : 'bg-white text-gray-800 hover:opacity-90'}`}>
-                            {joined ? '✓ Joined' : 'Join School Community'}
+                            {joined ? <><FiCheck size={14} className="inline mr-1" /> Joined</> : 'Join School Community'}
                         </motion.button>
                     </div>
                 </div>
@@ -274,7 +274,7 @@ function SchoolFeed() {
                                     ))
                                 ) : posts.length === 0 ? (
                                     <div className="text-center py-12 text-gray-400">
-                                        <p className="text-4xl mb-3">📭</p>
+                                        <FiInbox size={36} className="text-gray-300 mx-auto mb-3" />
                                         <p className="font-semibold mb-1">No posts from this school yet</p>
                                         <p className="text-sm">Be the first to post something!</p>
                                     </div>
@@ -390,7 +390,7 @@ function SchoolFeed() {
                                 <p className="text-gray-400 text-xs">Coins</p>
                             </div>
                             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-                                <p className="text-white font-extrabold text-lg">{user.level || '—'}</p>
+                                <p className="text-white font-extrabold text-lg">{user.level || '-'}</p>
                                 <p className="text-gray-400 text-xs">Level</p>
                             </div>
                         </div>
@@ -434,14 +434,14 @@ function SchoolFeed() {
                                 value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
                                 rows={5} className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm mb-4 bg-white text-dark focus:outline-none focus:border-primary transition resize-none" />
                             {postError && <p className="text-red-500 text-sm mb-3">{postError}</p>}
-                            {postSuccess && <p className="text-green-600 text-sm mb-3 text-center font-medium">✅ Post submitted for review!</p>}
+                            {postSuccess && <p className="text-green-600 text-sm mb-3 text-center font-medium"><FiCheck size={14} className="inline mr-1" /> Post submitted for review!</p>}
                             <div className="flex gap-3">
                                 <button onClick={() => setShowCreatePost(false)}
                                     className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-dark hover:border-primary transition">Cancel</button>
                                 <button onClick={handleCreatePost} disabled={postLoading}
                                     className="flex-1 py-3 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition"
                                     style={{ backgroundColor: accentColor }}>
-                                    {postLoading ? 'Submitting...' : postSuccess ? '✅ Submitted!' : 'Submit for Review'}
+                                    {postLoading ? 'Submitting...' : postSuccess ? <><FiCheck size={14} className="inline mr-1" /> Submitted!</> : 'Submit for Review'}
                                 </button>
                             </div>
                         </motion.div>
