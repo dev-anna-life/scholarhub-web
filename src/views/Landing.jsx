@@ -159,13 +159,20 @@ function Landing() {
         </motion.div>
       )}
 
-      <section id="hero" className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-16">
+      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-16 overflow-hidden">
+        {/* Animated background blobs */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="animate-blob absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-primary/8 blur-3xl" />
+          <div className="animate-blob-delay1 absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-accent/6 blur-3xl" />
+          <div className="animate-blob-delay2 absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-primary/5 blur-2xl" />
+        </div>
+
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={0}
-          className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-medium text-dark mb-6 shadow-sm"
+          className="relative inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-gray-200 rounded-full px-4 py-2 text-xs font-medium text-dark mb-6 shadow-sm"
         >
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse-green inline-block" />
           Africa's #1 Student Content Platform
@@ -176,10 +183,10 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={1}
-          className="text-5xl md:text-7xl font-extrabold text-dark leading-tight mb-6 max-w-3xl"
+          className="relative text-5xl md:text-7xl font-extrabold text-dark leading-tight mb-6 max-w-3xl"
         >
           Learn. Share.{" "}
-          <span className="text-primary">Earn.</span>
+          <span className="gradient-text">Earn.</span>
         </motion.h1>
 
         <motion.p
@@ -187,7 +194,7 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={2}
-          className="text-gray-500 text-lg max-w-xl mb-10 leading-relaxed"
+          className="relative text-gray-500 text-lg max-w-xl mb-10 leading-relaxed"
         >
           ScholarHub is where African students come to share knowledge, connect with their community and get rewarded for adding value.
         </motion.p>
@@ -197,17 +204,17 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={3}
-          className="flex flex-col sm:flex-row items-center gap-3"
+          className="relative flex flex-col sm:flex-row items-center gap-3"
         >
           <Link
             href="/signup"
-            className="bg-primary text-white font-semibold px-8 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25"
+            className="animate-glow bg-primary text-white font-semibold px-8 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25"
           >
             Join ScholarHub Free <FiArrowRight size={18} />
           </Link>
           <Link
             href="/login"
-            className="bg-white border border-gray-200 text-dark font-medium px-8 py-4 rounded-xl hover:border-primary hover:scale-105 transition-all duration-300"
+            className="bg-white/80 backdrop-blur border border-gray-200 text-dark font-medium px-8 py-4 rounded-xl hover:border-primary hover:scale-105 transition-all duration-300"
           >
             Sign In
           </Link>
@@ -225,7 +232,14 @@ function Landing() {
               <div
                 ref={addRef}
                 key={f.title}
-                className="reveal bg-light rounded-2xl p-6 border border-gray-100 hover:border-primary hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default"
+                className="card-3d reveal bg-light rounded-2xl p-6 border border-gray-100 hover:border-primary hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-default"
+                onMouseMove={e => {
+                  const r = e.currentTarget.getBoundingClientRect()
+                  const x = ((e.clientX - r.left) / r.width - 0.5) * 16
+                  const y = ((e.clientY - r.top) / r.height - 0.5) * -16
+                  e.currentTarget.style.transform = `perspective(800px) rotateX(${y}deg) rotateY(${x}deg) translateY(-4px)`
+                }}
+                onMouseLeave={e => { e.currentTarget.style.transform = '' }}
               >
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary transition-all duration-300">
                   <f.icon size={22} className="text-primary group-hover:text-white transition-all duration-300" />
@@ -273,9 +287,9 @@ function Landing() {
             <p className="text-gray-400 max-w-xl mx-auto">Get started in three simple steps.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map(s => (
-              <div ref={addRef} key={s.number} className="reveal text-center group">
-                <div className="w-16 h-16 bg-dark text-white rounded-2xl flex items-center justify-center text-xl font-extrabold mx-auto mb-4 animate-float group-hover:bg-primary transition-colors duration-300">
+            {steps.map((s, idx) => (
+              <div ref={addRef} key={s.number} className="reveal text-center group" style={{ animationDelay: `${idx * 0.15}s` }}>
+                <div className="w-16 h-16 bg-dark text-white rounded-2xl flex items-center justify-center text-xl font-extrabold mx-auto mb-4 animate-float group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
                   {s.number}
                 </div>
                 <h3 className="font-bold text-dark text-lg mb-2">{s.title}</h3>
@@ -333,8 +347,12 @@ function Landing() {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-dark">
-        <div ref={addRef} className="reveal max-w-3xl mx-auto text-center">
+      <section className="relative py-24 px-6 bg-dark overflow-hidden">
+        {/* Floating glow orb behind CTA */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="animate-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
+        </div>
+        <div ref={addRef} className="reveal relative max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
             Ready to join the movement?
           </h2>
@@ -343,7 +361,7 @@ function Landing() {
           </p>
           <Link
             href="/signup"
-            className="bg-primary text-white font-semibold px-10 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 inline-flex items-center gap-2 shadow-lg shadow-primary/30"
+            className="animate-glow bg-primary text-white font-semibold px-10 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 inline-flex items-center gap-2 shadow-lg shadow-primary/30"
           >
             Get Started Free <FiArrowRight size={18} />
           </Link>

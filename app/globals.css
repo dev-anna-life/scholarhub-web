@@ -206,6 +206,103 @@ h6 {
   animation: cardFloat 4s ease-in-out infinite;
 }
 
+/* ── NEW ANIMATIONS ── */
+
+@keyframes blobDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-30px, 20px) scale(0.95); }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes caretBlink {
+  0%, 100% { border-right-color: #008751; }
+  50% { border-right-color: transparent; }
+}
+
+@keyframes particleDrift {
+  0% { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-120px) translateX(30px) scale(1.2); opacity: 0; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,135,81,0); }
+  50% { box-shadow: 0 0 40px 8px rgba(0,135,81,0.18); }
+}
+
+@keyframes tiltIn {
+  from { transform: perspective(600px) rotateY(-8deg) scale(0.97); opacity: 0; }
+  to   { transform: perspective(600px) rotateY(0deg)  scale(1);    opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0%   { transform: scale(0.7) translateY(30px); opacity: 0; }
+  60%  { transform: scale(1.06) translateY(-6px); opacity: 1; }
+  80%  { transform: scale(0.97) translateY(2px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes shimmerText {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-blob {
+  animation: blobDrift 12s ease-in-out infinite;
+}
+.animate-blob-delay1 {
+  animation: blobDrift 15s ease-in-out infinite reverse;
+  animation-delay: -4s;
+}
+.animate-blob-delay2 {
+  animation: blobDrift 18s ease-in-out infinite;
+  animation-delay: -8s;
+}
+.animate-particle {
+  animation: particleDrift 4s ease-out infinite;
+}
+.animate-glow {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+.animate-bounce-in {
+  animation: bounceIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.animate-tilt-in {
+  animation: tiltIn 0.6s ease both;
+}
+
+/* Shimmer gradient text */
+.gradient-text {
+  background: linear-gradient(90deg, #008751 0%, #00c97a 30%, #ff9f1c 60%, #008751 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerText 3s linear infinite;
+}
+
+/* 3D tilt card — applied via JS */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
+}
+.card-3d:hover {
+  box-shadow: 0 20px 60px rgba(0,135,81,0.15), 0 8px 20px rgba(0,0,0,0.06);
+}
+
+
 .reveal {
   opacity: 0;
   transform: translateY(28px);
