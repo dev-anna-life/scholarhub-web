@@ -179,7 +179,29 @@ function CommunityFeed() {
         return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
     }
 
+
+    // Block cross-level access: secondary students can't see university feed and vice versa
+    const urlLevelMismatch = level && userLevel && level !== userLevel
+    if (urlLevelMismatch) {
+        return (
+            <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center">
+                <div className="text-center px-4">
+                    <FiLock size={32} className="mx-auto mb-3 text-gray-300" />
+                    <p className="font-bold text-dark mb-1">This community is not for you</p>
+                    <p className="text-sm text-gray-400 mb-4">
+                        You can only access {userLevel === 'secondary' ? 'Secondary School' : 'University'} communities.
+                    </p>
+                    <button onClick={() => router.push('/community')}
+                        className="bg-primary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition">
+                        Back to Communities
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
     if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2"><FiLock size={28} /></p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
+
 
     const handleJoin = () => setJoined(true)
     const handleLeave = () => { setJoined(false); setPosts([]) }

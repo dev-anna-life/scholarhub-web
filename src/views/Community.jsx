@@ -161,7 +161,7 @@ function Community() {
             <h2 className="text-lg font-extrabold text-dark mb-1 flex items-center gap-2">
               <FiGlobe size={18} className="text-orange-500" /> Global Communities
             </h2>
-            <p className="text-xs text-gray-400 mb-4">Students studying the same subject from <strong>different schools</strong> can connect and share here</p>
+            <p className="text-xs text-gray-400 mb-4">University students across Africa studying the same subject can connect and share here</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {globalComs.map((c, i) => (
                 <motion.div key={c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
@@ -210,67 +210,46 @@ function Community() {
           </div>
         )}
 
-        {/* Fallback hub cards when no communities yet */}
-        {myComs.length === 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-            {[
-              {
-                id: user.level?.toLowerCase() === 'secondary' ? 'secondary' : 'university',
-                name: user.level?.toLowerCase() === 'secondary' ? 'Secondary School Hub' : 'University Hub',
-                level: user.level || 'University',
-                description: `For ${user.level?.toLowerCase() === 'secondary' ? 'secondary school' : 'university'} students`,
-                color: user.level?.toLowerCase() === 'secondary' ? 'from-[#1F2A1F] to-[#2d4a2d]' : 'from-[#d97f00] to-[#FF9F1C]',
-                accentColor: user.level?.toLowerCase() === 'secondary' ? '#008751' : '#FF9F1C',
-                icon: user.level?.toLowerCase() === 'secondary' ? FiBookOpen : FiStar,
-              },
-              {
-                id: user.level?.toLowerCase() === 'secondary' ? 'university' : 'secondary',
-                name: user.level?.toLowerCase() === 'secondary' ? 'University Hub' : 'Secondary School Hub',
-                level: user.level?.toLowerCase() === 'secondary' ? 'University' : 'Secondary',
-                description: `For ${user.level?.toLowerCase() === 'secondary' ? 'university' : 'secondary school'} students`,
-                color: user.level?.toLowerCase() === 'secondary' ? 'from-[#d97f00] to-[#FF9F1C]' : 'from-[#1F2A1F] to-[#2d4a2d]',
-                accentColor: user.level?.toLowerCase() === 'secondary' ? '#FF9F1C' : '#008751',
-                icon: user.level?.toLowerCase() === 'secondary' ? FiStar : FiBookOpen,
-              },
-            ].map((c, i) => {
-              const isLocked = c.level !== user.level
-              return (
-                <motion.div key={c.id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
-                  whileHover={isLocked ? {} : { y: -4 }}
-                  className={`bg-white rounded-2xl border ${isLocked ? 'border-gray-200 opacity-70' : 'border-gray-100'} overflow-hidden transition-all duration-300 ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer group hover:shadow-xl'}`}>
-                  <div className={`bg-gradient-to-r ${c.color} p-4 md:p-5 ${isLocked ? 'opacity-60' : ''}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      {(() => { const Icon = c.icon; return <Icon size={24} className="text-white" /> })()}
-                      {isLocked ? (
-                        <span className="bg-black/30 text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-                          <FiLock size={11} /> Locked
-                        </span>
-                      ) : (
-                        <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">Active</span>
-                      )}
-                    </div>
-                    <h2 className="text-white font-extrabold text-lg md:text-xl mb-1">{c.name}</h2>
-                    <p className="text-white/80 text-xs md:text-sm leading-relaxed">{c.description}</p>
-                  </div>
-                  <div className="p-4 md:p-5">
-                    {isLocked ? (
-                      <div className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-gray-100 text-gray-400">
-                        <FiLock size={14} /> Not available for {user.level}
-                      </div>
-                    ) : (
-                      <button onClick={() => router.push(`/community/${c.id}`)}
-                        className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 text-white hover:opacity-90"
-                        style={{ backgroundColor: c.accentColor }}>
-                        Enter Community <FiArrowRight size={14} />
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-        )}
+        {/* Fallback hub card when no communities yet — only show user's own level */}
+        {myComs.length === 0 && (() => {
+          const isSecondary = user.level?.toLowerCase() === 'secondary' || user.level === 'JSS' || user.level === 'SSS'
+          const hubId = isSecondary ? 'secondary' : 'university'
+          const hubName = isSecondary ? 'Secondary School Hub' : 'University Hub'
+          const hubDesc = isSecondary
+            ? 'Connect with secondary school students across Africa'
+            : 'Connect with university students across Africa'
+          const hubColor = isSecondary ? 'from-[#1F2A1F] to-[#2d4a2d]' : 'from-[#d97f00] to-[#FF9F1C]'
+          const hubAccent = isSecondary ? '#008751' : '#FF9F1C'
+          const HubIcon = isSecondary ? FiBookOpen : FiStar
+          return (
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}
+              whileHover={{ y: -4 }}
+              className="bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 cursor-pointer group hover:shadow-xl max-w-sm">
+              <div className={`bg-gradient-to-r ${hubColor} p-5`}>
+                <div className="flex items-center justify-between mb-3">
+                  <HubIcon size={24} className="text-white" />
+                  <span className="bg-white/20 text-white text-xs font-semibold px-2.5 py-1 rounded-full">Active</span>
+                </div>
+                <h2 className="text-white font-extrabold text-xl mb-1">{hubName}</h2>
+                <p className="text-white/80 text-sm leading-relaxed">{hubDesc}</p>
+              </div>
+              <div className="p-5">
+                <button onClick={() => router.push(`/community/${hubId}`)}
+                  className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 text-white hover:opacity-90"
+                  style={{ backgroundColor: hubAccent }}>
+                  Enter Community <FiArrowRight size={14} />
+                </button>
+              </div>
+            </motion.div>
+          )
+        })()}
 
+      </div>
+    </div>
+  )
+}
+
+export default Community
       </div>
     </div>
   )
