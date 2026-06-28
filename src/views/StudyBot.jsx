@@ -122,7 +122,7 @@ function StudyBot() {
     return (
         <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex flex-col">
 
-            <div className="bg-dark px-4 py-4 flex items-center justify-between sticky top-0 z-30">
+            <div className="bg-dark px-4 py-4 flex items-center justify-between sticky top-12 md:top-0 z-30">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                         <BsRobot size={20} className="text-white" />
@@ -147,7 +147,7 @@ function StudyBot() {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-3 py-4 max-w-3xl mx-auto w-full">
+            <div className="flex-1 overflow-y-auto px-3 py-4 pb-24 max-w-3xl mx-auto w-full">
 
                 {messages.length === 1 && (
                     <motion.div
@@ -230,7 +230,7 @@ function StudyBot() {
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="sticky bottom-0 bg-light border-t border-gray-100 px-3 py-3">
+            <div className="sticky bottom-[53px] md:bottom-0 bg-light border-t border-gray-100 px-3 py-3 z-30">
 
                 <div className="max-w-3xl mx-auto flex items-end gap-2">
 
