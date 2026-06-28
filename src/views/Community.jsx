@@ -73,10 +73,10 @@ function Community() {
   if (!user.level) {
     return (
       <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
-        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
+        <div className="sticky top-0 z-40 bg-dark px-4 md:px-6 py-3 md:py-4">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-xl md:text-2xl font-extrabold" style={{color: '#111827'}}>Communities</h1>
-            <p className="text-xs md:text-sm mt-0.5" style={{color: '#6B7280'}}>Find your people. Share your knowledge</p>
+            <h1 className="text-xl md:text-2xl font-extrabold text-white">Communities</h1>
+            <p className="text-xs md:text-sm mt-0.5 text-white/70">Find your people. Share your knowledge</p>
           </div>
         </div>
         <div className="max-w-5xl mx-auto px-4 py-16 text-center">
@@ -99,10 +99,10 @@ function Community() {
 
   return (
     <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
-        <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
+        <div className="sticky top-0 z-40 bg-dark px-4 md:px-6 py-3 md:py-4">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-xl md:text-2xl font-extrabold" style={{color: '#111827'}}>Communities</h1>
-            <p className="text-xs md:text-sm mt-0.5" style={{color: '#6B7280'}}>Find your people. Share your knowledge</p>
+            <h1 className="text-xl md:text-2xl font-extrabold text-white">Communities</h1>
+            <p className="text-xs md:text-sm mt-0.5 text-white/70">Find your people. Share your knowledge</p>
           </div>
         </div>
 

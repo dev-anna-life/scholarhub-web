@@ -95,14 +95,14 @@ function CommunityView({ communityId }) {
 
     return (
         <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
-            <div className="sticky top-0 md:top-0 z-40 bg-light/95 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 md:py-4">
+            <div className="sticky top-0 md:top-0 z-40 bg-dark px-4 md:px-6 py-3 md:py-4">
                 <div className="max-w-5xl mx-auto flex items-center gap-3">
-                    <button onClick={() => router.back()} className="p-1.5 text-gray-500 hover:text-primary transition">
+                    <button onClick={() => router.back()} className="p-1.5 text-white/70 hover:text-white transition">
                         <FiArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-lg font-extrabold text-dark">{communityName}</h1>
-                        <p className="text-xs text-gray-400">Community feed</p>
+                        <h1 className="text-lg font-extrabold text-white">{communityName}</h1>
+                        <p className="text-xs text-white/60">Community feed</p>
                     </div>
                 </div>
             </div>
