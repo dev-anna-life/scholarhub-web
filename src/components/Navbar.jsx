@@ -234,7 +234,7 @@ function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden fixed inset-0 bg-black/60 z-50"
+              className="md:hidden fixed inset-0 bg-black/60 z-[999]"
               onClick={() => setOpen(false)}
             />
 
@@ -243,7 +243,7 @@ function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="md:hidden fixed top-0 left-0 bottom-0 w-72 bg-dark text-white px-5 py-8 z-50 flex flex-col shadow-2xl"
+              className="md:hidden fixed top-0 left-0 bottom-0 w-72 bg-dark text-white px-5 py-8 z-[1000] flex flex-col shadow-2xl"
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
@@ -293,29 +293,25 @@ function Navbar() {
         )}
       </AnimatePresence>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark border-t border-white/10 z-50 flex items-center justify-around px-2 pb-1 pt-1" style={{ paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
-        <Link href="/feed" className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition ${pathname === '/feed' ? 'text-primary' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiHome size={20} />
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark border-t border-white/10 z-50 flex items-center justify-around px-2 py-1.5" style={{ paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
+        <Link href="/feed" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/feed' ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
+          <FiHome size={21} />
           <span className="text-[10px] font-medium">Home</span>
         </Link>
-        <Link href="/search" className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition ${pathname === '/search' ? 'text-primary' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiSearch size={20} />
+        <Link href="/search" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/search' ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
+          <FiSearch size={21} />
           <span className="text-[10px] font-medium">Search</span>
         </Link>
-        <Link href="/study-bot" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition relative -mt-3">
-          <div className={`w-11 h-11 rounded-full flex items-center justify-center transition ${pathname === '/study-bot' ? 'bg-primary text-white' : 'bg-primary/20 text-primary'}`}>
-            <BsRobot size={22} />
-          </div>
-          <span className={`text-[10px] font-medium ${pathname === '/study-bot' ? 'text-primary' : 'text-gray-400'}`}>Study</span>
+        <Link href="/study-bot" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/study-bot' ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
+          <BsRobot size={21} />
+          <span className="text-[10px] font-medium">Study</span>
         </Link>
-        <Link href="/feed?create=true" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition">
-          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/40">
-            <FiPlus size={20} />
-          </div>
-          <span className="text-[10px] font-medium text-gray-400">Create</span>
+        <Link href="/feed?create=true" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname.includes('create') ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
+          <FiPlus size={21} />
+          <span className="text-[10px] font-medium">Create</span>
         </Link>
-        <Link href="/chat" className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition ${pathname === '/chat' ? 'text-primary' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiMessageSquare size={20} />
+        <Link href="/chat" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/chat' ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
+          <FiMessageSquare size={21} />
           <span className="text-[10px] font-medium">Messages</span>
         </Link>
       </nav>
