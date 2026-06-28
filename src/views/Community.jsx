@@ -250,9 +250,3 @@ function Community() {
 }
 
 export default Community
-      </div>
-    </div>
-  )
-}
-
-export default Community
