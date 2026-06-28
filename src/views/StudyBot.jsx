@@ -28,7 +28,7 @@ function StudyBot() {
 
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
-    const [quota, setQuota] = useState({ limit: 5, used: 0, badge: 'free' })
+    const [quota, setQuota] = useState({ limit: 20, used: 0, badge: 'free' })
     const [limitReached, setLimitReached] = useState(false)
 
     const messagesEndRef = useRef(null)
@@ -38,7 +38,7 @@ function StudyBot() {
         getMe().then(r => {
             const u = r.data
             const badge = (u.badgeSubscriptions || []).find(s => new Date(s.expiresAt) > new Date())
-            const limits = { free: 5, badge_basic: 20, badge_premium: 50, badge_extra_premium: 9999 }
+            const limits = { free: 20, badge_basic: 20, badge_premium: 50, badge_extra_premium: 9999 }
             const bid = badge?.id || 'free'
             setQuota({ limit: limits[bid] || 5, used: 0, badge: bid })
         }).catch(() => {})
