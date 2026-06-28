@@ -29,8 +29,8 @@ const steps = [
 ]
 
 const communities = [
-  { id: 'secondary', name: "Secondary School Hub", color: "bg-emerald-50 border-emerald-200", badge: "text-primary", desc: "Notes, gist & exam tips" },
-  { id: 'university', name: "University Hub", color: "bg-blue-50 border-blue-200", badge: "text-blue-600", desc: "Lecture notes & campus life" },
+  { id: 'secondary', name: "Secondary School Hub", color: "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/30", badge: "text-emerald-600 dark:text-emerald-400", desc: "Notes, gist & exam tips" },
+  { id: 'university', name: "University Hub", color: "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30", badge: "text-blue-600 dark:text-blue-400", desc: "Lecture notes & campus life" },
 ]
 
 const navLinks = [
@@ -93,14 +93,14 @@ function Landing() {
     setMenuOpen(false)
   }
 
-const handleCommunityClick = (id) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    router.push(`/community/${id}`)
-  } else {
-    router.push('/signup')
+  const handleCommunityClick = (id) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      router.push(`/community/${id}`)
+    } else {
+      router.push('/signup')
+    }
   }
-}
 
   return (
     <div className="min-h-screen bg-light overflow-x-hidden">
@@ -244,7 +244,7 @@ const handleCommunityClick = (id) => {
             <h2 className="text-4xl font-extrabold text-dark mb-3">Find your community</h2>
             <p className="text-gray-400 max-w-xl mx-auto">Every student has a space on ScholarHub from Secondary to University.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {communities.map(c => (
               <div
                 ref={addRef}
@@ -252,13 +252,13 @@ const handleCommunityClick = (id) => {
                 onClick={() => handleCommunityClick(c.id)}
                 className={`reveal border rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-2 transition-all duration-300 cursor-pointer ${c.color}`}
               >
-                <p className={`text-2xl font-extrabold mb-1 ${c.id === 'sss' ? 'text-accent' : c.badge}`}>
-                  {c.id === 'jss' ? <FiBookOpen size={24} /> : c.id === 'sss' ? <FiZap size={24} /> : <FiAward size={24} />}
+                <p className={`flex justify-center mb-3 ${c.badge}`}>
+                  {c.id === 'secondary' ? <FiBookOpen size={28} /> : <FiGlobe size={28} />}
                 </p>
-                <p className="font-semibold text-dark text-sm mt-1">{c.name}</p>
-                <p className="text-xs text-gray-400 mt-1 mb-3">{c.desc}</p>
-                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${c.badge} border ${c.color}`}>
-                  Enter →
+                <p className="font-extrabold text-dark text-base mt-1">{c.name}</p>
+                <p className="text-xs text-gray-450 mt-1 mb-4">{c.desc}</p>
+                <span className={`text-xs font-semibold px-4 py-1.5 rounded-full ${c.badge} border border-current bg-white/60 dark:bg-dark/60`}>
+                  Enter Community
                 </span>
               </div>
             ))}
