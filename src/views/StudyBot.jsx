@@ -138,18 +138,6 @@ function StudyBot() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                        <div className="bg-white/10 rounded-lg px-2.5 py-1.5 flex items-center gap-2">
-                            <FiZap size={12} className="text-yellow-400" />
-                            <div className="flex items-center gap-1">
-                                <div className="w-16 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                                    <div className="h-full bg-yellow-400 rounded-full transition-all duration-300"
-                                        style={{ width: `${Math.min((quota.used / quota.limit) * 100, 100)}%` }} />
-                                </div>
-                                <span className="text-xs text-gray-400 min-w-[40px] text-right">{quota.used}/{quota.limit}</span>
-                            </div>
-                        </div>
-                    </div>
                     <button
                         onClick={clearChat}
                         className="p-2 text-gray-400 hover:text-white transition rounded-xl hover:bg-white/10"
@@ -273,15 +261,6 @@ function StudyBot() {
                     </button>
 
                 </div>
-
-                {limitReached && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-2 flex items-center justify-between">
-                        <p className="text-xs text-amber-700">Daily limit reached. Upgrade to keep chatting.</p>
-                        <Link href="/shop" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
-                            <BsShop size={12} /> Shop
-                        </Link>
-                    </div>
-                )}
 
                 <p className="text-center text-xs text-gray-400 mt-2">
                     Enter to send • Shift + Enter for new line
