@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiSend, FiInbox } from "react-icons/fi"
+import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiSend, FiInbox, FiGlobe } from "react-icons/fi"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getPosts, likePost, getComments, addComment, savePost } from "../api/auth"
 import { getSchoolAbbr, stringToColor } from '../utils/school'
@@ -9,6 +9,8 @@ function CommunityView({ communityId }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const communityName = searchParams?.get('name') || 'Community'
+    const communityType = searchParams?.get('type') || ''
+    const isGlobal = communityType === 'global'
 
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(true)
@@ -101,11 +103,22 @@ function CommunityView({ communityId }) {
                         <FiArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-lg font-extrabold text-white">{communityName}</h1>
-                        <p className="text-xs text-white/60">Community feed</p>
+                        <h1 className="text-lg font-extrabold text-white flex items-center gap-2">
+                            {isGlobal && <FiGlobe size={16} className="text-orange-400" />}
+                            {communityName}
+                        </h1>
+                        <p className="text-xs text-white/60">{isGlobal ? 'Global · All schools' : 'Community feed'}</p>
                     </div>
                 </div>
             </div>
+
+            {isGlobal && (
+                <div className="bg-orange-50 border-b border-orange-100 px-4 py-2.5">
+                    <p className="text-xs text-orange-700 text-center max-w-5xl mx-auto">
+                        🌍 <strong>Global community</strong> — Students from all schools studying {communityName} can post and connect here
+                    </p>
+                </div>
+            )}
 
             <div className="max-w-5xl mx-auto px-4 py-6">
                 {loading ? (
@@ -144,19 +157,16 @@ function CommunityView({ communityId }) {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-semibold text-dark text-xs md:text-sm truncate">{post.author}</p>
-                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                                             {post.school && (
-                                                <span className="text-white font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                                                <span className="text-white font-bold px-2 py-0.5 rounded-full flex-shrink-0 flex items-center gap-1"
                                                     style={{ backgroundColor: stringToColor(post.school), fontSize: '9px' }}>
-                                                    {getSchoolAbbr(post.school)}
+                                                    {isGlobal ? post.school : getSchoolAbbr(post.school)}
                                                 </span>
                                             )}
                                             <p className="text-xs text-gray-400">{post.time}</p>
                                         </div>
                                     </div>
-                                    <span className="bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded-full" style={{ fontSize: '10px' }}>
-                                        {post.category}
-                                    </span>
                                 </div>
 
                                 <h3 className="font-bold text-dark text-sm mb-1">{post.title}</h3>

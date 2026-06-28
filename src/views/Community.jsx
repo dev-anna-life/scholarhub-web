@@ -145,7 +145,7 @@ function Community() {
                       <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${typeColors[c.type]}`}>{typeLabels[c.type] || c.type}</span>
                     </div>
                   </div>
-                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}`)}
+                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}&type=${c.type}`)}
                     className="flex items-center gap-1 text-primary text-xs font-semibold hover:underline">
                     View <FiArrowRight size={12} />
                   </button>
@@ -161,7 +161,7 @@ function Community() {
             <h2 className="text-lg font-extrabold text-dark mb-1 flex items-center gap-2">
               <FiGlobe size={18} className="text-orange-500" /> Global Communities
             </h2>
-            <p className="text-xs text-gray-400 mb-4">Connect with students from all schools in the same department</p>
+            <p className="text-xs text-gray-400 mb-4">Students studying the same subject from <strong>different schools</strong> can connect and share here</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {globalComs.map((c, i) => (
                 <motion.div key={c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
@@ -175,7 +175,7 @@ function Community() {
                       <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">Global Community</span>
                     </div>
                   </div>
-                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}`)}
+                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}&type=global`)}
                     className="flex items-center gap-1 text-orange-500 text-xs font-semibold hover:underline">
                     View <FiArrowRight size={12} />
                   </button>
