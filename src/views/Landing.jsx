@@ -212,24 +212,6 @@ const handleCommunityClick = (id) => {
             Sign In
           </Link>
         </motion.div>
-
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={4}
-          className="flex flex-wrap justify-center gap-10 mt-16"
-        >
-          {[
-            { value: "100K+", label: "Students" },
-            { value: "12+", label: "African Countries" },
-          ].map(stat => (
-            <div key={stat.label} className="text-center group cursor-default">
-              <p className="text-3xl font-extrabold text-dark group-hover:text-primary transition-colors duration-300">{stat.value}</p>
-              <p className="text-sm text-gray-400 mt-1">{stat.label}</p>
-            </div>
-          ))}
-        </motion.div>
       </section>
 
       <section id="features" className="py-24 px-6 bg-white">
