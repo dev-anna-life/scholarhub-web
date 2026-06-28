@@ -29,8 +29,8 @@ const steps = [
 ]
 
 const communities = [
-  { id: 'secondary', name: "Secondary School Hub", color: "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/30", badge: "text-emerald-600 dark:text-emerald-400", desc: "Notes, gist & exam tips" },
-  { id: 'university', name: "University Hub", color: "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30", badge: "text-blue-600 dark:text-blue-400", desc: "Lecture notes & campus life" },
+  { id: 'secondary', name: "Secondary School Hub", color: "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/30", badge: "text-emerald-600 dark:text-emerald-400", desc: "Secondary" },
+  { id: 'university', name: "University Hub", color: "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30", badge: "text-blue-600 dark:text-blue-400", desc: "University" },
 ]
 
 const navLinks = [
