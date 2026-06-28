@@ -94,11 +94,12 @@ function StudyBot() {
                     }
                 ])
             } else {
+                const serverMsg = err.response?.data?.message || err.message || "Sorry, I'm having trouble connecting. Please try again."
                 setMessages(prev => [
                     ...prev,
                     {
                         role: 'assistant',
-                        content: "Sorry, I'm having trouble connecting. Please try again.",
+                        content: serverMsg,
                         time: new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })
                     }
                 ])
