@@ -181,7 +181,8 @@ function CommunityFeed() {
 
 
     // Block cross-level access: secondary students can't see university feed and vice versa
-    const urlLevelMismatch = level && userLevel && level !== userLevel
+    const isAlumni = user?.status === 'Alumni' || user?.status === 'Graduate'
+    const urlLevelMismatch = level && userLevel && level !== userLevel && !isAlumni
     if (urlLevelMismatch) {
         return (
             <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center">
