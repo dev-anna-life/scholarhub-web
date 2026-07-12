@@ -307,23 +307,17 @@ function Home() {
         setPostLoading(true)
         setPostError('')
         try {
-            const postData = { title: newPost.title.trim(), content: newPost.content.trim(), category: newPost.category, communityIds: selectedCommunityIds }
-            if (postImageFile) {
-                const formData = new FormData()
-                Object.entries(postData).forEach(([k, v]) => formData.append(k, Array.isArray(v) ? JSON.stringify(v) : v))
-                formData.append('image', postImageFile)
-                const token = localStorage.getItem('token')
-                const res = await axios.post('https://scholarhub-api.vercel.app/api/posts', formData, {
-                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
-                })
-                if (res.status !== 201) throw new Error('Upload failed')
-            } else {
-                await createPost(postData)
+            const postData = {
+                title: newPost.title.trim(),
+                content: newPost.content.trim(),
+                category: newPost.category,
+                communityIds: selectedCommunityIds,
+                image: postImage || ''
             }
+            await createPost(postData)
             setPostSuccess(true)
             setNewPost({ title: '', content: '', category: 'University', community: '' })
             setPostImage(null)
-            setPostImageFile(null)
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false); fetchPosts(1) }, 2000)
         } catch (err) {
             setPostError(err.response?.data?.message || err.message || 'Something went wrong')
@@ -479,10 +473,12 @@ function Home() {
                         </AnimatePresence>
                     </div>
 
-                    <button onClick={() => setShowCreatePost(true)}
-                        className="hidden md:flex items-center gap-1.5 bg-primary text-white px-3 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition flex-shrink-0">
-                        <FiPlus size={14} /> Create Post
-                    </button>
+                    {user.status === 'Current Student' && (
+                        <button onClick={() => setShowCreatePost(true)}
+                            className="hidden md:flex items-center gap-1.5 bg-primary text-white px-3 py-2 rounded-xl text-xs font-bold hover:opacity-90 transition flex-shrink-0">
+                            <FiPlus size={14} /> Create Post
+                        </button>
+                    )}
 
                     <div
                         onClick={() => router.push('/profile')}
@@ -893,12 +889,19 @@ function Home() {
                                 <div className="flex items-center gap-3">
                                     <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition text-xs text-gray-600 font-medium">
                                         <FiImage size={14} /> Add Image
-                                        <input type="file" accept="image/*" hidden onChange={e => { const f = e.target.files[0]; if (f) { setPostImageFile(f); setPostImage(URL.createObjectURL(f)) } }} />
+                                        <input type="file" accept="image/*" hidden onChange={e => {
+                                            const file = e.target.files[0]
+                                            if (file) {
+                                                const reader = new FileReader()
+                                                reader.onloadend = () => setPostImage(reader.result)
+                                                reader.readAsDataURL(file)
+                                            }
+                                        }} />
                                     </label>
                                     {postImage && (
                                         <div className="relative">
                                             <img src={postImage} alt="" className="h-10 w-10 object-cover rounded-lg" />
-                                            <button onClick={() => { setPostImage(null); setPostImageFile(null) }}
+                                            <button onClick={() => setPostImage(null)}
                                                 className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">&times;</button>
                                         </div>
                                     )}

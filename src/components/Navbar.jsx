@@ -307,10 +307,12 @@ function Navbar() {
           <BsRobot size={21} />
           <span className="text-[10px] font-medium">Study</span>
         </Link>
-        <Link href="/feed?create=true" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname.includes('create') ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiPlus size={21} />
-          <span className="text-[10px] font-medium">Create</span>
-        </Link>
+        {user?.status === 'Current Student' && (
+          <Link href="/feed?create=true" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname.includes('create') ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
+            <FiPlus size={21} />
+            <span className="text-[10px] font-medium">Create</span>
+          </Link>
+        )}
         <Link href="/chat" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/chat' ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
           <FiMessageSquare size={21} />
           <span className="text-[10px] font-medium">Messages</span>
