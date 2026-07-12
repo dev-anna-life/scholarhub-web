@@ -17,7 +17,7 @@ function Home() {
     const [totalPages, setTotalPages] = useState(1)
     const [loadingMore, setLoadingMore] = useState(false)
     const [showCreatePost, setShowCreatePost] = useState(false)
-    const [newPost, setNewPost] = useState({ title: '', content: '', category: 'Sciences', community: '' })
+    const [newPost, setNewPost] = useState({ title: '', content: '', category: 'University', community: '' })
     const [postImage, setPostImage] = useState(null)
     const [postImageFile, setPostImageFile] = useState(null)
     const [userCommunities, setUserCommunities] = useState([])
@@ -47,7 +47,7 @@ function Home() {
     const [showTopics, setShowTopics] = useState(false)
     const topicsBtnRef = useRef(null)
     const [topicsPos, setTopicsPos] = useState({ left: 0, top: 0 })
-    const feedCategories = ['Sciences', 'Mathematics', 'Technology', 'Law', 'Medicine', 'Arts & Lit', 'Commerce', 'Campus Gist', 'Entertainment', 'Talent']
+    const feedCategories = ['University', 'Secondary']
     const categories = feedCategories
 
     useEffect(() => {
@@ -321,7 +321,7 @@ function Home() {
                 await createPost(postData)
             }
             setPostSuccess(true)
-            setNewPost({ title: '', content: '', category: 'Sciences', community: '' })
+            setNewPost({ title: '', content: '', category: 'University', community: '' })
             setPostImage(null)
             setPostImageFile(null)
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false); fetchPosts(1) }, 2000)

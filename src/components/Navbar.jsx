@@ -16,6 +16,7 @@ const navLinks = [
   { label: 'Community', icon: HiUserGroup, path: '/community' },
   { label: 'Shop', icon: BsShop, path: '/shop' },
   { label: 'Profile', icon: FiUser, path: '/profile' },
+  { label: 'Notifications', icon: FiBell, path: '/notifications' },
   { label: 'Leaderboard', icon: MdLeaderboard, path: '/leaderboard' },
   { label: 'Settings', icon: FiSettings, path: '/settings' },
   { label: 'Study Bot', icon: BsRobot, path: '/study-bot' },
