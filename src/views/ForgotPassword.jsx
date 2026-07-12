@@ -19,7 +19,9 @@ function ForgotPassword() {
             await forgotPassword(email)
             setSuccess(true)
         } catch (err) {
-            setError(err.response?.data?.message || 'Something went wrong')
+            const status = err.response?.status
+            const msg = err.response?.data?.message || err.response?.data?.error || ''
+            setError(msg || `Server error (${status || 'connection failed'}). The backend may be down.`)
         } finally {
             setLoading(false)
         }

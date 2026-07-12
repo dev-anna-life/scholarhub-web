@@ -114,9 +114,9 @@ export default function ShopPage() {
         )}
 
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-slate-800">
-          {['badges', 'send', 'redeem'].map(t => (
+          {['badges', 'send', 'cash', 'redeem'].map(t => (
             <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 font-medium text-sm border-b-2 transition ${tab === t ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
-              {t === 'badges' ? '🏆 Badges' : t === 'send' ? '📤 Send Coins' : '📱 Redeem'}
+              {t === 'badges' ? '🏆 Badges' : t === 'send' ? '📤 Send Coins' : t === 'cash' ? '💰 Convert to Cash' : '📱 Redeem'}
             </button>
           ))}
         </div>
@@ -184,6 +184,24 @@ export default function ShopPage() {
               <button onClick={handleSendCoins} disabled={sending || !recipient.trim() || !sendAmount} className="w-full py-2.5 bg-primary text-white rounded-lg font-medium text-sm hover:opacity-90 disabled:opacity-50 transition">
                 {sending ? 'Sending...' : 'Send Coins'}
               </button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'cash' && (
+          <div className="max-w-lg mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6 text-center">
+            <div className="text-5xl mb-4">💰</div>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Convert Coins to Cash</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Withdraw your coins as real money to your bank account or mobile money.</p>
+            <span className="inline-block bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-xs px-3 py-1.5 rounded-full font-medium">Coming Soon</span>
+            <div className="mt-6 p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl text-left">
+              <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-2">Planned features:</p>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                <li className="flex items-start gap-2">• <span>Withdraw to bank accounts (NGN)</span></li>
+                <li className="flex items-start gap-2">• <span>Mobile money transfer (MTN MoMo, Paga, Opay)</span></li>
+                <li className="flex items-start gap-2">• <span>Minimum withdrawal: 1,000 coins</span></li>
+                <li className="flex items-start gap-2">• <span>Processing time: 24-48 hours</span></li>
+              </ul>
             </div>
           </div>
         )}

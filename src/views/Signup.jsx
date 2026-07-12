@@ -20,25 +20,30 @@ const levels = ['Secondary', 'University']
 const secondaryInterests = ['Sciences', 'Mathematics', 'English & Literature', 'Arts & Creativity', 'Commerce / Business', 'Technology / ICT', 'History & Government', 'Sports']
 const universityInterests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
 const tracks = ['Science', 'Art', 'Commercial']
-const stateOptions = [
-  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue',
-  'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu',
-  'FCT (Abuja)', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina',
-  'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo',
-  'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara',
-  'Nairobi, Kenya', 'Mombasa, Kenya', 'Kampala, Uganda',
-  'Accra, Ghana', 'Kumasi, Ghana', 'Cape Coast, Ghana',
-  'Cape Town, South Africa', 'Johannesburg, South Africa', 'Durban, South Africa', 'Pretoria, South Africa',
-  'Addis Ababa, Ethiopia', 'Cairo, Egypt', 'Dar es Salaam, Tanzania',
-  'Khartoum, Sudan', 'Gaborone, Botswana', 'Dakar, Senegal',
-  'Abidjan, Côte d\'Ivoire',
-]
+const africanCountries = [
+  'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
+  'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad',
+  'Comoros', 'Congo', "Côte d'Ivoire", 'Democratic Republic of the Congo',
+  'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini',
+  'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau',
+  'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar',
+  'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique',
+  'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé and Príncipe',
+  'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa',
+  'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda',
+  'Zambia', 'Zimbabwe'
+].sort()
 
-function StateSelect({ value, onChange, error }) {
+function CountrySelect({ value, onChange, error }) {
   const [query, setQuery] = useState(value || '')
   const [showDropdown, setShowDropdown] = useState(false)
   const [selected, setSelected] = useState(!!value)
   const wrapperRef = useRef(null)
+
+  useEffect(() => {
+    setQuery(value || '')
+    setSelected(!!value)
+  }, [value])
 
   useEffect(() => {
     const handler = (e) => {
@@ -48,7 +53,7 @@ function StateSelect({ value, onChange, error }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const filtered = query ? stateOptions.filter(s => s.toLowerCase().includes(query.toLowerCase())) : stateOptions
+  const filtered = query ? africanCountries.filter(c => c.toLowerCase().includes(query.toLowerCase())) : africanCountries
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -57,7 +62,7 @@ function StateSelect({ value, onChange, error }) {
         <input type="text" value={query}
           onChange={e => { setQuery(e.target.value); setSelected(false); onChange(e.target.value) }}
           onFocus={() => setShowDropdown(true)}
-          placeholder="Your state / region..."
+          placeholder="Your country..."
           className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : selected ? 'border-primary' : ''}`} />
         {query && (
           <button type="button" onClick={() => { setQuery(''); setSelected(false); onChange(''); }} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
@@ -66,6 +71,83 @@ function StateSelect({ value, onChange, error }) {
         )}
       </div>
       {showDropdown && (
+        <div className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <p className="p-3 text-sm text-gray-400 text-center">Type your country</p>
+          ) : filtered.map((c, i) => (
+            <button key={i} type="button"
+              onClick={() => { setQuery(c); setSelected(true); setShowDropdown(false); onChange(c) }}
+              className="w-full text-left px-3 py-2.5 text-sm text-dark hover:bg-primary/5">
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
+      {selected && <p className="text-primary text-xs mt-1"><FiCheck size={10} className="inline mr-0.5" />Selected</p>}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
+  )
+}
+
+function StateSelect({ value, onChange, error, country, level }) {
+  const [query, setQuery] = useState(value || '')
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [selected, setSelected] = useState(!!value)
+  const [states, setStates] = useState([])
+  const [loading, setLoading] = useState(false)
+  const wrapperRef = useRef(null)
+
+  useEffect(() => {
+    setQuery(value || '')
+    setSelected(!!value)
+  }, [value])
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setShowDropdown(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  useEffect(() => {
+    if (!country || !level) {
+      setStates([])
+      return
+    }
+    setLoading(true)
+    searchSchools(country, level.toLowerCase(), '', '')
+      .then(res => {
+        const schoolList = res.data.schools || []
+        const uniqueStates = [...new Set(schoolList.map(s => s.state).filter(Boolean))].sort()
+        setStates(uniqueStates)
+      })
+      .catch(err => {
+        console.error('Error fetching states:', err)
+        setStates([])
+      })
+      .finally(() => setLoading(false))
+  }, [country, level])
+
+  const filtered = query ? states.filter(s => s.toLowerCase().includes(query.toLowerCase())) : states
+
+  return (
+    <div ref={wrapperRef} className="relative">
+      <div className="relative">
+        <FiSearch className="absolute left-3 top-3.5 text-gray-400" size={16} />
+        <input type="text" value={query}
+          disabled={!country}
+          onChange={e => { setQuery(e.target.value); setSelected(false); onChange(e.target.value) }}
+          onFocus={() => setShowDropdown(true)}
+          placeholder={loading ? "Loading states..." : !country ? "Select country first..." : "Your state / region..."}
+          className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : selected ? 'border-primary' : ''} disabled:bg-gray-50`} />
+        {query && (
+          <button type="button" onClick={() => { setQuery(''); setSelected(false); onChange(''); }} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
+            <FiX size={15} />
+          </button>
+        )}
+      </div>
+      {showDropdown && states.length > 0 && (
         <div className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
           {filtered.length === 0 ? (
             <p className="p-3 text-sm text-gray-400 text-center">Type your state or region</p>
@@ -84,7 +166,7 @@ function StateSelect({ value, onChange, error }) {
   )
 }
 
-function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
+function SchoolSearchInput({ value, onChange, error, currentLevel, country, state }) {
   const [query, setQuery] = useState(value || '')
   const [suggestions, setSuggestions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
@@ -110,8 +192,6 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, state }) {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
-
-  const country = state ? getCountryFromState(state) : null
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -256,7 +336,7 @@ function Signup() {
   const deptRef = useRef(null)
   const [form, setForm] = useState({
     name: '', email: '', phone: '', password: '', username: '',
-    level: '', school: '', state: '', course: '', track: '', faculty: '', department: '', interests: [],
+    level: '', school: '', country: '', state: '', course: '', track: '', faculty: '', department: '', interests: [],
   })
 
   useEffect(() => {
@@ -312,8 +392,9 @@ function Signup() {
   const validateStep2 = () => {
     const newErrors = {}
     if (!form.level) newErrors.level = 'Please select your education level'
-    if (!form.school.trim()) newErrors.school = 'School name is required'
+    if (!form.country) newErrors.country = 'Country is required'
     if (!form.state.trim()) newErrors.state = 'State is required'
+    if (!form.school.trim()) newErrors.school = 'School name is required'
     if (form.level === 'Secondary' && !form.track) newErrors.track = 'Please select a track'
     if (form.level === 'University') {
       if (!form.faculty) newErrors.faculty = 'Faculty is required'
@@ -486,12 +567,17 @@ function Signup() {
               )}
 
               <div className="mb-4">
-                <StateSelect value={form.state} error={errors.state}
-                  onChange={(val) => setForm(prev => ({ ...prev, state: val }))} />
+                <CountrySelect value={form.country} error={errors.country}
+                  onChange={(val) => setForm(prev => ({ ...prev, country: val, state: '', school: '' }))} />
+              </div>
+
+              <div className="mb-4">
+                <StateSelect value={form.state} error={errors.state} country={form.country} level={form.level}
+                  onChange={(val) => setForm(prev => ({ ...prev, state: val, school: '' }))} />
               </div>
 
               <div className="mb-3">
-                <SchoolSearchInput value={form.school} currentLevel={form.level} state={form.state}
+                <SchoolSearchInput value={form.school} currentLevel={form.level} country={form.country} state={form.state}
                   onChange={(val) => setForm(prev => ({ ...prev, school: val }))} error={errors.school} />
               </div>
 

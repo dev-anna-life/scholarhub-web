@@ -25,7 +25,9 @@ function ResetPassword() {
             await resetPassword(token, password)
             router.push('/login')
         } catch (err) {
-            setError(err.response?.data?.message || 'Something went wrong')
+            const status = err.response?.status
+            const msg = err.response?.data?.message || err.response?.data?.error || ''
+            setError(msg || `Server error (${status || 'connection failed'}). The link may be invalid or expired.`)
         } finally {
             setLoading(false)
         }
