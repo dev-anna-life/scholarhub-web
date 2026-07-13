@@ -179,19 +179,19 @@ function Settings() {
   }
 
   const sections = [
-    { id: 'account', label: 'Account', icon: FiUser },
-    { id: 'notifications', label: 'Notifications', icon: FiBell },
-    { id: 'privacy', label: 'Privacy & Security', icon: FiShield },
-    { id: 'appearance', label: 'Appearance', icon: FiSun },
-    { id: 'general', label: 'General', icon: FiGlobe },
+    { id: 'account', label: 'Account', icon: FiUser, color: 'text-primary', bg: 'bg-primary/10' },
+    { id: 'notifications', label: 'Notifications', icon: FiBell, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { id: 'privacy', label: 'Privacy & Security', icon: FiShield, color: 'text-blue-500', bg: 'bg-blue-50' },
+    { id: 'appearance', label: 'Appearance', icon: FiSun, color: 'text-yellow-500', bg: 'bg-yellow-50' },
+    { id: 'general', label: 'General', icon: FiGlobe, color: 'text-green-500', bg: 'bg-green-50' },
   ]
 
   const Toggle = ({ enabled, onChange }) => (
     <button
       onClick={() => onChange(!enabled)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${enabled ? 'bg-primary' : 'bg-gray-300'}`}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 ${enabled ? 'bg-primary' : 'bg-gray-200 hover:bg-gray-300'}`}
     >
-      <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
     </button>
   )
 
@@ -224,28 +224,48 @@ function Settings() {
 
         <div className="mb-6">
           <h1 className="text-2xl font-extrabold text-dark flex items-center gap-2">
-            <FiSettings size={24} /> Settings
+            <FiSettings size={24} className="text-primary" /> Settings
           </h1>
-          <p className="text-sm text-gray-400 mt-1">Manage your account preferences</p>
+          <p className="text-sm text-gray-400 mt-1">Manage your account, privacy and preferences</p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6">
 
-          <div className="md:w-56 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-100 p-2 sticky top-4">
-              {sections.map(section => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeSection === section.id
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-dark'
+          <div className="md:w-64 flex-shrink-0">
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden sticky top-4 shadow-sm">
+              {/* User card at top of sidebar */}
+              <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-primary/5 to-transparent">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-base flex-shrink-0">
+                    {user.name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-dark truncate">{user.name || 'Your Name'}</p>
+                    <p className="text-xs text-gray-400 truncate">{user.email || ''}</p>
+                    {user.level && <span className="inline-block mt-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{user.level}</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="p-2">
+                {sections.map(section => (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all mb-0.5 ${
+                      activeSection === section.id
+                        ? `${section.bg} ${section.color} font-semibold`
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-dark'
                     }`}
-                >
-                  <section.icon size={18} />
-                  {section.label}
-                </button>
-              ))}
+                  >
+                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                      activeSection === section.id ? section.bg : 'bg-gray-100'
+                    }`}>
+                      <section.icon size={15} className={activeSection === section.id ? section.color : 'text-gray-500'} />
+                    </span>
+                    {section.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

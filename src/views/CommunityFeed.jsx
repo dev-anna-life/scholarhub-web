@@ -58,7 +58,7 @@ function CommunityFeed() {
     const videoInputRef = useRef(null)
     const [imageUploading, setImageUploading] = useState(false)
     const [myCommunities, setMyCommunities] = useState([])
-    const [selectedVisibility, setSelectedVisibility] = useState({ department: true, faculty: false, school: false, general: false })
+    const [selectedVisibility, setSelectedVisibility] = useState({ department: false, faculty: false, school: false, general: true })
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('user') || '{}')
@@ -99,7 +99,7 @@ function CommunityFeed() {
     }, [])
 
     useEffect(() => {
-        if (joined && user.school && user.faculty && user.department) {
+        if (joined && user.school) {
             getMyCommunities().then(res => setMyCommunities(res.data.communities || [])).catch(() => {})
         } else {
             setMyCommunities([])
@@ -201,7 +201,6 @@ function CommunityFeed() {
         )
     }
 
-    if (community && userLevel && community.level?.toLowerCase() !== userLevel) { return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl mb-2"><FiLock size={28} /></p><p className="font-bold text-dark mb-1">This community is not available for your level</p><p className="text-sm text-gray-400">You can only access your own education level community.</p></div></div> }
 
 
     const handleJoin = () => setJoined(true)
@@ -255,15 +254,18 @@ function CommunityFeed() {
         setPostLoading(true); setPostError('')
         try {
             const visibilities = Object.entries(selectedVisibility).filter(([, v]) => v).map(([k]) => k)
-            const selectedComs = myCommunities.filter(c => visibilities.includes(c.type))
+            // Filter out 'general' (hub-level), match sub-communities for others
+            const subVisibilities = visibilities.filter(v => v !== 'general')
+            const selectedComs = myCommunities.filter(c => subVisibilities.includes(c.type))
             const communityIds = selectedComs.map(c => c._id)
-            await createPost({ ...newPost, communityIds })
+            await createPost({ ...newPost, communityIds, level: visibilities.includes('general') ? (level || user.level?.toLowerCase()) : undefined })
             setPostSuccess(true)
             setNewPost({ title: '', content: '', category: '', image: null, video: null })
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false) }, 2000)
         } catch (err) { setPostError(err.response?.data?.message || 'Something went wrong') }
         finally { setPostLoading(false) }
     }
+
 
     const handleShare = (post) => {
         if (navigator.share) { navigator.share({ title: post.title, text: post.content, url: window.location.href }) }
@@ -604,15 +606,19 @@ function CommunityFeed() {
                             })()}
                             <div className="flex flex-wrap gap-2 mb-3 p-2.5 bg-gray-50 rounded-xl border border-gray-100">
                                 <span className="text-xs font-semibold text-gray-500 w-full mb-1">Post to:</span>
+                                {/* Always show hub-level option */}
+                                <button type="button" onClick={() => setSelectedVisibility(prev => ({ ...prev, general: !prev.general }))}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedVisibility.general ? 'bg-primary text-white' : 'bg-white text-gray-500 border border-gray-200 hover:border-primary'}`}>
+                                    {level === 'secondary' ? 'Secondary Hub' : 'University Hub'}
+                                </button>
                                 {[
-                                    { key: 'department', label: 'My Department' },
-                                    { key: 'faculty', label: 'My Faculty' },
                                     { key: 'school', label: 'My School' },
-                                    { key: 'general', label: 'General University Hub' },
+                                    { key: 'faculty', label: 'My Faculty' },
+                                    { key: 'department', label: 'My Department' },
                                 ].filter(opt => myCommunities.some(c => c.type === opt.key)).map(opt => (
                                     <button key={opt.key} type="button" onClick={() => setSelectedVisibility(prev => ({ ...prev, [opt.key]: !prev[opt.key] }))}
                                         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedVisibility[opt.key] ? 'bg-primary text-white' : 'bg-white text-gray-500 border border-gray-200 hover:border-primary'}`}>
-                                        {opt.key === 'department' ? <FiCheck size={12} className="inline mr-1" /> : ''}{opt.label}
+                                        {selectedVisibility[opt.key] ? <FiCheck size={12} className="inline mr-1" /> : ''}{opt.label}
                                     </button>
                                 ))}
                             </div>
