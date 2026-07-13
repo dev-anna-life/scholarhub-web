@@ -49,6 +49,7 @@ function UserProfile() {
     const [profileFollowers, setProfileFollowers] = useState([])
     const [profileFollowing, setProfileFollowing] = useState([])
     const [myFollowing, setMyFollowing] = useState([])
+    const [hoveredUserId, setHoveredUserId] = useState(null)
     const [activeTab, setActiveTab] = useState('posts')
     const [deletingId, setDeletingId] = useState(null)
     const [confirmDelete, setConfirmDelete] = useState(null)
@@ -92,12 +93,12 @@ function UserProfile() {
                     try {
                         const allPosts = await getPosts()
                         const authorPost = allPosts.data.find(p =>
-                            (p.author?._id || p.author)?.toString() === userId
+                            (p.author?.id || p.author?._id || p.author)?.toString() === userId
                         )
                         if (authorPost?.author) {
                             const author = authorPost.author
                             userData = {
-                                _id: author._id || userId,
+                                _id: author.id || author._id || userId,
                                 name: author.name || 'Student',
                                 school: author.school || '',
                                 state: author.state || '',
@@ -132,7 +133,7 @@ function UserProfile() {
                 try {
                     const postsRes = await getPosts()
                     const userPostsData = postsRes.data.filter(p =>
-                        (p.author?._id || p.author)?.toString() === userId
+                        (p.author?.id || p.author?._id || p.author)?.toString() === userId
                     )
                     const mapped = userPostsData.map(post => ({
                         _id: post._id,
@@ -141,7 +142,7 @@ function UserProfile() {
                         category: post.category,
                         status: post.status || 'pending',
                         createdAt: post.createdAt,
-                        authorId: post.author?._id || '',
+                        authorId: post.author?.id || post.author?._id || '',
                         likes: post.likes?.length || 0,
                         liked: post.likes?.includes(currentUser.id || currentUser._id) || false,
                         commentCount: post.commentsData?.length || 0,
@@ -415,6 +416,7 @@ function UserProfile() {
                             profileFollowers.map(f => {
                                 const isFollowingTarget = myFollowing.some(u => u.id === f.id)
                                 const isSelf = f.id === (currentUser.id || currentUser._id)
+                                const isHovered = hoveredUserId === f.id
                                 return (
                                     <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
                                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(isSelf ? '/profile' : `/profile/${f.id}`)}>
@@ -428,13 +430,18 @@ function UserProfile() {
                                             </div>
                                         </div>
                                         {!isSelf && (
-                                            <button onClick={() => handleListFollow(f.id)}
+                                            <button 
+                                                onClick={() => handleListFollow(f.id)}
+                                                onMouseEnter={() => setHoveredUserId(f.id)}
+                                                onMouseLeave={() => setHoveredUserId(null)}
                                                 className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                                                     isFollowingTarget
-                                                        ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border-red-200'
+                                                        ? isHovered
+                                                            ? 'bg-red-50 border-red-200 text-red-600'
+                                                            : 'bg-white border-gray-200 text-gray-600'
                                                         : 'bg-primary border-primary text-white hover:opacity-90'
                                                 }`}>
-                                                {isFollowingTarget ? 'Following' : 'Follow'}
+                                                {isFollowingTarget ? (isHovered ? 'Unfollow' : 'Following') : 'Follow'}
                                             </button>
                                         )}
                                     </div>
@@ -456,6 +463,7 @@ function UserProfile() {
                             profileFollowing.map(f => {
                                 const isFollowingTarget = myFollowing.some(u => u.id === f.id)
                                 const isSelf = f.id === (currentUser.id || currentUser._id)
+                                const isHovered = hoveredUserId === f.id
                                 return (
                                     <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
                                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(isSelf ? '/profile' : `/profile/${f.id}`)}>
@@ -469,13 +477,18 @@ function UserProfile() {
                                             </div>
                                         </div>
                                         {!isSelf && (
-                                            <button onClick={() => handleListFollow(f.id)}
+                                            <button 
+                                                onClick={() => handleListFollow(f.id)}
+                                                onMouseEnter={() => setHoveredUserId(f.id)}
+                                                onMouseLeave={() => setHoveredUserId(null)}
                                                 className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                                                     isFollowingTarget
-                                                        ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border-red-200'
+                                                        ? isHovered
+                                                            ? 'bg-red-50 border-red-200 text-red-600'
+                                                            : 'bg-white border-gray-200 text-gray-600'
                                                         : 'bg-primary border-primary text-white hover:opacity-90'
                                                 }`}>
-                                                {isFollowingTarget ? 'Following' : 'Follow'}
+                                                {isFollowingTarget ? (isHovered ? 'Unfollow' : 'Following') : 'Follow'}
                                             </button>
                                         )}
                                     </div>

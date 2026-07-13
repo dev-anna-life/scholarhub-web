@@ -22,6 +22,7 @@ function Profile() {
   const [following, setFollowing] = useState([])
   const [followersCount, setFollowersCount] = useState(0)
   const [followingCount, setFollowingCount] = useState(0)
+  const [hoveredUserId, setHoveredUserId] = useState(null)
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -232,6 +233,7 @@ function Profile() {
             ) : (
               followers.map(f => {
                 const isFollowingTarget = following.some(u => u.id === f.id)
+                const isHovered = hoveredUserId === f.id
                 return (
                   <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(`/profile/${f.id}`)}>
@@ -245,13 +247,18 @@ function Profile() {
                       </div>
                     </div>
                     {f.id !== user.id && (
-                      <button onClick={() => handleListFollow(f.id)}
+                      <button 
+                        onClick={() => handleListFollow(f.id)}
+                        onMouseEnter={() => setHoveredUserId(f.id)}
+                        onMouseLeave={() => setHoveredUserId(null)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                           isFollowingTarget
-                            ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border-red-200'
+                            ? isHovered
+                              ? 'bg-red-50 border-red-200 text-red-600'
+                              : 'bg-white border-gray-200 text-gray-600'
                             : 'bg-primary border-primary text-white hover:opacity-90'
                         }`}>
-                        {isFollowingTarget ? 'Following' : 'Follow Back'}
+                        {isFollowingTarget ? (isHovered ? 'Unfollow' : 'Following') : 'Follow Back'}
                       </button>
                     )}
                   </div>
@@ -270,24 +277,34 @@ function Profile() {
                 <p className="text-sm text-gray-400">Find students to follow and stay updated on their posts.</p>
               </div>
             ) : (
-              following.map(f => (
-                <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
-                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(`/profile/${f.id}`)}>
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
-                      {f.name?.charAt(0)?.toUpperCase() || 'S'}
+              following.map(f => {
+                const isHovered = hoveredUserId === f.id
+                return (
+                  <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(`/profile/${f.id}`)}>
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
+                        {f.name?.charAt(0)?.toUpperCase() || 'S'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-dark text-sm hover:underline">{f.name}</p>
+                        <p className="text-xs text-gray-400">@{f.username || 'student'}</p>
+                        {f.school && <span className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">{f.school}</span>}
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-dark text-sm hover:underline">{f.name}</p>
-                      <p className="text-xs text-gray-400">@{f.username || 'student'}</p>
-                      {f.school && <span className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">{f.school}</span>}
-                    </div>
+                    <button 
+                      onClick={() => handleListFollow(f.id)}
+                      onMouseEnter={() => setHoveredUserId(f.id)}
+                      onMouseLeave={() => setHoveredUserId(null)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                        isHovered
+                          ? 'bg-red-50 border-red-200 text-red-600 font-bold'
+                          : 'bg-white border-gray-200 text-gray-600'
+                      }`}>
+                      {isHovered ? 'Unfollow' : 'Following'}
+                    </button>
                   </div>
-                  <button onClick={() => handleListFollow(f.id)}
-                    className="px-3 py-1.5 bg-gray-100 border border-gray-200 text-gray-600 rounded-xl text-xs font-bold hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all">
-                    Following
-                  </button>
-                </div>
-              ))
+                )
+              })
             )}
           </motion.div>
         )}
