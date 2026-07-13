@@ -5,23 +5,28 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { MdLeaderboard } from "react-icons/md"
 import { HiUserGroup } from "react-icons/hi"
-import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiPlus, FiGlobe } from "react-icons/fi"
+import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiPlus, FiGlobe, FiLock, FiFileText, FiLogOut } from "react-icons/fi"
 import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
 import Image from "next/image"
 import { getMe, getNotifications, markNotificationsRead, followUser } from "../api/auth"
 
-const navLinks = [
+const mainLinks = [
   { label: 'Home', icon: FiHome, path: '/feed' },
   { label: 'Community', icon: HiUserGroup, path: '/community' },
-  { label: 'Shop', icon: BsShop, path: '/shop' },
-  { label: 'Profile', icon: FiUser, path: '/profile' },
-  { label: 'Notifications', icon: FiBell, path: '/notifications' },
   { label: 'Leaderboard', icon: MdLeaderboard, path: '/leaderboard' },
+  { label: 'Chat', icon: FiMessageSquare, path: '/chat' },
+  { label: 'Profile', icon: FiUser, path: '/profile' },
+]
+
+const moreLinks = [
+  { label: 'Notifications', icon: FiBell, path: '/notifications' },
+  { label: 'Find People', icon: FiSearch, path: '/search' },
+  { label: 'Coin Shop', icon: BsShop, path: '/shop' },
   { label: 'Settings', icon: FiSettings, path: '/settings' },
   { label: 'Study Bot', icon: BsRobot, path: '/study-bot' },
-  { label: 'Messages', icon: FiMessageSquare, path: '/chat' },
-  { label: 'Search', icon: FiSearch, path: '/search' },
+  { label: 'Privacy', icon: FiLock, path: '/privacy' },
+  { label: 'Terms', icon: FiFileText, path: '/terms' },
 ]
 
 function Navbar() {
@@ -96,6 +101,12 @@ function Navbar() {
       await followUser(userId)
       setFollowedNotifs(prev => new Set([...prev, userId]))
     } catch (_) {}
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    router.push('/login')
   }
 
   return (
@@ -177,24 +188,60 @@ function Navbar() {
             </div>
           </>
         )}
-        <nav className="flex flex-col gap-1">
-          {navLinks.map(({ label, icon: Icon, path }) => {
-            const active = pathname === path
-            return (
-              <Link
-                key={label}
-                href={path}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${active
-                  ? 'bg-primary text-white'
-                  : 'text-gray-400 hover:bg-primary/15 hover:text-primary'
-                }`}
-              >
-                <Icon size={18} />
-                {label}
-              </Link>
-            )
-          })}
-        </nav>
+        <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-6 scrollbar-thin mt-2">
+          <div>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">Main</p>
+            <nav className="flex flex-col gap-1">
+              {mainLinks.map(({ label, icon: Icon, path }) => {
+                const active = pathname === path
+                return (
+                  <Link
+                    key={label}
+                    href={path}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
+                      ? 'bg-primary text-white font-bold'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    {label}
+                  </Link>
+                )
+              })}
+            </nav>
+          </div>
+
+          <div>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">More</p>
+            <nav className="flex flex-col gap-1">
+              {moreLinks.map(({ label, icon: Icon, path }) => {
+                const active = pathname === path
+                return (
+                  <Link
+                    key={label}
+                    href={path}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
+                      ? 'bg-primary text-white font-bold'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    {label}
+                  </Link>
+                )
+              })}
+              <div className="border-t border-white/10 mt-2 pt-2">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-all duration-200 text-left w-full"
+                >
+                  <FiLogOut size={18} />
+                  Logout
+                </button>
+              </div>
+            </nav>
+          </div>
+        </div>
       </motion.div>
 
       <div className="md:hidden fixed top-0 left-0 right-0 bg-dark text-white px-4 py-3 flex items-center justify-between z-50 h-12">
@@ -261,25 +308,62 @@ function Navbar() {
                 </button>
               </div>
 
-              <nav className="flex flex-col gap-1">
-                {navLinks.map(({ label, icon: Icon, path }) => {
-                  const active = pathname === path
-                  return (
-                    <Link
-                      key={label}
-                      href={path}
-                      onClick={() => setOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 ${active
-                        ? 'bg-primary text-white'
-                        : 'text-gray-300 hover:text-primary hover:bg-primary/15'
-                      }`}
-                    >
-                      <Icon size={18} />
-                      {label}
-                    </Link>
-                  )
-                })}
-              </nav>
+              <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-6 mt-4 scrollbar-thin">
+                <div>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">Main</p>
+                  <nav className="flex flex-col gap-1">
+                    {mainLinks.map(({ label, icon: Icon, path }) => {
+                      const active = pathname === path
+                      return (
+                        <Link
+                          key={label}
+                          href={path}
+                          onClick={() => setOpen(false)}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
+                            ? 'bg-primary text-white font-bold'
+                            : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          <Icon size={18} />
+                          {label}
+                        </Link>
+                      )
+                    })}
+                  </nav>
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">More</p>
+                  <nav className="flex flex-col gap-1">
+                    {moreLinks.map(({ label, icon: Icon, path }) => {
+                      const active = pathname === path
+                      return (
+                        <Link
+                          key={label}
+                          href={path}
+                          onClick={() => setOpen(false)}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
+                            ? 'bg-primary text-white font-bold'
+                            : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          <Icon size={18} />
+                          {label}
+                        </Link>
+                      )
+                    })}
+                    <div className="border-t border-white/10 mt-2 pt-2">
+                      <button
+                        onClick={() => { setOpen(false); handleLogout(); }}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-all duration-200 text-left w-full"
+                      >
+                        <FiLogOut size={18} />
+                        Logout
+                      </button>
+                    </div>
+                  </nav>
+                </div>
+              </div>
 
               <div className="mt-auto pt-6 border-t border-white/10">
                 <p className="text-xs text-gray-500 text-center">

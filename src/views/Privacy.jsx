@@ -85,7 +85,7 @@ function Privacy() {
 
             <section>
               <h2 className="text-lg font-bold text-dark mb-2">8. Contact Us</h2>
-              <p>If you have questions about this privacy policy, please contact us at <span className="text-primary">privacy@scholarhub.com</span>.</p>
+              <p>If you have questions about this privacy policy, please contact us at <span className="text-primary">scholarhubng1@gmail.com</span>.</p>
             </section>
           </div>
         </motion.div>
