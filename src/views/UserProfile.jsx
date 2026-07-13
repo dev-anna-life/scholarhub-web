@@ -46,6 +46,9 @@ function UserProfile() {
     const [followError, setFollowError] = useState('')
     const [followersCount, setFollowersCount] = useState(0)
     const [followingCount, setFollowingCount] = useState(0)
+    const [profileFollowers, setProfileFollowers] = useState([])
+    const [profileFollowing, setProfileFollowing] = useState([])
+    const [myFollowing, setMyFollowing] = useState([])
     const [activeTab, setActiveTab] = useState('posts')
     const [deletingId, setDeletingId] = useState(null)
     const [confirmDelete, setConfirmDelete] = useState(null)
@@ -55,6 +58,23 @@ function UserProfile() {
     const [sendAmount, setSendAmount] = useState('')
     const [sendingCoins, setSendingCoins] = useState(false)
     const [sendMsg, setSendMsg] = useState(null)
+
+    const fetchMyFollowing = async () => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
+            const myId = storedUser.id || storedUser._id
+            if (myId) {
+                const res = await getUserById(myId)
+                setMyFollowing(res.data.following || [])
+            }
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    useEffect(() => {
+        fetchMyFollowing()
+    }, [])
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -99,6 +119,8 @@ function UserProfile() {
                     setProfileUser(userData)
                     setFollowersCount(userData.followersCount ?? userData.followers?.length ?? 0)
                     setFollowingCount(userData.followingCount ?? userData.following?.length ?? 0)
+                    setProfileFollowers(userData.followers || [])
+                    setProfileFollowing(userData.following || [])
                     setFollowing(userData.isFollowing ?? false)
                     setFollowedBy(userData.isFollowedBy ?? false)
                 } else {
@@ -138,6 +160,23 @@ function UserProfile() {
         fetchUser()
     }, [userId])
 
+    const refreshProfileDetails = async () => {
+        try {
+            const detailRes = await getUserById(userId)
+            if (detailRes.data) {
+                setProfileFollowers(detailRes.data.followers || [])
+                setProfileFollowing(detailRes.data.following || [])
+                setFollowersCount(detailRes.data.followersCount || 0)
+                setFollowingCount(detailRes.data.followingCount || 0)
+                setFollowing(detailRes.data.isFollowing ?? false)
+                setFollowedBy(detailRes.data.isFollowedBy ?? false)
+            }
+            await fetchMyFollowing()
+        } catch (err) {
+            console.error("Failed to refresh profile details", err)
+        }
+    }
+
     const handleFollow = async () => {
         setFollowLoading(true)
         setFollowError('')
@@ -146,10 +185,20 @@ function UserProfile() {
         setFollowersCount(prev => prev + (wasFollowing ? -1 : 1))
         try {
             await followUser(userId)
+            await refreshProfileDetails()
         } catch (err) {
             console.warn("Follow API unavailable (404) — state updated locally", err)
         } finally {
             setFollowLoading(false)
+        }
+    }
+
+    const handleListFollow = async (targetUserId) => {
+        try {
+            await followUser(targetUserId)
+            await refreshProfileDetails()
+        } catch (err) {
+            console.error("Failed to toggle follow in list", err)
         }
     }
 
@@ -281,6 +330,20 @@ function UserProfile() {
                                 : profileUser.school || profileUser.state || 'ScholarHub Member'}
                         </p>
 
+                        {(() => {
+                            const mutuals = myFollowing.filter(myF => profileFollowers.some(pFol => pFol.id === myF.id))
+                            if (mutuals.length === 0) return null
+                            return (
+                                <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
+                                    <span className="font-semibold text-primary">Mutuals:</span>
+                                    <span>
+                                        Followed by {mutuals[0].name}
+                                        {mutuals.length > 1 ? ` and ${mutuals.length - 1} other${mutuals.length > 2 ? 's' : ''}` : ''}
+                                    </span>
+                                </p>
+                            )
+                        })()}
+
                         <div className="flex items-center gap-4 mb-4">
                             <div className="text-center">
                                 <p className="font-extrabold text-dark text-lg">{followersCount}</p>
@@ -325,6 +388,8 @@ function UserProfile() {
                 <div className="flex gap-2 mb-5">
                     {[
                         { id: 'posts', label: 'Posts', icon: FiBookOpen },
+                        { id: 'followers', label: `Followers (${followersCount})`, icon: FiUserCheck },
+                        { id: 'following', label: `Following (${followingCount})`, icon: FiUserPlus },
                         { id: 'stats', label: 'Stats', icon: GiTrophy },
                     ].map(tab => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
@@ -337,6 +402,88 @@ function UserProfile() {
                         </button>
                     ))}
                 </div>
+
+                {activeTab === 'followers' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+                        {profileFollowers.length === 0 ? (
+                            <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                                <FiUserCheck size={36} className="text-gray-200 mx-auto mb-3" />
+                                <p className="font-bold text-dark mb-1">No followers yet</p>
+                                <p className="text-sm text-gray-400">When people follow this user, they will show up here.</p>
+                            </div>
+                        ) : (
+                            profileFollowers.map(f => {
+                                const isFollowingTarget = myFollowing.some(u => u.id === f.id)
+                                const isSelf = f.id === (currentUser.id || currentUser._id)
+                                return (
+                                    <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
+                                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(isSelf ? '/profile' : `/profile/${f.id}`)}>
+                                            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
+                                                {f.name?.charAt(0)?.toUpperCase() || 'S'}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-dark text-sm hover:underline">{f.name}</p>
+                                                <p className="text-xs text-gray-400">@{f.username || 'student'}</p>
+                                                {f.school && <span className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">{f.school}</span>}
+                                            </div>
+                                        </div>
+                                        {!isSelf && (
+                                            <button onClick={() => handleListFollow(f.id)}
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                                                    isFollowingTarget
+                                                        ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border-red-200'
+                                                        : 'bg-primary border-primary text-white hover:opacity-90'
+                                                }`}>
+                                                {isFollowingTarget ? 'Following' : 'Follow'}
+                                            </button>
+                                        )}
+                                    </div>
+                                )
+                            })
+                        )}
+                    </motion.div>
+                )}
+
+                {activeTab === 'following' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+                        {profileFollowing.length === 0 ? (
+                            <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                                <FiUserPlus size={36} className="text-gray-200 mx-auto mb-3" />
+                                <p className="font-bold text-dark mb-1">Not following anyone yet</p>
+                                <p className="text-sm text-gray-400">This user is not following anyone yet.</p>
+                            </div>
+                        ) : (
+                            profileFollowing.map(f => {
+                                const isFollowingTarget = myFollowing.some(u => u.id === f.id)
+                                const isSelf = f.id === (currentUser.id || currentUser._id)
+                                return (
+                                    <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
+                                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(isSelf ? '/profile' : `/profile/${f.id}`)}>
+                                            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
+                                                {f.name?.charAt(0)?.toUpperCase() || 'S'}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-dark text-sm hover:underline">{f.name}</p>
+                                                <p className="text-xs text-gray-400">@{f.username || 'student'}</p>
+                                                {f.school && <span className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">{f.school}</span>}
+                                            </div>
+                                        </div>
+                                        {!isSelf && (
+                                            <button onClick={() => handleListFollow(f.id)}
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                                                    isFollowingTarget
+                                                        ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border-red-200'
+                                                        : 'bg-primary border-primary text-white hover:opacity-90'
+                                                }`}>
+                                                {isFollowingTarget ? 'Following' : 'Follow'}
+                                            </button>
+                                        )}
+                                    </div>
+                                )
+                            })
+                        )}
+                    </motion.div>
+                )}
 
                 {activeTab === 'stats' && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}

@@ -1,12 +1,12 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle, FiCheck, FiX, FiClock } from "react-icons/fi"
+import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle, FiCheck, FiX, FiClock, FiUserCheck, FiUserPlus } from "react-icons/fi"
 import { MdLeaderboard, MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
 import { useRouter } from "next/navigation"
-import { getMe, getUserPosts, deletePost } from "../api/auth"
+import { getMe, getUserPosts, deletePost, getUserById, followUser } from "../api/auth"
 import { getSchoolLogo } from "../data/schools"
 
 function Profile() {
@@ -18,15 +18,30 @@ function Profile() {
   const [deletingId, setDeletingId] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [deleteError, setDeleteError] = useState('')
+  const [followers, setFollowers] = useState([])
+  const [following, setFollowing] = useState([])
+  const [followersCount, setFollowersCount] = useState(0)
+  const [followingCount, setFollowingCount] = useState(0)
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         const [userRes, postsRes] = await Promise.all([getMe(), getUserPosts()])
-        setUser(userRes.data)
-        localStorage.setItem('user', JSON.stringify(userRes.data))
+        const userData = userRes.data
+        setUser(userData)
+        localStorage.setItem('user', JSON.stringify(userData))
         setMyPosts(postsRes.data)
         setMyPostCount(postsRes.data.length)
+        
+        try {
+          const detailRes = await getUserById(userData.id)
+          setFollowers(detailRes.data.followers || [])
+          setFollowing(detailRes.data.following || [])
+          setFollowersCount(detailRes.data.followersCount || 0)
+          setFollowingCount(detailRes.data.followingCount || 0)
+        } catch (err) {
+          console.error("Failed to load follower details", err)
+        }
       } catch (error) {
         console.error("Failed to load profile data", error)
       }
@@ -37,6 +52,21 @@ function Profile() {
   const handleLogout = () => {
     localStorage.clear()
     router.push('/login')
+  }
+
+  const handleListFollow = async (targetUserId) => {
+    try {
+      await followUser(targetUserId)
+      const detailRes = await getUserById(user.id)
+      if (detailRes.data) {
+        setFollowers(detailRes.data.followers || [])
+        setFollowing(detailRes.data.following || [])
+        setFollowersCount(detailRes.data.followersCount || 0)
+        setFollowingCount(detailRes.data.followingCount || 0)
+      }
+    } catch (err) {
+      console.error("Failed to toggle follow", err)
+    }
   }
 
   const handleDeletePost = async (postId) => {
@@ -98,6 +128,17 @@ function Profile() {
                 className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-medium hover:bg-red-100 transition">
                 <FiLogOut size={13} /> Logout
               </button>
+            </div>
+            <div className="flex items-center gap-4 mb-4 mt-2">
+              <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
+                <p className="font-extrabold text-dark text-lg">{followersCount}</p>
+                <p className="text-xs text-gray-400">Followers</p>
+              </div>
+              <div className="w-px h-8 bg-gray-100" />
+              <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
+                <p className="font-extrabold text-dark text-lg">{followingCount}</p>
+                <p className="text-xs text-gray-400">Following</p>
+              </div>
             </div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
@@ -168,13 +209,88 @@ function Profile() {
         </motion.div>
 
         <div className="flex gap-2 mb-5">
-          {[{ id: 'posts', label: 'My Posts', icon: FiBookOpen }].map(tab => (
+          {[
+            { id: 'posts', label: 'My Posts', icon: FiBookOpen },
+            { id: 'followers', label: `Followers (${followersCount})`, icon: FiUserCheck },
+            { id: 'following', label: `Following (${followingCount})`, icon: FiUserPlus },
+          ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === tab.id ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-500 hover:border-primary'}`}>
               <tab.icon size={14} /> {tab.label}
             </button>
           ))}
         </div>
+
+        {activeTab === 'followers' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+            {followers.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                <FiUserCheck size={40} className="text-gray-200 mx-auto mb-3" />
+                <p className="font-bold text-dark mb-1">No followers yet</p>
+                <p className="text-sm text-gray-400">When people follow you, they will show up here.</p>
+              </div>
+            ) : (
+              followers.map(f => {
+                const isFollowingTarget = following.some(u => u.id === f.id)
+                return (
+                  <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(`/profile/${f.id}`)}>
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
+                        {f.name?.charAt(0)?.toUpperCase() || 'S'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-dark text-sm hover:underline">{f.name}</p>
+                        <p className="text-xs text-gray-400">@{f.username || 'student'}</p>
+                        {f.school && <span className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">{f.school}</span>}
+                      </div>
+                    </div>
+                    {f.id !== user.id && (
+                      <button onClick={() => handleListFollow(f.id)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                          isFollowingTarget
+                            ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border-red-200'
+                            : 'bg-primary border-primary text-white hover:opacity-90'
+                        }`}>
+                        {isFollowingTarget ? 'Following' : 'Follow Back'}
+                      </button>
+                    )}
+                  </div>
+                )
+              })
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === 'following' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+            {following.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                <FiUserPlus size={40} className="text-gray-200 mx-auto mb-3" />
+                <p className="font-bold text-dark mb-1">Not following anyone yet</p>
+                <p className="text-sm text-gray-400">Find students to follow and stay updated on their posts.</p>
+              </div>
+            ) : (
+              following.map(f => (
+                <div key={f.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between hover:shadow-sm transition-all duration-200">
+                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push(`/profile/${f.id}`)}>
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0">
+                      {f.name?.charAt(0)?.toUpperCase() || 'S'}
+                    </div>
+                    <div>
+                      <p className="font-bold text-dark text-sm hover:underline">{f.name}</p>
+                      <p className="text-xs text-gray-400">@{f.username || 'student'}</p>
+                      {f.school && <span className="inline-block mt-0.5 text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-600">{f.school}</span>}
+                    </div>
+                  </div>
+                  <button onClick={() => handleListFollow(f.id)}
+                    className="px-3 py-1.5 bg-gray-100 border border-gray-200 text-gray-600 rounded-xl text-xs font-bold hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all">
+                    Following
+                  </button>
+                </div>
+              ))
+            )}
+          </motion.div>
+        )}
 
         {activeTab === 'posts' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
