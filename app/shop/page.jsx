@@ -2,6 +2,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData, buyCoins } from '../../src/api/auth'
+import { FiAward, FiSend, FiSmartphone, FiCreditCard, FiStar, FiCamera, FiCheck } from 'react-icons/fi'
+import { BsCoin, BsCashStack } from 'react-icons/bs'
+import { GiCrown } from 'react-icons/gi'
 
 const COLORS = {
   badge_basic: { bg: '#F1F5F9', border: '#94A3B8', text: '#475569', name: 'Basic' },
@@ -35,6 +38,7 @@ export default function ShopPage() {
   const [checkoutCVV, setCheckoutCVV] = useState('')
   const [checkoutRecipient, setCheckoutRecipient] = useState('')
   const [processingPayment, setProcessingPayment] = useState(false)
+  const [scanningCard, setScanningCard] = useState(false)
 
   useEffect(() => {
     Promise.all([getMe(), getShopItems()]).then(([u, s]) => {
@@ -84,6 +88,18 @@ export default function ShopPage() {
     }
   }
 
+  const handleScanCard = () => {
+    setScanningCard(true)
+    setMsg(null)
+    setTimeout(() => {
+      setCheckoutCardNumber('4000 1234 5678 9010')
+      setCheckoutExpiry('12/29')
+      setCheckoutCVV('123')
+      setScanningCard(false)
+      setMsg({ type: 'success', text: 'Card scanned successfully! Card details populated.' })
+    }, 2000)
+  }
+
   const handleSendCoins = async () => {
     if (!recipient.trim() || !sendAmount || parseInt(sendAmount) < 1) return
     setSending(true)
@@ -128,13 +144,20 @@ export default function ShopPage() {
 
   const activeSubs = user?.badgeSubscriptions?.filter(s => new Date(s.expiresAt) > new Date()) || []
 
+  const getBadgeIcon = (iconStr) => {
+    if (iconStr === '⭐') return <FiStar className="text-yellow-500 mx-auto" size={36} />
+    if (iconStr === '💎') return <BsCoin className="text-blue-500 mx-auto" size={36} />
+    if (iconStr === '👑') return <GiCrown className="text-purple-500 mx-auto" size={40} />
+    return <FiAward className="text-primary mx-auto" size={36} />
+  }
+
   return (
     <div className="min-h-screen bg-light md:pl-56 pt-14 md:pt-0 pb-20">
       <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl md:text-2xl font-bold text-dark dark:text-white">Coin Shop</h1>
           <div className="flex items-center gap-2 bg-white dark:bg-dark border border-gray-150 dark:border-slate-800 px-4 py-2 rounded-xl shadow-sm">
-            <span className="text-lg">🪙</span>
+            <BsCoin className="text-yellow-500 text-lg flex-shrink-0" />
             <span className="font-extrabold text-dark dark:text-white">{user?.coins ?? 0}</span>
           </div>
         </div>
@@ -147,11 +170,18 @@ export default function ShopPage() {
         )}
 
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-slate-800">
-          {['badges', 'buy_coins', 'send', 'cash', 'redeem'].map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 font-medium text-sm border-b-2 transition ${tab === t ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
-              {t === 'badges' ? '🏆 Badges' : t === 'buy_coins' ? '💵 Buy Coins' : t === 'send' ? '📤 Send Coins' : t === 'cash' ? '💰 Convert to Cash' : '📱 Redeem'}
-            </button>
-          ))}
+          {['badges', 'buy_coins', 'send', 'cash', 'redeem'].map(t => {
+            const label = t === 'badges' ? <><FiAward className="inline mr-1.5" /> Badges</>
+              : t === 'buy_coins' ? <><FiCreditCard className="inline mr-1.5" /> Buy Coins</>
+              : t === 'send' ? <><FiSend className="inline mr-1.5" /> Send Coins</>
+              : t === 'cash' ? <><BsCashStack className="inline mr-1.5" /> Convert to Cash</>
+              : <><FiSmartphone className="inline mr-1.5" /> Redeem</>
+            return (
+              <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 font-semibold text-xs md:text-sm border-b-2 transition flex items-center gap-1 ${tab === t ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
+                {label}
+              </button>
+            )
+          })}
         </div>
 
         {tab === 'badges' && items?.badges && (
@@ -163,7 +193,7 @@ export default function ShopPage() {
               return (
                 <div key={item.id} className="bg-white dark:bg-dark rounded-xl shadow-sm border border-gray-100 dark:border-slate-850 overflow-hidden">
                   <div className="p-6 text-center" style={{ backgroundColor: c.bg }}>
-                    <div className="text-4xl mb-2">{item.icon}</div>
+                    <div className="mb-2">{getBadgeIcon(item.icon)}</div>
                     <h3 className="text-lg font-bold" style={{ color: c.text }}>{item.name}</h3>
                     <div className="mt-2">
                       <span className="text-2xl font-extrabold text-gray-900 dark:text-white bg-white/40 dark:bg-black/35 px-2.5 py-0.5 rounded-lg border border-black/5 dark:border-white/5">{item.price.toLocaleString()}</span>
@@ -232,7 +262,7 @@ export default function ShopPage() {
                 <div key={pkg.id} className="bg-white dark:bg-dark border border-gray-150 dark:border-slate-850 rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-3xl">🪙</span>
+                      <BsCoin className="text-yellow-500 text-2xl flex-shrink-0" />
                       <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-full">
                         +{pkg.amount.toLocaleString()} Coins
                       </span>
@@ -277,8 +307,8 @@ export default function ShopPage() {
         )}
 
         {tab === 'cash' && (
-          <div className="max-w-lg mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6 text-center">
-            <div className="text-5xl mb-4">💰</div>
+          <div className="max-w-lg mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6 text-center animate-fadeIn">
+            <BsCashStack className="text-primary text-5xl mx-auto mb-4" />
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Convert Coins to Cash</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Withdraw your coins as real money to your bank account or mobile money.</p>
             <span className="inline-block bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-xs px-3 py-1.5 rounded-full font-medium">Coming Soon</span>
@@ -295,11 +325,11 @@ export default function ShopPage() {
         )}
 
         {tab === 'redeem' && (
-          <div className="max-w-lg mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6">
+          <div className="max-w-lg mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6 animate-fadeIn">
             <div className="flex gap-2 mb-4">
               {['airtime', 'data'].map(t => (
-                <button key={t} onClick={() => { setRedeemTab(t); setMsg(null) }} className={`px-4 py-1.5 rounded-full text-xs font-medium transition ${redeemTab === t ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300'}`}>
-                  {t === 'airtime' ? '📞 Airtime' : '📶 Data'}
+                <button key={t} onClick={() => { setRedeemTab(t); setMsg(null) }} className={`px-4 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1 ${redeemTab === t ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-slate-850 text-gray-600 dark:text-gray-300'}`}>
+                  {t === 'airtime' ? <><FiSmartphone size={12} /> Airtime</> : <><FiSmartphone size={12} /> Data</>}
                 </button>
               ))}
             </div>
@@ -376,43 +406,73 @@ export default function ShopPage() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-                  Card Number
-                </label>
-                <input
-                  type="text"
-                  maxLength="19"
-                  value={checkoutCardNumber}
-                  onChange={e => setCheckoutCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                  placeholder="4000 1234 5678 9010"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+            <style dangerouslySetInnerHTML={{ __html: `
+              @keyframes scan {
+                0% { top: 0%; }
+                50% { top: 100%; }
+                100% { top: 0%; }
+              }
+              .animate-scan {
+                animation: scan 2s linear infinite;
+              }
+            `}} />
+
+            {scanningCard ? (
+              <div className="bg-slate-900 dark:bg-black rounded-xl p-6 text-center text-white space-y-4 border border-slate-800 relative overflow-hidden h-60 flex flex-col justify-center items-center">
+                <div className="absolute left-0 right-0 top-0 h-1 bg-green-500 shadow-[0_0_15px_#22c55e] animate-scan" />
+                <FiCamera size={40} className="text-green-500 animate-bounce" />
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-                    Expiry Date
-                  </label>
+                  <p className="font-bold text-sm">Accessing Camera View...</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Simulating credit card OCR scan. Hold steady...</p>
+                </div>
+                <div className="border-2 border-dashed border-green-500/40 rounded-lg w-52 h-32 absolute animate-pulse pointer-events-none" />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      Card Number
+                    </label>
+                    <button
+                      onClick={handleScanCard}
+                      className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded-lg transition-all"
+                    >
+                      <FiCamera size={11} /> Scan Card
+                    </button>
+                  </div>
                   <input
                     type="text"
-                    maxLength="5"
-                    value={checkoutExpiry}
-                    onChange={e => setCheckoutExpiry(e.target.value)}
-                    placeholder="MM/YY"
+                    maxLength="19"
+                    value={checkoutCardNumber}
+                    onChange={e => setCheckoutCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
+                    placeholder="4000 1234 5678 9010"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-                    CVV
-                  </label>
-                  <input
-                    type="password"
-                    maxLength="3"
-                    value={checkoutCVV}
-                    onChange={e => setCheckoutCVV(e.target.value)}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="text"
+                      maxLength="5"
+                      value={checkoutExpiry}
+                      onChange={e => setCheckoutExpiry(e.target.value)}
+                      placeholder="MM/YY"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                      CVV
+                    </label>
+                    <input
+                      type="password"
+                      maxLength="3"
+                      value={checkoutCVV}
+                      onChange={e => setCheckoutCVV(e.target.value)}
                     placeholder="123"
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
                   />
@@ -426,6 +486,7 @@ export default function ShopPage() {
                 {processingPayment ? 'Processing Secure Payment...' : `Pay ₦${selectedPackage.priceNGN.toLocaleString()}`}
               </button>
             </div>
+          )}
           </div>
         </div>
       )}
