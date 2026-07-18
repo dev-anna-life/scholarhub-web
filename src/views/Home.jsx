@@ -47,7 +47,7 @@ function Home() {
     const [showTopics, setShowTopics] = useState(false)
     const topicsBtnRef = useRef(null)
     const [topicsPos, setTopicsPos] = useState({ left: 0, top: 0 })
-    const feedCategories = ['University', 'Secondary']
+    const feedCategories = ['Sciences', 'Mathematics', 'Technology', 'Law', 'Medicine', 'Arts & Lit', 'Commerce', 'Campus Gist', 'Entertainment', 'Talent']
     const categories = feedCategories
 
     useEffect(() => {
