@@ -215,7 +215,7 @@ export default function ShopPage() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-slate-800">
+        <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-slate-800 overflow-x-auto whitespace-nowrap pb-1 scrollbar-none">
           {['badges', 'buy_coins', 'send', 'cash', 'redeem'].map(t => {
             const label = t === 'badges' ? <><FiAward className="inline mr-1.5" /> Badges</>
               : t === 'buy_coins' ? <><FiCreditCard className="inline mr-1.5" /> Buy Coins</>
@@ -223,7 +223,7 @@ export default function ShopPage() {
               : t === 'cash' ? <><BsCashStack className="inline mr-1.5" /> Convert to Cash</>
               : <><FiSmartphone className="inline mr-1.5" /> Redeem</>
             return (
-              <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 font-semibold text-xs md:text-sm border-b-2 transition flex items-center gap-1 ${tab === t ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
+              <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 font-semibold text-xs md:text-sm border-b-2 transition flex items-center gap-1 flex-shrink-0 ${tab === t ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
                 {label}
               </button>
             )
@@ -478,7 +478,7 @@ export default function ShopPage() {
                 />
                 {/* Scanning guide overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="border-2 border-green-400 rounded-lg w-56 h-32 opacity-70" />
+                  <div className="border-2 border-green-400 rounded-2xl w-[85%] max-w-[320px] aspect-[1.586] opacity-75 shadow-[0_0_15px_rgba(34,197,94,0.3)] relative animate-pulse" />
                   <p className="text-white text-[11px] mt-2 bg-black/60 px-2 py-0.5 rounded-full">Hold your card inside the frame</p>
                 </div>
                 {/* Close camera */}

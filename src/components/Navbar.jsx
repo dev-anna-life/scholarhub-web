@@ -245,12 +245,12 @@ function Navbar() {
       </motion.div>
 
       <div className="md:hidden fixed top-0 left-0 right-0 bg-dark text-white px-4 py-3 flex items-center justify-between z-50 h-12">
-        <div className="flex items-center gap-2">
+        <Link href="/feed" className="flex items-center gap-2 active:opacity-80">
           <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={24} height={24} className="rounded-full" />
           <h1 className="text-lg font-extrabold">
             Scholar<span className="text-accent">Hub</span>
           </h1>
-        </div>
+        </Link>
         <div className="flex items-center gap-3">
           {user && (
             <>
@@ -377,12 +377,7 @@ function Navbar() {
           </>
         )}
       </AnimatePresence>
-
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark border-t border-white/10 z-50 flex items-center justify-around px-2 py-1.5" style={{ paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}>
-        <Link href="/feed" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/feed' ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiHome size={21} />
-          <span className="text-[10px] font-medium">Home</span>
-        </Link>
         <Link href="/search" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/search' ? 'text-primary font-semibold' : 'text-gray-400 hover:text-gray-200'}`}>
           <FiSearch size={21} />
           <span className="text-[10px] font-medium">Search</span>
