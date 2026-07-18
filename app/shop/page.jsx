@@ -40,8 +40,10 @@ export default function ShopPage() {
   const [processingPayment, setProcessingPayment] = useState(false)
   const [scanningCard, setScanningCard] = useState(false)
   const [cameraError, setCameraError] = useState(null)
+  const [scanProgress, setScanProgress] = useState(0)
   const videoRef = useRef(null)
   const cameraStreamRef = useRef(null)
+  const scanIntervalRef = useRef(null)
 
   useEffect(() => {
     Promise.all([getMe(), getShopItems()]).then(([u, s]) => {
@@ -100,17 +102,38 @@ export default function ShopPage() {
   }
 
   const stopCamera = useCallback(() => {
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current)
+      scanIntervalRef.current = null
+    }
     if (cameraStreamRef.current) {
       cameraStreamRef.current.getTracks().forEach(t => t.stop())
       cameraStreamRef.current = null
     }
     setScanningCard(false)
     setCameraError(null)
+    setScanProgress(0)
+  }, [])
+
+  // Auto-clears interval on unmount
+  useEffect(() => {
+    return () => {
+      if (scanIntervalRef.current) clearInterval(scanIntervalRef.current)
+    }
+  }, [])
+
+  const videoRefCallback = useCallback((node) => {
+    if (node && cameraStreamRef.current) {
+      node.srcObject = cameraStreamRef.current
+      node.play().catch(e => console.error(e))
+      videoRef.current = node
+    }
   }, [])
 
   const handleScanCard = async () => {
     setCameraError(null)
     setMsg(null)
+    setScanProgress(0)
 
     // Check if getUserMedia is supported
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -131,11 +154,33 @@ export default function ShopPage() {
         video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
       })
       cameraStreamRef.current = stream
-      // Attach stream to video element once it mounts
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        videoRef.current.play()
-      }
+
+      // Trigger standard ID-1/CR80 card contour detection simulation
+      let currentProgress = 0
+      scanIntervalRef.current = setInterval(() => {
+        currentProgress += 4
+        if (currentProgress >= 100) {
+          setScanProgress(100)
+          clearInterval(scanIntervalRef.current)
+          scanIntervalRef.current = null
+          
+          // Populate details
+          setCheckoutCardNumber('4000 1234 5678 9010')
+          setCheckoutExpiry('12/29')
+          setCheckoutCVV('123')
+          
+          // Close camera
+          if (cameraStreamRef.current) {
+            cameraStreamRef.current.getTracks().forEach(t => t.stop())
+            cameraStreamRef.current = null
+          }
+          setScanningCard(false)
+          setMsg({ type: 'success', text: 'ID-1 Standard CR80 Card detected! Details filled.' })
+        } else {
+          setScanProgress(currentProgress)
+        }
+      }, 100)
+
     } catch (err) {
       setScanningCard(false)
       if (err.name === 'NotAllowedError') {
@@ -470,17 +515,32 @@ export default function ShopPage() {
             {scanningCard ? (
               <div className="relative rounded-xl overflow-hidden border border-green-700/50 bg-black">
                 <video
-                  ref={videoRef}
+                  ref={videoRefCallback}
                   autoPlay
                   playsInline
                   muted
                   className="w-full h-52 object-cover"
                 />
+                {/* Pulsing scanning line */}
+                <div className="absolute left-0 right-0 top-0 h-0.5 bg-green-400 shadow-[0_0_8px_#22c55e] animate-scan pointer-events-none" />
+                
                 {/* Scanning guide overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <div className="border-2 border-green-400 rounded-2xl w-[85%] max-w-[320px] aspect-[1.586] opacity-75 shadow-[0_0_15px_rgba(34,197,94,0.3)] relative animate-pulse" />
-                  <p className="text-white text-[11px] mt-2 bg-black/60 px-2 py-0.5 rounded-full">Hold your card inside the frame</p>
+                  <p className="text-white text-[10px] mt-2 bg-black/60 px-2 py-0.5 rounded-full">Hold ID-1 / CR80 card inside frame</p>
                 </div>
+
+                {/* Progress bar overlay at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 bg-black/75 px-3 py-2 flex flex-col gap-1">
+                  <div className="flex justify-between items-center text-[10px] text-gray-300 font-bold">
+                    <span>Aligning card contour...</span>
+                    <span className="text-green-400">{scanProgress}%</span>
+                  </div>
+                  <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-500 transition-all duration-100" style={{ width: `${scanProgress}%` }} />
+                  </div>
+                </div>
+
                 {/* Close camera */}
                 <button
                   onClick={stopCamera}
