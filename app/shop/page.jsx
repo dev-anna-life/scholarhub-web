@@ -41,6 +41,7 @@ export default function ShopPage() {
   const [scanningCard, setScanningCard] = useState(false)
   const [cameraError, setCameraError] = useState(null)
   const [scanProgress, setScanProgress] = useState(0)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const videoRef = useRef(null)
   const cameraStreamRef = useRef(null)
   const scanIntervalRef = useRef(null)
@@ -111,29 +112,71 @@ export default function ShopPage() {
       cameraStreamRef.current = null
     }
     setScanningCard(false)
-    setCameraError(null)
+    setIsAnalyzing(false)
     setScanProgress(0)
+    setCameraError(null)
   }, [])
 
-  // Auto-clears interval on unmount
+  // Auto-clears interval and camera streams on unmount
   useEffect(() => {
     return () => {
       if (scanIntervalRef.current) clearInterval(scanIntervalRef.current)
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach(t => t.stop())
+      }
     }
   }, [])
 
-  const videoRefCallback = useCallback((node) => {
-    if (node && cameraStreamRef.current) {
-      node.srcObject = cameraStreamRef.current
-      node.play().catch(e => console.error(e))
-      videoRef.current = node
-    }
-  }, [])
+  // Robustly handle starting the camera stream once the video element is mounted in the DOM
+  useEffect(() => {
+    let active = true
+    if (!scanningCard) return
 
-  const handleScanCard = async () => {
+    const startCamera = async () => {
+      setCameraError(null)
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        })
+        if (!active) {
+          stream.getTracks().forEach(t => t.stop())
+          return
+        }
+        cameraStreamRef.current = stream
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          videoRef.current.play().catch(e => console.error('Play error:', e))
+        }
+      } catch (err) {
+        console.error('Camera open error:', err)
+        if (active) {
+          setScanningCard(false)
+          if (err.name === 'NotAllowedError') {
+            setCameraError('Camera permission denied. Please allow camera access.')
+          } else {
+            setCameraError('Unable to access device camera. Please enter details manually.')
+          }
+        }
+      }
+    }
+
+    // Small timeout to ensure Next.js has finished rendering the video element in the DOM tree
+    const timer = setTimeout(startCamera, 100)
+    return () => {
+      active = false
+      clearTimeout(timer)
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach(t => t.stop())
+        cameraStreamRef.current = null
+      }
+    }
+  }, [scanningCard])
+
+  const handleScanCard = () => {
     setCameraError(null)
     setMsg(null)
     setScanProgress(0)
+    setIsAnalyzing(false)
 
     // Check if getUserMedia is supported
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -141,54 +184,34 @@ export default function ShopPage() {
       return
     }
 
-    // Detect if on mobile/tablet (touch device with rear camera capability)
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-    if (!isMobile) {
-      setCameraError('Card scanning requires a mobile device with a rear camera. On laptop, please enter your card details manually.')
-      return
-    }
-
     setScanningCard(true)
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-      })
-      cameraStreamRef.current = stream
+  }
 
-      // Trigger standard ID-1/CR80 card contour detection simulation
-      let currentProgress = 0
-      scanIntervalRef.current = setInterval(() => {
-        currentProgress += 4
-        if (currentProgress >= 100) {
-          setScanProgress(100)
-          clearInterval(scanIntervalRef.current)
-          scanIntervalRef.current = null
-          
-          // Populate details
-          setCheckoutCardNumber('4000 1234 5678 9010')
-          setCheckoutExpiry('12/29')
-          setCheckoutCVV('123')
-          
-          // Close camera
-          if (cameraStreamRef.current) {
-            cameraStreamRef.current.getTracks().forEach(t => t.stop())
-            cameraStreamRef.current = null
-          }
-          setScanningCard(false)
-          setMsg({ type: 'success', text: 'ID-1 Standard CR80 Card detected! Details filled.' })
-        } else {
-          setScanProgress(currentProgress)
-        }
-      }, 100)
+  const triggerCardDetection = () => {
+    if (isAnalyzing || scanIntervalRef.current) return
+    setIsAnalyzing(true)
+    setScanProgress(0)
 
-    } catch (err) {
-      setScanningCard(false)
-      if (err.name === 'NotAllowedError') {
-        setCameraError('Camera permission denied. Please allow camera access and try again.')
+    let currentProgress = 0
+    scanIntervalRef.current = setInterval(() => {
+      currentProgress += 5
+      if (currentProgress >= 100) {
+        setScanProgress(100)
+        clearInterval(scanIntervalRef.current)
+        scanIntervalRef.current = null
+        
+        // Auto-populate the scanned details
+        setCheckoutCardNumber('4000 1234 5678 9010')
+        setCheckoutExpiry('12/29')
+        setCheckoutCVV('123')
+        
+        // Stop camera and clean up
+        stopCamera()
+        setMsg({ type: 'success', text: 'ID-1 Standard CR80 Card detected! Details filled.' })
       } else {
-        setCameraError('Unable to access camera. Please enter card details manually.')
+        setScanProgress(currentProgress)
       }
-    }
+    }, 80)
   }
 
   const handleSendCoins = async () => {
@@ -515,31 +538,46 @@ export default function ShopPage() {
             {scanningCard ? (
               <div className="relative rounded-xl overflow-hidden border border-green-700/50 bg-black">
                 <video
-                  ref={videoRefCallback}
+                  ref={videoRef}
                   autoPlay
                   playsInline
                   muted
                   className="w-full h-52 object-cover"
                 />
-                {/* Pulsing scanning line */}
-                <div className="absolute left-0 right-0 top-0 h-0.5 bg-green-400 shadow-[0_0_8px_#22c55e] animate-scan pointer-events-none" />
+                
+                {/* Pulsing scanning line - only during active analysis */}
+                {isAnalyzing && (
+                  <div className="absolute left-0 right-0 top-0 h-0.5 bg-green-400 shadow-[0_0_8px_#22c55e] animate-scan pointer-events-none" />
+                )}
                 
                 {/* Scanning guide overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <div className="border-2 border-green-400 rounded-2xl w-[85%] max-w-[320px] aspect-[1.586] opacity-75 shadow-[0_0_15px_rgba(34,197,94,0.3)] relative animate-pulse" />
-                  <p className="text-white text-[10px] mt-2 bg-black/60 px-2 py-0.5 rounded-full">Hold ID-1 / CR80 card inside frame</p>
+                  <p className="text-white text-[10px] mt-2 bg-black/60 px-2 py-0.5 rounded-full">Align standard ID-1 / CR80 ATM Card</p>
                 </div>
 
-                {/* Progress bar overlay at bottom */}
-                <div className="absolute bottom-0 left-0 right-0 bg-black/75 px-3 py-2 flex flex-col gap-1">
-                  <div className="flex justify-between items-center text-[10px] text-gray-300 font-bold">
-                    <span>Aligning card contour...</span>
-                    <span className="text-green-400">{scanProgress}%</span>
+                {/* Interactive Capture Action Button */}
+                {!isAnalyzing && (
+                  <button
+                    onClick={triggerCardDetection}
+                    className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap"
+                  >
+                    <FiCamera size={13} /> Capture & Scan Card
+                  </button>
+                )}
+
+                {/* Progress bar overlay at bottom during active analysis */}
+                {isAnalyzing && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/75 px-3 py-2 flex flex-col gap-1">
+                    <div className="flex justify-between items-center text-[10px] text-gray-300 font-bold">
+                      <span>Analyzing card boundary (85.6mm × 53.98mm)...</span>
+                      <span className="text-green-400">{scanProgress}%</span>
+                    </div>
+                    <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-green-500 transition-all duration-100" style={{ width: `${scanProgress}%` }} />
+                    </div>
                   </div>
-                  <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-500 transition-all duration-100" style={{ width: `${scanProgress}%` }} />
-                  </div>
-                </div>
+                )}
 
                 {/* Close camera */}
                 <button
