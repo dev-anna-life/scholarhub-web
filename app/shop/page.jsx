@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData } from '../../src/api/auth'
+import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData, buyCoins } from '../../src/api/auth'
 
 const COLORS = {
   badge_basic: { bg: '#F1F5F9', border: '#94A3B8', text: '#475569', name: 'Basic' },
@@ -29,6 +29,13 @@ export default function ShopPage() {
   const [dataPlanId, setDataPlanId] = useState('')
   const [redeeming, setRedeeming] = useState(false)
 
+  const [selectedPackage, setSelectedPackage] = useState(null)
+  const [checkoutCardNumber, setCheckoutCardNumber] = useState('')
+  const [checkoutExpiry, setCheckoutExpiry] = useState('')
+  const [checkoutCVV, setCheckoutCVV] = useState('')
+  const [checkoutRecipient, setCheckoutRecipient] = useState('')
+  const [processingPayment, setProcessingPayment] = useState(false)
+
   useEffect(() => {
     Promise.all([getMe(), getShopItems()]).then(([u, s]) => {
       setUser(u.data)
@@ -48,6 +55,32 @@ export default function ShopPage() {
       setMsg({ type: 'error', text: e.response?.data?.message || 'Purchase failed' })
     } finally {
       setBuying(null)
+    }
+  }
+
+  const handleBuyCoins = async () => {
+    if (!selectedPackage) return
+    if (!checkoutCardNumber || !checkoutExpiry || !checkoutCVV) {
+      setMsg({ type: 'error', text: 'Please fill in all card details' })
+      return
+    }
+    setProcessingPayment(true)
+    setMsg(null)
+    try {
+      const res = await buyCoins(selectedPackage.id, checkoutRecipient)
+      const u = await getMe()
+      setUser(u.data)
+      setMsg({ type: 'success', text: res.data.message })
+      // Clear payment form
+      setCheckoutCardNumber('')
+      setCheckoutExpiry('')
+      setCheckoutCVV('')
+      setCheckoutRecipient('')
+      setSelectedPackage(null)
+    } catch (e) {
+      setMsg({ type: 'error', text: e.response?.data?.message || 'Payment failed. Please try again.' })
+    } finally {
+      setProcessingPayment(false)
     }
   }
 
@@ -114,9 +147,9 @@ export default function ShopPage() {
         )}
 
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-slate-800">
-          {['badges', 'send', 'cash', 'redeem'].map(t => (
+          {['badges', 'buy_coins', 'send', 'cash', 'redeem'].map(t => (
             <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 font-medium text-sm border-b-2 transition ${tab === t ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
-              {t === 'badges' ? '🏆 Badges' : t === 'send' ? '📤 Send Coins' : t === 'cash' ? '💰 Convert to Cash' : '📱 Redeem'}
+              {t === 'badges' ? '🏆 Badges' : t === 'buy_coins' ? '💵 Buy Coins' : t === 'send' ? '📤 Send Coins' : t === 'cash' ? '💰 Convert to Cash' : '📱 Redeem'}
             </button>
           ))}
         </div>
@@ -164,6 +197,61 @@ export default function ShopPage() {
                 </div>
               )
             })}
+          </div>
+        )}
+
+        {tab === 'buy_coins' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Buy Scholar Coins</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                Top up your coins to purchase badges or gift them to other students. Especially useful for Alumni to support others!
+              </p>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Gift to user? (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={checkoutRecipient}
+                  onChange={e => setCheckoutRecipient(e.target.value)}
+                  placeholder="Enter recipient's username (leave empty to buy for yourself)"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                { id: 'coins_5000', amount: 5000, priceNGN: 1000, desc: 'Starter pack for basic support' },
+                { id: 'coins_10000', amount: 10000, priceNGN: 1800, desc: 'Recommended pack for Premium badge upgrade' },
+                { id: 'coins_25000', amount: 25000, priceNGN: 4000, desc: 'Value pack to unlock more benefits' },
+                { id: 'coins_50000', amount: 50000, priceNGN: 7500, desc: 'Ultimate pack for power users and top gifting' },
+              ].map(pkg => (
+                <div key={pkg.id} className="bg-white dark:bg-dark border border-gray-150 dark:border-slate-850 rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-3xl">🪙</span>
+                      <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-full">
+                        +{pkg.amount.toLocaleString()} Coins
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-bold text-dark dark:text-white">{pkg.amount.toLocaleString()} Coins</h3>
+                    <p className="text-xs text-gray-400 dark:text-gray-505 mt-1">{pkg.desc}</p>
+                  </div>
+                  <div className="mt-6 flex items-center justify-between gap-4">
+                    <span className="text-xl font-black text-dark dark:text-white">₦{pkg.priceNGN.toLocaleString()}</span>
+                    <button
+                      onClick={() => setSelectedPackage(pkg)}
+                      className="px-4 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition"
+                    >
+                      Buy Package
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -254,6 +342,93 @@ export default function ShopPage() {
           </div>
         )}
       </div>
+
+      {/* Checkout Modal */}
+      {selectedPackage && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-dark border border-gray-150 dark:border-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 animate-scaleUp text-dark dark:text-white">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="font-extrabold text-lg text-dark dark:text-white">Secure Payment Checkout</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Simulated Sandbox Checkout</p>
+              </div>
+              <button
+                onClick={() => setSelectedPackage(null)}
+                className="text-gray-400 hover:text-dark dark:hover:text-white text-xl font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-slate-800/40 p-4 rounded-xl mb-4 text-sm text-dark dark:text-white border border-gray-100 dark:border-slate-850">
+              <div className="flex justify-between font-medium">
+                <span>Product:</span>
+                <span>{selectedPackage.amount.toLocaleString()} Scholar Coins</span>
+              </div>
+              <div className="flex justify-between font-medium mt-1">
+                <span>Recipient:</span>
+                <span>{checkoutRecipient.trim() ? `@${checkoutRecipient.trim()}` : 'Self (You)'}</span>
+              </div>
+              <div className="h-px bg-gray-250 dark:bg-slate-700 my-2" />
+              <div className="flex justify-between font-black text-primary text-base">
+                <span>Total Cost:</span>
+                <span>₦{selectedPackage.priceNGN.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                  Card Number
+                </label>
+                <input
+                  type="text"
+                  maxLength="19"
+                  value={checkoutCardNumber}
+                  onChange={e => setCheckoutCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
+                  placeholder="4000 1234 5678 9010"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                    Expiry Date
+                  </label>
+                  <input
+                    type="text"
+                    maxLength="5"
+                    value={checkoutExpiry}
+                    onChange={e => setCheckoutExpiry(e.target.value)}
+                    placeholder="MM/YY"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                    CVV
+                  </label>
+                  <input
+                    type="password"
+                    maxLength="3"
+                    value={checkoutCVV}
+                    onChange={e => setCheckoutCVV(e.target.value)}
+                    placeholder="123"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={handleBuyCoins}
+                disabled={processingPayment || !checkoutCardNumber || !checkoutExpiry || !checkoutCVV}
+                className="w-full mt-4 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50 transition"
+              >
+                {processingPayment ? 'Processing Secure Payment...' : `Pay ₦${selectedPackage.priceNGN.toLocaleString()}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
