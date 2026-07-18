@@ -50,6 +50,14 @@ export default function ShopPage() {
     }).catch(() => router.push('/login')).finally(() => setLoading(false))
   }, [])
 
+  // Auto-dismiss success messages after 4 seconds
+  useEffect(() => {
+    if (msg?.type === 'success') {
+      const t = setTimeout(() => setMsg(null), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [msg])
+
   const handleBuy = async (item) => {
     setBuying(item.id)
     setMsg(null)
@@ -418,10 +426,14 @@ export default function ShopPage() {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="font-extrabold text-lg text-dark dark:text-white">Secure Payment Checkout</h3>
-                <p className="text-xs text-gray-400 mt-0.5">Simulated Sandbox Checkout</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  <p className="text-xs text-amber-500 dark:text-amber-400 font-medium">Demo Mode — No real charge</p>
+                </div>
+                <p className="text-[10px] text-gray-400 mt-0.5">Real Paystack/Flutterwave integration coming soon</p>
               </div>
               <button
-                onClick={() => setSelectedPackage(null)}
+                onClick={() => { setSelectedPackage(null); stopCamera() }}
                 className="text-gray-400 hover:text-dark dark:hover:text-white text-xl font-bold"
               >
                 &times;
