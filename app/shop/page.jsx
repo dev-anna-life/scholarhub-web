@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData, buyCoins } from '../../src/api/auth'
 import { FiAward, FiSend, FiSmartphone, FiCreditCard, FiStar, FiCamera, FiCheck } from 'react-icons/fi'
@@ -39,6 +39,9 @@ export default function ShopPage() {
   const [checkoutRecipient, setCheckoutRecipient] = useState('')
   const [processingPayment, setProcessingPayment] = useState(false)
   const [scanningCard, setScanningCard] = useState(false)
+  const [cameraError, setCameraError] = useState(null)
+  const videoRef = useRef(null)
+  const cameraStreamRef = useRef(null)
 
   useEffect(() => {
     Promise.all([getMe(), getShopItems()]).then(([u, s]) => {
@@ -88,16 +91,51 @@ export default function ShopPage() {
     }
   }
 
-  const handleScanCard = () => {
-    setScanningCard(true)
+  const stopCamera = useCallback(() => {
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach(t => t.stop())
+      cameraStreamRef.current = null
+    }
+    setScanningCard(false)
+    setCameraError(null)
+  }, [])
+
+  const handleScanCard = async () => {
+    setCameraError(null)
     setMsg(null)
-    setTimeout(() => {
-      setCheckoutCardNumber('4000 1234 5678 9010')
-      setCheckoutExpiry('12/29')
-      setCheckoutCVV('123')
+
+    // Check if getUserMedia is supported
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraError('Camera access is not supported in this browser.')
+      return
+    }
+
+    // Detect if on mobile/tablet (touch device with rear camera capability)
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    if (!isMobile) {
+      setCameraError('Card scanning requires a mobile device with a rear camera. On laptop, please enter your card details manually.')
+      return
+    }
+
+    setScanningCard(true)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+      })
+      cameraStreamRef.current = stream
+      // Attach stream to video element once it mounts
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        videoRef.current.play()
+      }
+    } catch (err) {
       setScanningCard(false)
-      setMsg({ type: 'success', text: 'Card scanned successfully! Card details populated.' })
-    }, 2000)
+      if (err.name === 'NotAllowedError') {
+        setCameraError('Camera permission denied. Please allow camera access and try again.')
+      } else {
+        setCameraError('Unable to access camera. Please enter card details manually.')
+      }
+    }
   }
 
   const handleSendCoins = async () => {
@@ -418,17 +456,35 @@ export default function ShopPage() {
             `}} />
 
             {scanningCard ? (
-              <div className="bg-slate-900 dark:bg-black rounded-xl p-6 text-center text-white space-y-4 border border-slate-800 relative overflow-hidden h-60 flex flex-col justify-center items-center">
-                <div className="absolute left-0 right-0 top-0 h-1 bg-green-500 shadow-[0_0_15px_#22c55e] animate-scan" />
-                <FiCamera size={40} className="text-green-500 animate-bounce" />
-                <div>
-                  <p className="font-bold text-sm">Accessing Camera View...</p>
-                  <p className="text-[11px] text-gray-400 mt-1">Simulating credit card OCR scan. Hold steady...</p>
+              <div className="relative rounded-xl overflow-hidden border border-green-700/50 bg-black">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-52 object-cover"
+                />
+                {/* Scanning guide overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="border-2 border-green-400 rounded-lg w-56 h-32 opacity-70" />
+                  <p className="text-white text-[11px] mt-2 bg-black/60 px-2 py-0.5 rounded-full">Hold your card inside the frame</p>
                 </div>
-                <div className="border-2 border-dashed border-green-500/40 rounded-lg w-52 h-32 absolute animate-pulse pointer-events-none" />
+                {/* Close camera */}
+                <button
+                  onClick={stopCamera}
+                  className="absolute top-2 right-2 bg-black/70 text-white text-xs px-3 py-1 rounded-full font-semibold hover:bg-red-600/80 transition"
+                >
+                  ✕ Close Camera
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
+                {cameraError && (
+                  <div className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-lg px-3 py-2 flex items-start gap-2">
+                    <FiCamera size={13} className="mt-0.5 flex-shrink-0" />
+                    <span>{cameraError}</span>
+                  </div>
+                )}
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -473,20 +529,20 @@ export default function ShopPage() {
                       maxLength="3"
                       value={checkoutCVV}
                       onChange={e => setCheckoutCVV(e.target.value)}
-                    placeholder="123"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                  />
+                      placeholder="123"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                    />
+                  </div>
                 </div>
+                <button
+                  onClick={handleBuyCoins}
+                  disabled={processingPayment || !checkoutCardNumber || !checkoutExpiry || !checkoutCVV}
+                  className="w-full mt-4 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50 transition"
+                >
+                  {processingPayment ? 'Processing Secure Payment...' : `Pay ₦${selectedPackage.priceNGN.toLocaleString()}`}
+                </button>
               </div>
-              <button
-                onClick={handleBuyCoins}
-                disabled={processingPayment || !checkoutCardNumber || !checkoutExpiry || !checkoutCVV}
-                className="w-full mt-4 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50 transition"
-              >
-                {processingPayment ? 'Processing Secure Payment...' : `Pay ₦${selectedPackage.priceNGN.toLocaleString()}`}
-              </button>
-            </div>
-          )}
+            )}
           </div>
         </div>
       )}
