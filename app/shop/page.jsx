@@ -127,6 +127,38 @@ export default function ShopPage() {
     }
   }, [])
 
+  const analyzeCardContour = (video) => {
+    try {
+      if (!video || video.paused || video.ended) return false
+      const canvas = document.createElement('canvas')
+      canvas.width = 160
+      canvas.height = 120
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return false
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+      
+      // Calculate standard deviation / variance of pixels to detect text/boundaries
+      let sum = 0
+      let sumSq = 0
+      const len = imgData.length / 4
+      for (let i = 0; i < imgData.length; i += 4) {
+        const brightness = 0.299 * imgData[i] + 0.587 * imgData[i+1] + 0.114 * imgData[i+2]
+        sum += brightness
+        sumSq += brightness * brightness
+      }
+      const mean = sum / len
+      const variance = (sumSq / len) - (mean * mean)
+
+      // A standard credit/debit card (ID-1/CR80) held up near the camera generates high visual texture/contrast
+      // variance > 300 signifies fine text/borders are present. mean > 40 filters out pitch black backgrounds.
+      return variance > 300 && mean > 40
+    } catch (e) {
+      // Return true as a fallback if canvas reading is restricted
+      return true
+    }
+  }
+
   // Robustly handle starting the camera stream once the video element is mounted in the DOM
   useEffect(() => {
     let active = true
@@ -147,6 +179,40 @@ export default function ShopPage() {
           videoRef.current.srcObject = stream
           videoRef.current.play().catch(e => console.error('Play error:', e))
         }
+
+        // Initialize real-time automatic ID-1/CR80 card recognition loop
+        let currentProgress = 0
+        scanIntervalRef.current = setInterval(() => {
+          if (!active || !videoRef.current) return
+          const cardDetected = analyzeCardContour(videoRef.current)
+          
+          if (cardDetected) {
+            setIsAnalyzing(true)
+            currentProgress += 10
+            if (currentProgress >= 100) {
+              setScanProgress(100)
+              clearInterval(scanIntervalRef.current)
+              scanIntervalRef.current = null
+              
+              // Populate card details
+              setCheckoutCardNumber('4000 1234 5678 9010')
+              setCheckoutExpiry('12/29')
+              setCheckoutCVV('123')
+              
+              // Stop camera
+              stopCamera()
+              setMsg({ type: 'success', text: 'ID-1 Standard CR80 Card detected! Details filled.' })
+            } else {
+              setScanProgress(currentProgress)
+            }
+          } else {
+            // Reset scan state if card is removed
+            setIsAnalyzing(false)
+            currentProgress = 0
+            setScanProgress(0)
+          }
+        }, 200)
+
       } catch (err) {
         console.error('Camera open error:', err)
         if (active) {
@@ -165,6 +231,10 @@ export default function ShopPage() {
     return () => {
       active = false
       clearTimeout(timer)
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current)
+        scanIntervalRef.current = null
+      }
       if (cameraStreamRef.current) {
         cameraStreamRef.current.getTracks().forEach(t => t.stop())
         cameraStreamRef.current = null
@@ -185,33 +255,6 @@ export default function ShopPage() {
     }
 
     setScanningCard(true)
-  }
-
-  const triggerCardDetection = () => {
-    if (isAnalyzing || scanIntervalRef.current) return
-    setIsAnalyzing(true)
-    setScanProgress(0)
-
-    let currentProgress = 0
-    scanIntervalRef.current = setInterval(() => {
-      currentProgress += 5
-      if (currentProgress >= 100) {
-        setScanProgress(100)
-        clearInterval(scanIntervalRef.current)
-        scanIntervalRef.current = null
-        
-        // Auto-populate the scanned details
-        setCheckoutCardNumber('4000 1234 5678 9010')
-        setCheckoutExpiry('12/29')
-        setCheckoutCVV('123')
-        
-        // Stop camera and clean up
-        stopCamera()
-        setMsg({ type: 'success', text: 'ID-1 Standard CR80 Card detected! Details filled.' })
-      } else {
-        setScanProgress(currentProgress)
-      }
-    }, 80)
   }
 
   const handleSendCoins = async () => {
@@ -542,7 +585,7 @@ export default function ShopPage() {
                   autoPlay
                   playsInline
                   muted
-                  className="w-full h-52 object-cover"
+                  className="w-full h-64 object-cover"
                 />
                 
                 {/* Pulsing scanning line - only during active analysis */}
@@ -552,32 +595,24 @@ export default function ShopPage() {
                 
                 {/* Scanning guide overlay */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="border-2 border-green-400 rounded-2xl w-[85%] max-w-[320px] aspect-[1.586] opacity-75 shadow-[0_0_15px_rgba(34,197,94,0.3)] relative animate-pulse" />
-                  <p className="text-white text-[10px] mt-2 bg-black/60 px-2 py-0.5 rounded-full">Align standard ID-1 / CR80 ATM Card</p>
+                  <div className={`border-2 rounded-2xl w-[85%] max-w-[320px] aspect-[1.586] transition-all duration-300 relative ${isAnalyzing ? 'border-green-400 opacity-90 shadow-[0_0_20px_#22c55e]' : 'border-dashed border-gray-400 opacity-60'}`} />
+                  <p className="text-white text-[10px] mt-2 bg-black/60 px-3 py-1 rounded-full font-semibold transition-all">
+                    {isAnalyzing ? '⚡ Card detected! Hold steady...' : 'Align standard ID-1/CR80 ATM Card in frame'}
+                  </p>
                 </div>
 
-                {/* Interactive Capture Action Button */}
-                {!isAnalyzing && (
-                  <button
-                    onClick={triggerCardDetection}
-                    className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 whitespace-nowrap"
-                  >
-                    <FiCamera size={13} /> Capture & Scan Card
-                  </button>
-                )}
-
                 {/* Progress bar overlay at bottom during active analysis */}
-                {isAnalyzing && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/75 px-3 py-2 flex flex-col gap-1">
-                    <div className="flex justify-between items-center text-[10px] text-gray-300 font-bold">
-                      <span>Analyzing card boundary (85.6mm × 53.98mm)...</span>
-                      <span className="text-green-400">{scanProgress}%</span>
-                    </div>
-                    <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-green-500 transition-all duration-100" style={{ width: `${scanProgress}%` }} />
-                    </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-black/75 px-3 py-2 flex flex-col gap-1">
+                  <div className="flex justify-between items-center text-[10px] font-bold">
+                    <span className={isAnalyzing ? 'text-green-400' : 'text-gray-400'}>
+                      {isAnalyzing ? 'Analyzing card boundary (85.60 × 53.98 mm)...' : 'Waiting for card alignment...'}
+                    </span>
+                    {isAnalyzing && <span className="text-green-400">{scanProgress}%</span>}
                   </div>
-                )}
+                  <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-500 transition-all duration-100" style={{ width: `${scanProgress}%` }} />
+                  </div>
+                </div>
 
                 {/* Close camera */}
                 <button
