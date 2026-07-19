@@ -138,24 +138,51 @@ export default function ShopPage() {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
       
-      // Calculate standard deviation / variance of pixels to detect text/boundaries
+      // Build grayscale brightness array
+      const W = 160, H = 120
+      const gray = new Float32Array(W * H)
       let sum = 0
       let sumSq = 0
-      const len = imgData.length / 4
       for (let i = 0; i < imgData.length; i += 4) {
-        const brightness = 0.299 * imgData[i] + 0.587 * imgData[i+1] + 0.114 * imgData[i+2]
-        sum += brightness
-        sumSq += brightness * brightness
+        const b = 0.299 * imgData[i] + 0.587 * imgData[i + 1] + 0.114 * imgData[i + 2]
+        gray[i / 4] = b
+        sum += b
+        sumSq += b * b
       }
+      const len = W * H
       const mean = sum / len
       const variance = (sumSq / len) - (mean * mean)
 
-      // A standard credit/debit card (ID-1/CR80) held up near the camera generates high visual texture/contrast
-      // variance > 300 signifies fine text/borders are present. mean > 40 filters out pitch black backgrounds.
-      return variance > 300 && mean > 40
-    } catch (e) {
-      // Return true as a fallback if canvas reading is restricted
+      // --- Check 1: Mean brightness must be in card-like range ---
+      // Too dark (empty room) or too bright (direct lamp) are rejected
+      if (mean < 50 || mean > 220) return false
+
+      // --- Check 2: Variance must be high enough ---
+      // Plain walls, uniform curtains and empty desks typically score < 900.
+      // A card with text + magnetic stripe + artwork typically scores > 1200.
+      if (variance < 1200) return false
+
+      // --- Check 3: Edge density check (Sobel-like horizontal + vertical gradients) ---
+      // Cards have many sharp straight edges (text, strip, border). 
+      // Walls and backgrounds have very few strong edges.
+      let edgeCount = 0
+      const EDGE_THRESHOLD = 40
+      for (let y = 1; y < H - 1; y++) {
+        for (let x = 1; x < W - 1; x++) {
+          const idx = y * W + x
+          const gx = Math.abs(gray[idx + 1] - gray[idx - 1])
+          const gy = Math.abs(gray[idx + W] - gray[idx - W])
+          if (gx + gy > EDGE_THRESHOLD) edgeCount++
+        }
+      }
+      // A valid ID-1 card fills ~60% of the frame and must have >8% of pixels as edges
+      const edgeDensity = edgeCount / len
+      if (edgeDensity < 0.08) return false
+
       return true
+    } catch (e) {
+      // Do NOT fallback to true — that causes false positives on canvas errors
+      return false
     }
   }
 
@@ -394,8 +421,7 @@ export default function ShopPage() {
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Top up your coins to purchase badges or gift them to other students. Especially useful for Alumni to support others!
               </p>
-              
-              <div className="mb-4">
+              <div className="mb-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Gift to user? (Optional)
                 </label>
@@ -407,7 +433,9 @@ export default function ShopPage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
                 />
               </div>
-                    <div className="grid gap-4 md:grid-cols-2">
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
               {[
                 { id: 'coins_5000', amount: 5000, priceNGN: 10000, desc: 'Starter pack for basic support' },
                 { id: 'coins_10000', amount: 10000, priceNGN: 20000, desc: 'Recommended pack for Premium badge upgrade' },
@@ -423,7 +451,7 @@ export default function ShopPage() {
                       </span>
                     </div>
                     <h3 className="text-lg font-bold text-dark dark:text-white">{pkg.amount.toLocaleString()} Coins</h3>
-                    <p className="text-xs text-gray-400 dark:text-gray-505 mt-1">{pkg.desc}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{pkg.desc}</p>
                   </div>
                   <div className="mt-6">
                     <button
