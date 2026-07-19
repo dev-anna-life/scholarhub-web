@@ -618,11 +618,10 @@ export default function ShopPage() {
                   <div className="absolute left-0 right-0 top-0 h-0.5 bg-green-400 shadow-[0_0_8px_#22c55e] animate-scan pointer-events-none" />
                 )}
                 
-                {/* Scanning guide overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className={`border-2 rounded-2xl w-[85%] max-w-[320px] aspect-[1.586] transition-all duration-300 relative ${isAnalyzing ? 'border-green-400 opacity-90 shadow-[0_0_20px_#22c55e]' : 'border-dashed border-gray-400 opacity-60'}`} />
-                  <p className="text-white text-[10px] mt-2 bg-black/60 px-3 py-1 rounded-full font-semibold transition-all">
-                    {isAnalyzing ? '⚡ Card detected! Hold steady...' : 'Align standard ID-1/CR80 ATM Card in frame'}
+                {/* Scanning guide overlay - status label only, no frame */}
+                <div className="absolute inset-0 flex flex-col items-end justify-start pointer-events-none p-2">
+                  <p className="text-white text-[10px] bg-black/60 px-3 py-1 rounded-full font-semibold transition-all">
+                    {isAnalyzing ? '⚡ Card detected! Hold steady...' : 'Place ATM card to fill the frame'}
                   </p>
                 </div>
 
@@ -639,12 +638,12 @@ export default function ShopPage() {
                   </div>
                 </div>
 
-                {/* Close camera */}
+                {/* Close camera - icon only */}
                 <button
                   onClick={stopCamera}
-                  className="absolute top-2 right-2 bg-black/70 text-white text-xs px-3 py-1 rounded-full font-semibold hover:bg-red-600/80 transition"
+                  className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-black/60 hover:bg-red-600/80 text-white rounded-full text-sm font-bold transition"
                 >
-                  ✕ Close Camera
+                  ✕
                 </button>
               </div>
             ) : (
