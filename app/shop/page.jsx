@@ -407,14 +407,12 @@ export default function ShopPage() {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
                 />
               </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 md:grid-cols-2">
               {[
-                { id: 'coins_5000', amount: 5000, priceNGN: 1000, desc: 'Starter pack for basic support' },
-                { id: 'coins_10000', amount: 10000, priceNGN: 1800, desc: 'Recommended pack for Premium badge upgrade' },
-                { id: 'coins_25000', amount: 25000, priceNGN: 4000, desc: 'Value pack to unlock more benefits' },
-                { id: 'coins_50000', amount: 50000, priceNGN: 7500, desc: 'Ultimate pack for power users and top gifting' },
+                { id: 'coins_5000', amount: 5000, priceNGN: 10000, desc: 'Starter pack for basic support' },
+                { id: 'coins_10000', amount: 10000, priceNGN: 20000, desc: 'Recommended pack for Premium badge upgrade' },
+                { id: 'coins_25000', amount: 25000, priceNGN: 50000, desc: 'Value pack to unlock more benefits' },
+                { id: 'coins_50000', amount: 50000, priceNGN: 100000, desc: 'Ultimate pack for power users and top gifting' },
               ].map(pkg => (
                 <div key={pkg.id} className="bg-white dark:bg-dark border border-gray-150 dark:border-slate-850 rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                   <div>
@@ -427,11 +425,10 @@ export default function ShopPage() {
                     <h3 className="text-lg font-bold text-dark dark:text-white">{pkg.amount.toLocaleString()} Coins</h3>
                     <p className="text-xs text-gray-400 dark:text-gray-505 mt-1">{pkg.desc}</p>
                   </div>
-                  <div className="mt-6 flex items-center justify-between gap-4">
-                    <span className="text-xl font-black text-dark dark:text-white">₦{pkg.priceNGN.toLocaleString()}</span>
+                  <div className="mt-6">
                     <button
                       onClick={() => setSelectedPackage(pkg)}
-                      className="px-4 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition"
+                      className="w-full py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition"
                     >
                       Buy Package
                     </button>
