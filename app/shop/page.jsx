@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData, buyCoins } from '../../src/api/auth'
+import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData, buyCoins, verifyPaystackPayment } from '../../src/api/auth'
 import { FiAward, FiSend, FiSmartphone, FiCreditCard, FiStar, FiCamera, FiCheck } from 'react-icons/fi'
 import { BsCoin, BsCashStack } from 'react-icons/bs'
 import { GiCrown } from 'react-icons/gi'
@@ -51,6 +51,16 @@ export default function ShopPage() {
       setUser(u.data)
       setItems(s.data)
     }).catch(() => router.push('/login')).finally(() => setLoading(false))
+
+    const script = document.createElement('script')
+    script.src = 'https://js.paystack.co/v1/inline.js'
+    script.async = true
+    document.body.appendChild(script)
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script)
+      }
+    }
   }, [])
 
   // Auto-dismiss success messages after 4 seconds
@@ -78,8 +88,54 @@ export default function ShopPage() {
 
   const handleBuyCoins = async () => {
     if (!selectedPackage) return
+
+    const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
+    const isPaystackAvailable = typeof window !== 'undefined' && window.PaystackPop && paystackKey && paystackKey !== 'placeholder'
+
+    if (isPaystackAvailable) {
+      setProcessingPayment(true)
+      setMsg(null)
+      try {
+        const handler = window.PaystackPop.setup({
+          key: paystackKey,
+          email: user?.email || 'customer@scholarhub.com',
+          amount: selectedPackage.priceNGN * 100, // Paystack amount is in Kobo (NGN * 100)
+          currency: 'NGN',
+          ref: 'SH_' + Math.floor((Math.random() * 1000000000) + 1),
+          callback: async function (response) {
+            try {
+              const res = await verifyPaystackPayment(response.reference, selectedPackage.id, checkoutRecipient)
+              const u = await getMe()
+              setUser(u.data)
+              setMsg({ type: 'success', text: res.data.message })
+              // Clear payment form
+              setCheckoutCardNumber('')
+              setCheckoutExpiry('')
+              setCheckoutCVV('')
+              setCheckoutRecipient('')
+              setSelectedPackage(null)
+            } catch (err) {
+              setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
+            } finally {
+              setProcessingPayment(false)
+            }
+          },
+          onClose: function () {
+            setProcessingPayment(false)
+          }
+        })
+        handler.openIframe()
+      } catch (e) {
+        console.error('Error starting Paystack payment popup:', e)
+        setProcessingPayment(false)
+        setMsg({ type: 'error', text: 'Failed to initialize payment popup' })
+      }
+      return
+    }
+
+    // Graceful Fallback: Local Sandbox/Demo Card Simulation
     if (!checkoutCardNumber || !checkoutExpiry || !checkoutCVV) {
-      setMsg({ type: 'error', text: 'Please fill in all card details' })
+      setMsg({ type: 'error', text: 'Please fill in all card details or use Scan Card' })
       return
     }
     setProcessingPayment(true)
@@ -647,69 +703,93 @@ export default function ShopPage() {
                 </button>
               </div>
             ) : (
-              <div className="space-y-3">
-                {cameraError && (
-                  <div className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-lg px-3 py-2 flex items-start gap-2">
-                    <FiCamera size={13} className="mt-0.5 flex-shrink-0" />
-                    <span>{cameraError}</span>
-                  </div>
-                )}
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400">
-                      Card Number
-                    </label>
+              <div className="space-y-4">
+                {typeof window !== 'undefined' && window.PaystackPop && process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY && process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY !== 'placeholder' ? (
+                  <div className="text-center py-4 space-y-4">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Payment will be processed securely via Paystack. You can pay with Card, Bank Transfer, USSD, or Bank App.
+                    </p>
                     <button
-                      onClick={handleScanCard}
-                      className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded-lg transition-all"
+                      onClick={handleBuyCoins}
+                      disabled={processingPayment}
+                      className="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm hover:scale-[1.01] active:scale-[0.99] transition shadow-lg flex items-center justify-center gap-2"
                     >
-                      <FiCamera size={11} /> Scan Card
+                      {processingPayment ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                          Verifying Transaction...
+                        </>
+                      ) : (
+                        `Pay ₦${selectedPackage.priceNGN.toLocaleString()} securely`
+                      )}
                     </button>
                   </div>
-                  <input
-                    type="text"
-                    maxLength="19"
-                    value={checkoutCardNumber}
-                    onChange={e => setCheckoutCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                    placeholder="4000 1234 5678 9010"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="text"
-                      maxLength="5"
-                      value={checkoutExpiry}
-                      onChange={e => setCheckoutExpiry(e.target.value)}
-                      placeholder="MM/YY"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                    />
+                ) : (
+                  <div className="space-y-3">
+                    {cameraError && (
+                      <div className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-lg px-3 py-2 flex items-start gap-2">
+                        <FiCamera size={13} className="mt-0.5 flex-shrink-0" />
+                        <span>{cameraError}</span>
+                      </div>
+                    )}
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400">
+                          Card Number
+                        </label>
+                        <button
+                          onClick={handleScanCard}
+                          className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded-lg transition-all"
+                        >
+                          <FiCamera size={11} /> Scan Card
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        maxLength="19"
+                        value={checkoutCardNumber}
+                        onChange={e => setCheckoutCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
+                        placeholder="4000 1234 5678 9010"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                          Expiry Date
+                        </label>
+                        <input
+                          type="text"
+                          maxLength="5"
+                          value={checkoutExpiry}
+                          onChange={e => setCheckoutExpiry(e.target.value)}
+                          placeholder="MM/YY"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                          CVV
+                        </label>
+                        <input
+                          type="password"
+                          maxLength="3"
+                          value={checkoutCVV}
+                          onChange={e => setCheckoutCVV(e.target.value)}
+                          placeholder="123"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleBuyCoins}
+                      disabled={processingPayment || !checkoutCardNumber || !checkoutExpiry || !checkoutCVV}
+                      className="w-full mt-4 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50 transition"
+                    >
+                      {processingPayment ? 'Processing Secure Payment...' : `Pay ₦${selectedPackage.priceNGN.toLocaleString()} (Demo)`}
+                    </button>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-                      CVV
-                    </label>
-                    <input
-                      type="password"
-                      maxLength="3"
-                      value={checkoutCVV}
-                      onChange={e => setCheckoutCVV(e.target.value)}
-                      placeholder="123"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={handleBuyCoins}
-                  disabled={processingPayment || !checkoutCardNumber || !checkoutExpiry || !checkoutCVV}
-                  className="w-full mt-4 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50 transition"
-                >
-                  {processingPayment ? 'Processing Secure Payment...' : `Pay ₦${selectedPackage.priceNGN.toLocaleString()}`}
-                </button>
+                )}
               </div>
             )}
           </div>

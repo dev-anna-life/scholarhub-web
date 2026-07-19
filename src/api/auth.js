@@ -66,6 +66,7 @@ export const sendCoins = (recipientUsername, amount) => API.post('/shop/send-coi
 export const redeemAirtime = (itemId, network, phone) => API.post('/shop/redeem-airtime', { itemId, phone, network })
 export const redeemData = (itemId, network, phone) => API.post('/shop/redeem-data', { itemId, phone, network })
 export const buyCoins = (itemId, recipientUsername) => API.post('/shop/buy-coins', { itemId, recipientUsername })
+export const verifyPaystackPayment = (reference, itemId, recipientUsername) => API.post('/shop/verify-paystack', { reference, itemId, recipientUsername })
 
 export const getCommunities = (params) => API.get('/communities', { params })
 export const createCommunity = (data) => API.post('/communities', data)
