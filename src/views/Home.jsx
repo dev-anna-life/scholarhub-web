@@ -148,10 +148,11 @@ function Home() {
                 getMyCommunities().catch(() => ({ data: [] })),
                 getSavedPosts().catch(() => ({ data: [] })),
             ])
-            const myComms = Array.isArray(commRes.data?.communities) ? commRes.data.communities : []
+            const myComms = Array.isArray(commRes.data?.communities) ? commRes.data.communities : (Array.isArray(commRes.data) ? commRes.data : [])
             setUserCommunities(myComms)
             const deptCom = myComms.find(c => c.type === 'department' || c.type === 'class')
-            setSelectedCommunityIds(deptCom ? [deptCom._id] : myComms.length > 0 ? [myComms[0]._id] : [])
+            const defaultIds = deptCom ? [(deptCom.id || deptCom._id)] : myComms.length > 0 ? [(myComms[0].id || myComms[0]._id)] : []
+            setSelectedCommunityIds(defaultIds.filter(Boolean))
 
             setMyPostCount(myPostsRes.data.length)
             setNotifications(notifRes.data)
@@ -300,25 +301,24 @@ function Home() {
             setPostError('Title and content are required')
             return
         }
-        if (!selectedCommunityIds.length) {
-            setPostError('Select at least one community to post to')
-            return
-        }
+        const validComIds = selectedCommunityIds.filter(id => id && typeof id === 'string' && id !== 'undefined')
+        const finalCommunityIds = validComIds.length > 0 ? validComIds : userCommunities.map(c => c.id || c._id).filter(Boolean)
+
         setPostLoading(true)
         setPostError('')
         try {
             const postData = {
                 title: newPost.title.trim(),
                 content: newPost.content.trim(),
-                category: newPost.category,
-                communityIds: selectedCommunityIds,
+                category: newPost.category || 'Sciences',
+                communityIds: finalCommunityIds,
                 image: postImage || ''
             }
             await createPost(postData)
             setPostSuccess(true)
-            setNewPost({ title: '', content: '', category: 'University', community: '' })
+            setNewPost({ title: '', content: '', category: 'Sciences', community: '' })
             setPostImage(null)
-            setTimeout(() => { setShowCreatePost(false); setPostSuccess(false); fetchPosts(1) }, 2000)
+            setTimeout(() => { setShowCreatePost(false); setPostSuccess(false); fetchPosts(1) }, 1500)
         } catch (err) {
             setPostError(err.response?.data?.message || err.message || 'Something went wrong')
         } finally {
@@ -864,7 +864,7 @@ function Home() {
                                     value={newPost.title} onChange={e => setNewPost({ ...newPost, title: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark" />
                                 <textarea placeholder="Share your thoughts, study tips, campus updates..."
-                                    value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
+                                            value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition min-h-[120px] resize-none text-dark" />
                                 <select value={newPost.category} onChange={e => setNewPost({ ...newPost, category: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark">
@@ -874,15 +874,20 @@ function Home() {
                                     <div className="space-y-1.5">
                                         <p className="text-xs font-semibold text-gray-500">Post to communities:</p>
                                         <div className="flex flex-wrap gap-2">
-                                            {userCommunities.filter(c => c.type !== 'general').map(c => (
-                                                <label key={c._id} onClick={e => { e.stopPropagation(); }}
-                                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer border transition ${selectedCommunityIds.includes(c._id) ? 'bg-primary text-white border-primary' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-primary/50'}`}>
-                                                    <input type="checkbox" checked={selectedCommunityIds.includes(c._id)}
-                                                        onChange={() => setSelectedCommunityIds(prev => prev.includes(c._id) ? prev.filter(id => id !== c._id) : [...prev, c._id])}
-                                                        className="hidden" />
-                                                    {c.name}
-                                                </label>
-                                            ))}
+                                            {userCommunities.map(c => {
+                                                const cid = c.id || c._id
+                                                if (!cid) return null
+                                                const isSelected = selectedCommunityIds.includes(cid)
+                                                return (
+                                                    <label key={cid} onClick={e => { e.stopPropagation(); }}
+                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer border transition ${isSelected ? 'bg-primary text-white border-primary' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-primary/50'}`}>
+                                                        <input type="checkbox" checked={isSelected}
+                                                            onChange={() => setSelectedCommunityIds(prev => prev.includes(cid) ? prev.filter(id => id !== cid) : [...prev, cid])}
+                                                            className="hidden" />
+                                                        {c.name}
+                                                    </label>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
