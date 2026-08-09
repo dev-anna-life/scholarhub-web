@@ -402,7 +402,7 @@ function CommunityFeed() {
                                           <p className="text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 mb-3">{post.content}</p>
 
                                           {post.image && (
-                                              <img src={post.image} alt="" className="w-full rounded-xl mb-3 max-h-64 object-cover" />
+                                              <img src={post.image} alt="" className="w-full max-h-[520px] object-contain rounded-xl mb-3 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-slate-800/50" />
                                           )}
                                           {post.video && (
                                               <video src={post.video} controls onClick={e => e.stopPropagation()} className="w-full rounded-xl mb-3 max-h-64" />

@@ -83,7 +83,7 @@ export default function PostDetail() {
           <h1 className="text-xl font-bold text-dark mb-3 leading-snug">{c.title}</h1>
           <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap mb-4">{c.content}</p>
 
-          {c.image && <img src={c.image} alt="" className="w-full rounded-xl mb-4 max-h-96 object-cover" />}
+          {c.image && <img src={c.image} alt="" className="w-full rounded-xl mb-4 max-h-[600px] object-contain bg-black/5 dark:bg-white/5 border border-gray-100" />}
           {c.video && <video src={c.video} controls className="w-full rounded-xl mb-4 max-h-96" />}
 
           <div className="flex items-center gap-4 pt-3 border-t border-gray-100">

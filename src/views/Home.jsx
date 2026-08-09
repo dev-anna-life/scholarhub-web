@@ -664,7 +664,7 @@ function Home() {
                                         <h3 className="font-bold text-dark text-sm mb-1 leading-snug">{post.title}</h3>
                                         <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 mb-3">{post.content}</p>
                                         {post.image && (
-                                            <img src={post.image} alt="" className="w-full h-44 object-cover rounded-xl mb-3 bg-gray-50"
+                                            <img src={post.image} alt="" className="w-full max-h-[520px] object-contain rounded-xl mb-3 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-slate-800/50"
                                                 onError={e => { e.target.style.display = 'none' }} />
                                         )}
 
