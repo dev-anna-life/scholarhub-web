@@ -31,7 +31,7 @@ function Login() {
     setLoading(true)
     setError('')
     try {
-      const res = await loginUser(form)
+      const res = await loginUser({ email: form.email.trim(), password: form.password })
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
       router.push('/feed')
@@ -96,7 +96,7 @@ function Login() {
         <div className="space-y-3 mb-6">
           <div className="relative">
             <FiMail className="absolute left-3 top-3.5 text-gray-400" size={16} />
-            <input name="email" type="email" placeholder="Email Address" value={form.email} onChange={handleChange} className={`input-field ${errors.email ? 'border-red-400' : ''}`} />
+            <input name="email" type="text" placeholder="Email Address or Username" value={form.email} onChange={handleChange} className={`input-field ${errors.email ? 'border-red-400' : ''}`} />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
           <div className="relative">
