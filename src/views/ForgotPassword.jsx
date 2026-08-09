@@ -57,13 +57,13 @@ function ForgotPassword() {
                 ) : (
                     <>
                         <h2 className="text-xl font-bold text-dark mb-1">Forgot Password?</h2>
-                        <p className="text-sm text-gray-400 mb-6">Enter your email and we'll send a reset link</p>
+                        <p className="text-sm text-gray-400 mb-6">Enter your email address or username and we'll send a reset link</p>
 
                         <div className="relative mb-4">
                             <FiMail className="absolute left-3 top-3.5 text-gray-500" size={16} />
                             <input
-                                type="email"
-                                placeholder="Email Address"
+                                type="text"
+                                placeholder="Email Address or Username"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 className="input-field"
