@@ -5,8 +5,10 @@ const API = axios.create({
 })
 
 API.interceptors.request.use((req) => {
-    const token = localStorage.getItem('token')
-    if (token) req.headers.Authorization = `Bearer ${token}`
+    if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token')
+        if (token) req.headers.Authorization = `Bearer ${token}`
+    }
     return req
 })
 
@@ -50,7 +52,7 @@ export const searchUsers = (q) => API.get(`/chat/users/search?q=${q}`)
 export const triggerSOS = (data) => API.post('/sos/trigger', data)
 export const getActiveAlerts = () => API.get('/sos/active')
 export const resolveSOS = (id) => API.patch(`/sos/${id}/resolve`)
-export const getUserById = (id) => API.get(`/chat/users/${id}`)
+export const getUserById = (id) => API.get(`/auth/user/${id}`)
 export const deletePost = (id) => API.delete(`/posts/${id}`)
 export const followUser = (id) => API.post(`/auth/user/${id}/follow`)
 export const adminDeleteUser = (userId) => API.delete(`/admin/users/${userId}`)
