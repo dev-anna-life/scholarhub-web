@@ -183,12 +183,17 @@ function UserProfile() {
         setFollowError('')
         const wasFollowing = following
         setFollowing(!wasFollowing)
-        setFollowersCount(prev => prev + (wasFollowing ? -1 : 1))
+        setFollowersCount(prev => Math.max(0, prev + (wasFollowing ? -1 : 1)))
         try {
-            await followUser(userId)
+            const res = await followUser(userId)
+            if (res.data && typeof res.data.following === 'boolean') {
+                setFollowing(res.data.following)
+            }
             await refreshProfileDetails()
         } catch (err) {
-            console.warn("Follow API unavailable (404) — state updated locally", err)
+            setFollowing(wasFollowing)
+            setFollowersCount(prev => Math.max(0, prev + (wasFollowing ? 1 : -1)))
+            setFollowError(err.response?.data?.message || 'Failed to update follow status')
         } finally {
             setFollowLoading(false)
         }
