@@ -1,3 +1,4 @@
+'use client'
 /* eslint-disable no-unused-vars */
 import { motion } from "framer-motion"
 import { FiFileText, FiArrowLeft } from "react-icons/fi"

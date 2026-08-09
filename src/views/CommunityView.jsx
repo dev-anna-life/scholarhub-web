@@ -1,3 +1,4 @@
+'use client'
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiSend, FiInbox, FiGlobe } from "react-icons/fi"

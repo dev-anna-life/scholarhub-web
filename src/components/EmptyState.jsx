@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 
 export default function EmptyState({ icon = '📭', title = 'No content found', description = 'Check back later or try creating a new post.' }) {
