@@ -323,7 +323,10 @@ function Chat() {
                             </button>
                         </div>
                     ) : (
-                        conversations.map(conv => (
+                        conversations.map(conv => {
+                            if (!conv?.user) return null
+                            const lastMsg = conv.lastMessage
+                            return (
                             <motion.button
                                 key={conv.user._id}
                                 onClick={() => openChat(conv.user)}
@@ -341,13 +344,13 @@ function Chat() {
                                     <div className="flex items-center justify-between mb-0.5">
                                         <p className="text-sm font-semibold text-dark truncate">{conv.user.name}</p>
                                         <p className="text-xs text-gray-400 flex-shrink-0 ml-2">
-                                            {formatTime(conv.lastMessage.createdAt)}
+                                            {lastMsg?.createdAt ? formatTime(lastMsg.createdAt) : ''}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <p className={`text-xs truncate flex-1 ${conv.unread > 0 ? 'text-dark font-semibold' : 'text-gray-400'}`}>
-                                            {conv.lastMessage.sender._id === user.id ? 'You: ' : ''}
-                                            {conv.lastMessage.text}
+                                            {lastMsg?.sender?._id === user.id ? 'You: ' : ''}
+                                            {lastMsg?.text || ''}
                                         </p>
                                         {conv.user.school && (
                                             <span className="text-white font-bold rounded-full px-1.5 py-0.5 ml-2 flex-shrink-0"
@@ -358,7 +361,8 @@ function Chat() {
                                     </div>
                                 </div>
                             </motion.button>
-                        ))
+                            )
+                        })
                     )}
                 </div>
             </div>
@@ -397,8 +401,9 @@ function Chat() {
                         ) : (
                             <div className="flex flex-col gap-2 max-w-2xl mx-auto">
                                 {messages.map((msg, i) => {
+                                    if (!msg?.sender) return null
                                     const isMe = msg.sender._id === user.id || msg.sender._id === user._id
-                                    const showDate = i === 0 || formatDate(messages[i - 1].createdAt) !== formatDate(msg.createdAt)
+                                    const showDate = i === 0 || formatDate(messages[i - 1]?.createdAt) !== formatDate(msg.createdAt)
                                     return (
                                         <div key={msg._id}>
                                             {showDate && (
