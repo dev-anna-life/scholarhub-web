@@ -545,7 +545,8 @@ function UserProfile() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: i * 0.08 }}
-                                        className="bg-white rounded-2xl p-4 md:p-5 border border-gray-100 hover:shadow-md transition-all duration-300">
+                                        onClick={() => router.push(`/post/${post._id}`)}
+                                        className="bg-white rounded-2xl p-4 md:p-5 border border-gray-100 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                                                 post.status === 'approved' ? 'bg-primary/10 text-primary' :
@@ -560,7 +561,7 @@ function UserProfile() {
                                                 </span>
                                                 {isOwnProfile && (
                                                     <button
-                                                        onClick={() => setConfirmDelete(post._id)}
+                                                        onClick={(e) => { e.stopPropagation(); setConfirmDelete(post._id) }}
                                                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition">
                                                         <FiTrash2 size={14} />
                                                     </button>
