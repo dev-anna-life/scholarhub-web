@@ -65,6 +65,7 @@ function Chat() {
     const messagesEndRef = useRef(null)
     const searchRef = useRef(null)
     const searchParams = useSearchParams()
+    const [user, setUser] = useState({})
     const [activeChatDetails, setActiveChatDetails] = useState(null)
     const [followingChatUser, setFollowingChatUser] = useState(false)
     const [followLoading, setFollowLoading] = useState(false)
