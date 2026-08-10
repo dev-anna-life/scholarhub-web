@@ -172,12 +172,15 @@ function Navbar() {
                                 <p className="text-xs text-gray-300 mt-0.5">
                                   {new Date(notif.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
                                 </p>
-                                {notif.type === 'follow' && from?._id && (
-                                  <button onClick={(e) => handleFollowBack(e, from._id)}
-                                    className={`mt-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${followedNotifs.has(from._id) ? 'bg-gray-100 text-gray-500' : 'bg-primary text-white hover:opacity-90'}`}>
-                                    {followedNotifs.has(from._id) ? 'Following' : 'Follow Back'}
-                                  </button>
-                                )}
+                                {notif.type === 'follow' && (from?.id || from?._id) && (() => {
+                                  const fromId = from?.id || from?._id
+                                  return (
+                                    <button onClick={(e) => handleFollowBack(e, fromId)}
+                                      className={`mt-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${followedNotifs.has(fromId) ? 'bg-gray-100 text-gray-500' : 'bg-primary text-white hover:opacity-90'}`}>
+                                      {followedNotifs.has(fromId) ? 'Following' : 'Follow Back'}
+                                    </button>
+                                  )
+                                })()}
                               </div>
                               {!notif.read && <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />}
                             </div>
