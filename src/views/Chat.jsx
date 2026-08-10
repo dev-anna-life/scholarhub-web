@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiSend, FiSearch, FiArrowLeft, FiX, FiMessageCircle, FiCheck } from "react-icons/fi"
-import { getConversations, getMessages, sendMessage, markMessagesAsRead, searchUsers } from "../api/auth"
+import { getConversations, getMessages, sendMessage, markMessagesAsRead, searchUsers, getUserById, followUser } from "../api/auth"
 import { useSearchParams } from "next/navigation"
 
 const knownAbbreviations = {
@@ -65,7 +65,9 @@ function Chat() {
     const messagesEndRef = useRef(null)
     const searchRef = useRef(null)
     const searchParams = useSearchParams()
-    const [user, setUser] = useState({})
+    const [activeChatDetails, setActiveChatDetails] = useState(null)
+    const [followingChatUser, setFollowingChatUser] = useState(false)
+    const [followLoading, setFollowLoading] = useState(false)
 
     useEffect(() => {
         try { setUser(JSON.parse(localStorage.getItem('user') || '{}')) } catch (e) {}
@@ -83,31 +85,20 @@ function Chat() {
         if (userId) {
             const openUserChat = async () => {
                 try {
-                    // Check existing conversations first
-                    const existingConv = conversations.find(c =>
-                        c.user._id === userId || c.user._id?.toString() === userId?.toString()
-                    )
+                    const existingConv = conversations.find(c => {
+                        const cId = c.user?.id || c.user?._id
+                        return cId === userId || cId?.toString() === userId?.toString()
+                    })
                     if (existingConv) {
                         openChat(existingConv.user)
                         return
                     }
-                    // Try fetching messages directly with the userId
-                    const msgRes = await getMessages(userId)
-                    if (msgRes.data?.length > 0) {
-                        const otherUser = msgRes.data[0].sender._id !== user.id && msgRes.data[0].sender._id !== user._id
-                            ? msgRes.data[0].sender
-                            : msgRes.data[0].receiver
-                        setActiveChat(otherUser)
-                        setMessages(msgRes.data)
-                    } else {
-                        // No messages yet — create a minimal chat with the user
-                        setActiveChat({ _id: userId, name: 'User', school: '', level: '' })
-                        setMessages([])
-                    }
+                    const userRes = await getUserById(userId).catch(() => null)
+                    const chatUser = userRes?.data || { id: userId, name: 'Scholar', school: '', level: '' }
+                    openChat(chatUser)
                 } catch (err) {
                     console.error(err)
-                    setActiveChat({ _id: userId, name: 'User', school: '', level: '' })
-                    setMessages([])
+                    openChat({ id: userId, name: 'Scholar', school: '', level: '' })
                 }
             }
             openUserChat()
@@ -151,21 +142,48 @@ function Chat() {
     const openChat = async (chatUser) => {
         const chatId = chatUser.id || chatUser._id
         setActiveChat(chatUser)
+        setActiveChatDetails(null)
+        setFollowingChatUser(false)
         setShowSearch(false)
         setSearchQuery('')
         setSearchResults([])
         try {
-            const [msgRes] = await Promise.all([
+            const [msgRes, userRes] = await Promise.all([
                 getMessages(chatId),
+                getUserById(chatId).catch(() => null),
                 markMessagesAsRead(chatId).catch(() => {}),
             ])
             setMessages(msgRes.data || [])
+            if (userRes?.data) {
+                setActiveChatDetails(userRes.data)
+                setFollowingChatUser(!!userRes.data.isFollowing)
+            }
             setConversations(prev => prev.map(c => {
                 const cId = c.user?.id || c.user?._id
                 return cId === chatId ? { ...c, unread: 0 } : c
             }))
         } catch (err) {
             console.error(err)
+        }
+    }
+
+    const handleFollowActiveUser = async () => {
+        if (!activeChat || followLoading) return
+        const chatId = activeChat.id || activeChat._id
+        setFollowLoading(true)
+        const wasFollowing = followingChatUser
+        setFollowingChatUser(!wasFollowing)
+        try {
+            await followUser(chatId)
+            const userRes = await getUserById(chatId).catch(() => null)
+            if (userRes?.data) {
+                setActiveChatDetails(userRes.data)
+                setFollowingChatUser(!!userRes.data.isFollowing)
+            }
+        } catch (err) {
+            setFollowingChatUser(wasFollowing)
+        } finally {
+            setFollowLoading(false)
         }
     }
 
@@ -398,15 +416,41 @@ function Chat() {
                     </div>
 
                     <div className="flex-1 overflow-y-auto px-4 py-4 bg-light">
-                        {messages.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-full text-center">
+                        <div className="flex flex-col gap-2 max-w-2xl mx-auto">
+                            {/* TikTok Style Top Profile Card */}
+                            <div className="flex flex-col items-center justify-center text-center py-6 px-4 mb-4 border-b border-gray-200/60">
                                 <Avatar name={activeChat.name} school={activeChat.school} size="lg" />
-                                <p className="font-bold text-dark mt-3 mb-1">{activeChat.name}</p>
-                                <p className="text-sm text-gray-400">Send a message to start chatting!</p>
+                                <h2 className="font-extrabold text-dark text-base mt-2.5">{activeChat.name}</h2>
+                                <p className="text-xs text-gray-400 font-medium mt-0.5">
+                                    @{activeChatDetails?.username || activeChat.username || activeChat.name?.toLowerCase().replace(/\s+/g, '')}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500 font-medium">
+                                    <span>{activeChatDetails?.followingCount ?? 0} following</span>
+                                    <span>·</span>
+                                    <span>{activeChatDetails?.followersCount ?? 0} followers</span>
+                                </div>
+                                {activeChat.school && (
+                                    <span className="mt-2 text-white font-bold rounded-full px-2.5 py-0.5" style={{ backgroundColor: stringToColor(activeChat.school), fontSize: '10px' }}>
+                                        {getSchoolAbbr(activeChat.school)}
+                                    </span>
+                                )}
+                                {!followingChatUser && (
+                                    <button
+                                        onClick={handleFollowActiveUser}
+                                        disabled={followLoading}
+                                        className="mt-3 px-5 py-1.5 bg-primary text-white rounded-xl text-xs font-semibold hover:opacity-90 transition flex items-center gap-1 shadow-sm shadow-primary/20"
+                                    >
+                                        {followingChatUser ? 'Following' : 'Follow'}
+                                    </button>
+                                )}
                             </div>
-                        ) : (
-                            <div className="flex flex-col gap-2 max-w-2xl mx-auto">
-                                {messages.map((msg, i) => {
+
+                            {messages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-8 text-center">
+                                    <p className="text-xs text-gray-400">No messages yet. Send a message request below!</p>
+                                </div>
+                            ) : (
+                                messages.map((msg, i) => {
                                     if (!msg?.sender) return null
                                     const isMe = msg.sender._id === user.id || msg.sender._id === user._id
                                     const showDate = i === 0 || formatDate(messages[i - 1]?.createdAt) !== formatDate(msg.createdAt)
@@ -439,11 +483,37 @@ function Chat() {
                                             </motion.div>
                                         </div>
                                     )
-                                })}
-                                <div ref={messagesEndRef} />
-                            </div>
-                        )}
+                                })
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
                     </div>
+
+                    {/* TikTok Style Message Request Banner */}
+                    {!followingChatUser && (
+                        <div className="bg-slate-900 text-white border-t border-slate-800 px-4 py-3 shadow-lg">
+                            <div className="max-w-2xl mx-auto flex items-start gap-3">
+                                <div className="w-9 h-9 bg-primary/20 text-primary rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <FiMessageCircle size={18} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-sm text-white truncate">
+                                        Send message request to {activeChat.name?.split(' ')[0] || activeChat.name}
+                                    </p>
+                                    <p className="text-xs text-gray-300 mt-0.5 leading-relaxed">
+                                        You can send a direct message until the user replies. You can also follow them to stay connected.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={handleFollowActiveUser}
+                                    disabled={followLoading}
+                                    className="bg-primary text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:opacity-90 transition flex-shrink-0 shadow-md shadow-primary/20"
+                                >
+                                    {followingChatUser ? 'Following' : 'Follow'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="bg-white border-t border-gray-100 px-4 py-3">
                         <div className="max-w-2xl mx-auto flex gap-2 items-end">
