@@ -41,10 +41,21 @@ export default function PostDetail() {
     setCommenting(true)
     try {
       const res = await addComment(id, commentText)
-      setPost(p => ({ ...p, commentsData: res.data.comments || res.data }))
+      const newComment = res.data
+      setPost(p => {
+        if (!p) return p
+        const currentComments = Array.isArray(p.commentsData) ? p.commentsData : []
+        return {
+          ...p,
+          commentsData: [...currentComments, newComment]
+        }
+      })
       setCommentText('')
-    } catch {}
-    setCommenting(false)
+    } catch (err) {
+      console.error('Failed to add comment', err)
+    } finally {
+      setCommenting(false)
+    }
   }
 
   if (loading) return (
@@ -66,12 +77,12 @@ export default function PostDetail() {
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl p-5 border border-gray-100">
           <div className="flex items-start gap-3 mb-4">
-            <div onClick={() => c.author?._id && c.author._id !== user?.id && router.push(`/profile/${c.author._id}`)}
+            <div onClick={() => { const aId = c.author?.id || c.author?._id; if (aId && aId !== (user?.id || user?._id)) router.push(`/profile/${aId}`) }}
               className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0 cursor-pointer hover:bg-primary/20 transition">
               {c.author?.name?.charAt(0) || 'S'}
             </div>
             <div className="flex-1 min-w-0">
-              <p onClick={() => c.author?._id && c.author._id !== user?.id && router.push(`/profile/${c.author._id}`)}
+              <p onClick={() => { const aId = c.author?.id || c.author?._id; if (aId && aId !== (user?.id || user?._id)) router.push(`/profile/${aId}`) }}
                 className="font-semibold text-dark text-sm cursor-pointer hover:text-primary transition truncate">
                 {c.author?.name || 'Scholar'}
               </p>
@@ -93,7 +104,7 @@ export default function PostDetail() {
             </button>
             <button className="flex items-center gap-1.5 text-gray-400">
               <FiMessageCircle size={16} />
-              <span className="text-sm">{(c.commentsData || []).length}</span>
+              <span className="text-sm">{(Array.isArray(c.commentsData) ? c.commentsData : []).length}</span>
             </button>
             <button className="flex items-center gap-1.5 text-gray-400 hover:text-primary transition ml-auto">
               <FiShare2 size={16} />
@@ -105,7 +116,7 @@ export default function PostDetail() {
         </motion.div>
 
         <div className="mt-4 bg-white rounded-2xl p-5 border border-gray-100">
-          <h3 className="font-bold text-dark text-sm mb-3">Comments ({(c.commentsData || []).length})</h3>
+          <h3 className="font-bold text-dark text-sm mb-3">Comments ({(Array.isArray(c.commentsData) ? c.commentsData : []).length})</h3>
 
           <div className="flex items-center gap-2 mb-4">
             <input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Write a comment..." className="flex-1 input-field text-sm py-2" />
@@ -114,12 +125,12 @@ export default function PostDetail() {
             </button>
           </div>
 
-          {(!c.commentsData || c.commentsData.length === 0) ? (
+          {(!Array.isArray(c.commentsData) || c.commentsData.length === 0) ? (
             <p className="text-gray-400 text-sm text-center py-4">No comments yet, be the first!</p>
           ) : (
             <div className="flex flex-col gap-3 max-h-80 overflow-y-auto">
-              {c.commentsData.map((comment, ci) => (
-                <div key={ci} className="flex items-start gap-2 p-2 rounded-xl hover:bg-gray-50 transition">
+              {(Array.isArray(c.commentsData) ? c.commentsData : []).map((comment, ci) => (
+                <div key={comment.id || ci} className="flex items-start gap-2 p-2 rounded-xl hover:bg-gray-50 transition">
                   <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                     {comment.author?.name?.charAt(0) || 'S'}
                   </div>
