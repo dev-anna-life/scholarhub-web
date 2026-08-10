@@ -329,6 +329,11 @@ function UserProfile() {
                         </div>
 
                         <h2 className="text-xl font-extrabold text-dark mb-0.5">{profileUser.name}</h2>
+                        <p className="text-xs font-semibold text-primary mb-1.5 flex items-center gap-1.5">
+                            <span>@{profileUser.username || profileUser.name?.toLowerCase().replace(/\s+/g, '')}</span>
+                            <span className="text-gray-300 font-normal">•</span>
+                            <span className="text-gray-400 font-normal">Tag for gifting coins</span>
+                        </p>
                         <p className="text-xs text-gray-400 mb-3 flex items-center gap-1.5">
                             {profileUser.school && (
                                 <img src={getSchoolLogo(profileUser.school).png} alt=""

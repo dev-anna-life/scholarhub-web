@@ -116,6 +116,9 @@ function Profile() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-xl font-extrabold text-dark">{user.name || 'Student'}</h2>
+                <p className="text-xs font-semibold text-primary mb-0.5">
+                  @{user.username || user.name?.toLowerCase().replace(/\s+/g, '')}
+                </p>
                 <p className="text-sm text-gray-400">{user.email}</p>
                 <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5">
                   {user.school && (

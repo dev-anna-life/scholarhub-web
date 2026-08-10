@@ -424,17 +424,17 @@ function Chat() {
                         <div className="flex flex-col gap-2 max-w-2xl mx-auto">
                             {/* TikTok Style Top Profile Card */}
                             <div className="flex flex-col items-center justify-center text-center py-6 px-4 mb-4 border-b border-gray-200/60">
-                                <Avatar name={activeChat.name} school={activeChat.school} size="lg" />
-                                <h2 className="font-extrabold text-dark text-base mt-2.5">{activeChat.name}</h2>
+                                <Avatar name={activeChat?.name} school={activeChat?.school} size="lg" />
+                                <h2 className="font-extrabold text-dark text-base mt-2.5">{activeChat?.name || 'Scholar'}</h2>
                                 <p className="text-xs text-gray-400 font-medium mt-0.5">
-                                    @{activeChatDetails?.username || activeChat.username || activeChat.name?.toLowerCase().replace(/\s+/g, '')}
+                                    @{activeChatDetails?.username || activeChat?.username || (activeChat?.name ? activeChat.name.toLowerCase().replace(/\s+/g, '') : 'scholar')}
                                 </p>
                                 <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500 font-medium">
                                     <span>{activeChatDetails?.followingCount ?? 0} following</span>
                                     <span>·</span>
                                     <span>{activeChatDetails?.followersCount ?? 0} followers</span>
                                 </div>
-                                {activeChat.school && (
+                                {activeChat?.school && (
                                     <span className="mt-2 text-white font-bold rounded-full px-2.5 py-0.5" style={{ backgroundColor: stringToColor(activeChat.school), fontSize: '10px' }}>
                                         {getSchoolAbbr(activeChat.school)}
                                     </span>
