@@ -167,8 +167,8 @@ function Home() {
             setTotalPages(postsRes.data?.totalPages || 1)
 
             const realPosts = postsData.map(post => ({
-                id: post._id,
-                authorId: post.author?._id || '',
+                id: post.id || post._id,
+                authorId: post.author?.id || post.author?._id || '',
                 author: post.author?.name || 'Student',
                 avatar: post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH',
                 school: post.author?.school || '',
@@ -183,7 +183,7 @@ function Home() {
                 commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
                 time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
                 trending: post.trending || false,
-                saved: savedIds.has(post._id),
+                saved: savedIds.has(post.id || post._id),
                 isReal: true
             }))
 
