@@ -149,26 +149,29 @@ function Chat() {
     }
 
     const openChat = async (chatUser) => {
+        const chatId = chatUser.id || chatUser._id
         setActiveChat(chatUser)
         setShowSearch(false)
         setSearchQuery('')
         setSearchResults([])
         try {
             const [msgRes] = await Promise.all([
-                getMessages(chatUser._id),
-                markMessagesAsRead(chatUser._id).catch(() => {}),
+                getMessages(chatId),
+                markMessagesAsRead(chatId).catch(() => {}),
             ])
-            setMessages(msgRes.data)
-            setConversations(prev => prev.map(c =>
-                c.user._id === chatUser._id ? { ...c, unread: 0 } : c
-            ))
+            setMessages(msgRes.data || [])
+            setConversations(prev => prev.map(c => {
+                const cId = c.user?.id || c.user?._id
+                return cId === chatId ? { ...c, unread: 0 } : c
+            }))
         } catch (err) {
             console.error(err)
         }
     }
 
     const startNewChat = (searchUser) => {
-        const existing = conversations.find(c => c.user._id === searchUser._id)
+        const searchId = searchUser.id || searchUser._id
+        const existing = conversations.find(c => (c.user?.id || c.user?._id) === searchId)
         if (existing) {
             openChat(searchUser)
         } else {
@@ -181,14 +184,16 @@ function Chat() {
 
     const handleSend = async () => {
         if (!input.trim() || !activeChat || sending) return
+        const activeChatId = activeChat.id || activeChat._id
+        if (!activeChatId) return
         setSending(true)
         const text = input.trim()
         setInput('')
 
         const tempMsg = {
             _id: Date.now(),
-            sender: { _id: user.id, name: user.name },
-            receiver: { _id: activeChat._id },
+            sender: { _id: user.id || user._id, name: user.name },
+            receiver: { _id: activeChatId },
             text,
             createdAt: new Date().toISOString(),
             temp: true
@@ -196,10 +201,11 @@ function Chat() {
         setMessages(prev => [...prev, tempMsg])
 
         try {
-            const res = await sendMessage(activeChat._id, text)
+            const res = await sendMessage(activeChatId, text)
             setMessages(prev => prev.map(m => m._id === tempMsg._id ? res.data : m))
             await fetchConversations()
         } catch (err) {
+            console.error('Send failed:', err)
             setMessages(prev => prev.filter(m => m._id !== tempMsg._id))
             setInput(text)
         } finally {

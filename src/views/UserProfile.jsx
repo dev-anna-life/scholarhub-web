@@ -133,20 +133,23 @@ function UserProfile() {
 
                 try {
                     const postsRes = await getPosts()
-                    const userPostsData = postsRes.data.filter(p =>
-                        (p.author?.id || p.author?._id || p.author)?.toString() === userId
-                    )
+                    const allPosts = postsRes.data?.posts || postsRes.data || []
+                    const userPostsData = Array.isArray(allPosts) ? allPosts.filter(p => {
+                        const authorId = p.author?.id || p.author?._id || p.author
+                        return authorId?.toString() === userId?.toString()
+                    }) : []
                     const mapped = userPostsData.map(post => ({
-                        _id: post._id,
+                        _id: post.id || post._id,
                         title: post.title,
                         content: post.content,
+                        image: post.image || null,
                         category: post.category,
-                        status: post.status || 'pending',
+                        status: post.status || 'approved',
                         createdAt: post.createdAt,
                         authorId: post.author?.id || post.author?._id || '',
-                        likes: post.likes?.length || 0,
+                        likes: post.likes?.length || post.likesCount || 0,
                         liked: post.likes?.includes(currentUser.id || currentUser._id) || false,
-                        commentCount: post.commentsData?.length || 0,
+                        commentCount: post.commentsData?.length || post.commentsCount || 0,
                         isReal: true
                     }))
                     setUserPosts(mapped)

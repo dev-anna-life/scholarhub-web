@@ -84,14 +84,17 @@ function Navbar() {
       } catch (_) {}
     }
     const from = notif.fromUser || notif.sender
+    const fromId = from?.id || from?._id
     if (notif.type === 'message') {
-      router.push('/chat')
+      router.push(fromId ? `/chat?user=${fromId}` : '/chat')
     } else if (notif.type === 'follow') {
-      if (from?._id) router.push(`/profile/${from._id}`)
+      if (fromId) router.push(`/profile/${fromId}`)
     } else if (notif.type === 'like' || notif.type === 'comment') {
-      router.push('/profile')
+      const postId = notif.post?.id || notif.post?._id || notif.postId
+      if (postId) router.push(`/post/${postId}`)
+      else router.push('/feed')
     } else {
-      if (from?._id) router.push(`/profile/${from._id}`)
+      if (fromId) router.push(`/profile/${fromId}`)
     }
   }
 
