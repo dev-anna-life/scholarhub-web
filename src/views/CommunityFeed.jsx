@@ -43,6 +43,16 @@ function CommunityFeed() {
     const [showComments, setShowComments] = useState(null)
     const [commentsMap, setCommentsMap] = useState({})
     const [commentText, setCommentText] = useState('')
+    const [expandedPosts, setExpandedPosts] = useState(new Set())
+
+    const toggleExpandPost = (postId) => {
+        setExpandedPosts(prev => {
+            const next = new Set(prev)
+            if (next.has(postId)) next.delete(postId)
+            else next.add(postId)
+            return next
+        })
+    }
     const [commentLoading, setCommentLoading] = useState(false)
     const [topContributors, setTopContributors] = useState([])
     const [showCreatePost, setShowCreatePost] = useState(false)
@@ -398,17 +408,48 @@ function CommunityFeed() {
                                             </div>
                                         </div>
 
-                                        <div onClick={() => router.push(`/post/${post.id}`)} className="cursor-pointer">
-                                          <h3 className="font-bold text-dark text-sm md:text-base mb-1.5 leading-snug">{post.title}</h3>
-                                          <p className="text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 mb-3">{post.content}</p>
+                                         <div>
+                                           <h3 onClick={() => router.push(`/post/${post.id}`)}
+                                             className="font-bold text-dark text-sm md:text-base mb-1.5 leading-snug cursor-pointer hover:text-primary transition">
+                                             {post.title}
+                                           </h3>
+                                           {post.content && (
+                                             <div className="mb-3">
+                                               <p className={`text-gray-600 dark:text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${expandedPosts.has(post.id) ? '' : 'line-clamp-2'}`}>
+                                                 {post.content}
+                                               </p>
+                                               {post.content.length > 90 && (
+                                                 <div className="flex items-center gap-3 mt-1">
+                                                   <button
+                                                     onClick={(e) => {
+                                                       e.stopPropagation()
+                                                       toggleExpandPost(post.id)
+                                                     }}
+                                                     className="text-primary text-xs font-semibold hover:underline cursor-pointer"
+                                                   >
+                                                     {expandedPosts.has(post.id) ? 'Show less' : 'Read more'}
+                                                   </button>
+                                                   <button
+                                                     onClick={(e) => {
+                                                       e.stopPropagation()
+                                                       router.push(`/post/${post.id}`)
+                                                     }}
+                                                     className="text-gray-400 hover:text-primary text-xs font-medium hover:underline cursor-pointer"
+                                                   >
+                                                     View full thread →
+                                                   </button>
+                                                 </div>
+                                               )}
+                                             </div>
+                                           )}
 
-                                          {post.image && (
-                                              <img src={post.image} alt="" className="w-full max-h-[520px] object-contain rounded-xl mb-3 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-slate-800/50" />
-                                          )}
-                                          {post.video && (
-                                              <video src={post.video} controls onClick={e => e.stopPropagation()} className="w-full rounded-xl mb-3 max-h-64" />
-                                          )}
-                                        </div>
+                                           {post.image && (
+                                               <img src={post.image} alt="" className="w-full max-h-[520px] object-contain rounded-xl mb-3 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-slate-800/50" />
+                                           )}
+                                           {post.video && (
+                                               <video src={post.video} controls onClick={e => e.stopPropagation()} className="w-full rounded-xl mb-3 max-h-64" />
+                                           )}
+                                         </div>
 
                                         <div className="flex items-center gap-3 pt-2.5 border-t border-gray-50">
                                             <button onClick={(e) => { e.stopPropagation(); toggleLike(post.id, post.isReal) }}

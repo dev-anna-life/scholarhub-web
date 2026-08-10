@@ -50,6 +50,16 @@ function Home() {
     const [topicsPos, setTopicsPos] = useState({ left: 0, top: 0 })
     const feedCategories = ['Sciences', 'Mathematics', 'Technology', 'Law', 'Medicine', 'Arts & Lit', 'Commerce', 'Campus Gist', 'Entertainment', 'Talent']
     const categories = feedCategories
+    const [expandedPosts, setExpandedPosts] = useState(new Set())
+
+    const toggleExpandPost = (postId) => {
+        setExpandedPosts(prev => {
+            const next = new Set(prev)
+            if (next.has(postId)) next.delete(postId)
+            else next.add(postId)
+            return next
+        })
+    }
 
     useEffect(() => {
         try { setUser(JSON.parse(localStorage.getItem('user') || '{}')) } catch (e) {}
@@ -662,8 +672,39 @@ function Home() {
                                             </div>
                                         </div>
 
-                                        <h3 className="font-bold text-dark text-sm mb-1 leading-snug">{post.title}</h3>
-                                        <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 mb-3">{post.content}</p>
+                                        <h3 onClick={() => router.push(`/post/${post.id}`)}
+                                            className="font-bold text-dark text-sm md:text-base mb-1 leading-snug cursor-pointer hover:text-primary transition">
+                                            {post.title}
+                                        </h3>
+                                        {post.content && (
+                                            <div className="mb-3">
+                                                <p className={`text-gray-600 dark:text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${expandedPosts.has(post.id) ? '' : 'line-clamp-2'}`}>
+                                                    {post.content}
+                                                </p>
+                                                {post.content.length > 90 && (
+                                                    <div className="flex items-center gap-3 mt-1">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                toggleExpandPost(post.id)
+                                                            }}
+                                                            className="text-primary text-xs font-semibold hover:underline cursor-pointer"
+                                                        >
+                                                            {expandedPosts.has(post.id) ? 'Show less' : 'Read more'}
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                router.push(`/post/${post.id}`)
+                                                            }}
+                                                            className="text-gray-400 hover:text-primary text-xs font-medium hover:underline cursor-pointer"
+                                                        >
+                                                            View full thread →
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                         {post.image && (
                                             <img src={post.image} alt="" className="w-full max-h-[520px] object-contain rounded-xl mb-3 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-slate-800/50"
                                                 onError={e => { e.target.style.display = 'none' }} />

@@ -140,7 +140,10 @@ function Chat() {
     }
 
     const openChat = async (chatUser) => {
+        if (!chatUser) return
         const chatId = chatUser.id || chatUser._id
+        if (!chatId) return
+
         setActiveChat(chatUser)
         setActiveChatDetails(null)
         setFollowingChatUser(false)
@@ -149,11 +152,12 @@ function Chat() {
         setSearchResults([])
         try {
             const [msgRes, userRes] = await Promise.all([
-                getMessages(chatId),
+                getMessages(chatId).catch(() => ({ data: [] })),
                 getUserById(chatId).catch(() => null),
-                markMessagesAsRead(chatId).catch(() => {}),
             ])
-            setMessages(msgRes.data || [])
+            markMessagesAsRead(chatId).catch(() => {})
+
+            setMessages(Array.isArray(msgRes?.data) ? msgRes.data : [])
             if (userRes?.data) {
                 setActiveChatDetails(userRes.data)
                 setFollowingChatUser(!!userRes.data.isFollowing)
@@ -163,7 +167,8 @@ function Chat() {
                 return cId === chatId ? { ...c, unread: 0 } : c
             }))
         } catch (err) {
-            console.error(err)
+            console.error("openChat error:", err)
+            setMessages([])
         }
     }
 
