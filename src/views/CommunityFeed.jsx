@@ -419,26 +419,15 @@ function CommunityFeed() {
                                                  {post.content}
                                                </p>
                                                {post.content.length > 90 && (
-                                                 <div className="flex items-center gap-3 mt-1">
-                                                   <button
-                                                     onClick={(e) => {
-                                                       e.stopPropagation()
-                                                       toggleExpandPost(post.id)
-                                                     }}
-                                                     className="text-primary text-xs font-semibold hover:underline cursor-pointer"
-                                                   >
-                                                     {expandedPosts.has(post.id) ? 'Show less' : 'Read more'}
-                                                   </button>
-                                                   <button
-                                                     onClick={(e) => {
-                                                       e.stopPropagation()
-                                                       router.push(`/post/${post.id}`)
-                                                     }}
-                                                     className="text-gray-400 hover:text-primary text-xs font-medium hover:underline cursor-pointer"
-                                                   >
-                                                     View full thread →
-                                                   </button>
-                                                 </div>
+                                                 <button
+                                                   onClick={(e) => {
+                                                     e.stopPropagation()
+                                                     toggleExpandPost(post.id)
+                                                   }}
+                                                   className="text-primary text-xs font-semibold hover:underline cursor-pointer mt-1 inline-block"
+                                                 >
+                                                   {expandedPosts.has(post.id) ? 'Show less' : 'Read more...'}
+                                                 </button>
                                                )}
                                              </div>
                                            )}
