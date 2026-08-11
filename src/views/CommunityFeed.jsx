@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch, FiCheck, FiInbox, FiFileText } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe, getMyCommunities, getCommunityFeed } from "../api/auth"
+import CommentDrawer from "../components/CommentDrawer"
 import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
 
 const communityData = {
@@ -40,7 +41,7 @@ function CommunityFeed() {
     const [joined, setJoined] = useState(false)
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(false)
-    const [showComments, setShowComments] = useState(null)
+    const [activeCommentPost, setActiveCommentPost] = useState(null)
     const [commentsMap, setCommentsMap] = useState({})
     const [commentText, setCommentText] = useState('')
     const [expandedPosts, setExpandedPosts] = useState(new Set())
@@ -227,26 +228,27 @@ function CommunityFeed() {
 
     const toggleSave = (id) => setPosts(prev => prev.map(p => p.id === id ? { ...p, saved: !p.saved } : p))
 
-    const handleShowComments = async (postId, isReal) => {
-        if (showComments === postId) { setShowComments(null); return }
-        setShowComments(postId)
-        if (!isReal || commentsMap[postId]) return
-        try {
-            const res = await getComments(postId)
-            setCommentsMap(prev => ({ ...prev, [postId]: res.data }))
-        } catch (err) { setCommentsMap(prev => ({ ...prev, [postId]: [] })) }
+    const handleShowComments = async (post) => {
+        const pId = post.id || post._id
+        if (activeCommentPost?.id === pId || activeCommentPost?._id === pId) {
+            setActiveCommentPost(null)
+            return
+        }
+        setActiveCommentPost(post)
+        if (!commentsMap[pId]) {
+            try {
+                const res = await getComments(pId)
+                setCommentsMap(prev => ({ ...prev, [pId]: res.data }))
+            } catch (err) { setCommentsMap(prev => ({ ...prev, [pId]: [] })) }
+        }
     }
 
-    const handleAddComment = async (postId) => {
-        if (!commentText.trim()) return
-        setCommentLoading(true)
-        try {
-            const res = await addComment(postId, commentText)
-            setCommentsMap(prev => ({ ...prev, [postId]: [...(prev[postId] || []), res.data] }))
-            setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentCount: (p.commentCount || 0) + 1 } : p))
-            setCommentText('')
-        } catch (err) { console.error(err) }
-        finally { setCommentLoading(false) }
+    const handleAddComment = async (postId, text, parentId) => {
+        if (!text || !text.trim()) return
+        const res = await addComment(postId, text, parentId)
+        setCommentsMap(prev => ({ ...prev, [postId]: [...(prev[postId] || []), res.data] }))
+        setPosts(prev => prev.map(p => (p.id === postId || p._id === postId) ? { ...p, commentCount: (p.commentCount || 0) + 1 } : p))
+        return res.data
     }
 
     const handleCreatePost = async () => {
@@ -447,8 +449,8 @@ function CommunityFeed() {
                                                 <FiHeart size={14} className={post.liked ? 'fill-current' : ''} />
                                                 <span className="text-xs">{post.likes}</span>
                                             </button>
-                                            <button onClick={(e) => { e.stopPropagation(); handleShowComments(post.id, post.isReal) }}
-                                                className={`flex items-center gap-1 text-sm transition-colors duration-200 ${showComments === post.id ? 'text-primary' : 'text-gray-400 hover:text-primary'}`}>
+                                            <button onClick={(e) => { e.stopPropagation(); handleShowComments(post) }}
+                                                className={`flex items-center gap-1 text-sm transition-colors duration-200 ${activeCommentPost?.id === post.id ? 'text-primary' : 'text-gray-400 hover:text-primary'}`}>
                                                 <FiMessageCircle size={14} />
                                                 <span className="text-xs">{post.commentCount || 0}</span>
                                             </button>
@@ -468,61 +470,8 @@ function CommunityFeed() {
                                                 className={`ml-auto transition-colors duration-200 ${post.saved ? 'text-primary' : 'text-gray-300 hover:text-primary'}`}>
                                                 <FiBookmark size={14} className={post.saved ? 'fill-current' : ''} />
                                             </button>
-                                        </div>
-
-                                        <AnimatePresence>
-                                            {showComments === post.id && (
-                                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                                                    exit={{ opacity: 0, height: 0 }} className="mt-4 pt-4 border-t border-gray-100">
-                                                    <div className="flex flex-col gap-3 mb-3 max-h-48 overflow-y-auto">
-                                                        {!commentsMap[post.id] ? (
-                                                            <p className="text-xs text-gray-400 text-center py-2">Loading comments...</p>
-                                                        ) : commentsMap[post.id].length === 0 ? (
-                                                            <p className="text-xs text-gray-400 text-center py-2">No comments yet, be the first!</p>
-                                                        ) : (
-                                                            commentsMap[post.id].map((comment, ci) => (
-                                                                <div key={ci} className="flex items-start gap-2">
-                                                                    <div
-                                                                        onClick={() => comment.author?._id && comment.author._id !== user.id && router.push(`/profile/${comment.author._id}`)}
-                                                                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${comment.author?._id && comment.author._id !== user.id ? 'cursor-pointer hover:opacity-80' : ''}`}
-                                                                        style={{ backgroundColor: community.accentColor }}>
-                                                                        {comment.author?.name?.charAt(0) || 'S'}
-                                                                    </div>
-                                                                    <div className="flex-1 bg-gray-50 rounded-xl px-3 py-2">
-                                                                        <p
-                                                                            onClick={() => comment.author?._id && comment.author._id !== user.id && router.push(`/profile/${comment.author._id}`)}
-                                                                            className={`text-xs font-semibold text-dark ${comment.author?._id && comment.author._id !== user.id ? 'cursor-pointer hover:text-primary' : ''}`}>
-                                                                            {comment.author?.name || 'Student'}
-                                                                        </p>
-                                                                        <p className="text-xs text-gray-600 mt-0.5">{comment.text}</p>
-                                                                    </div>
-                                                                </div>
-                                                            ))
-                                                        )}
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                                            style={{ backgroundColor: community.accentColor }}>
-                                                            {user.name?.charAt(0) || 'S'}
-                                                        </div>
-                                                        <div className="flex-1 flex gap-2">
-                                                            <input type="text" placeholder="Write a comment..."
-                                                                value={commentText}
-                                                                onChange={e => setCommentText(e.target.value)}
-                                                                onKeyDown={e => e.key === 'Enter' && handleAddComment(post.id)}
-                                                                className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-primary transition" />
-                                                            <button onClick={() => handleAddComment(post.id)}
-                                                                disabled={commentLoading || !commentText.trim()}
-                                                                className="p-2 text-white rounded-xl hover:opacity-90 transition disabled:opacity-50"
-                                                                style={{ backgroundColor: community.accentColor }}>
-                                                                <FiSend size={14} />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </motion.div>
+                                         </div>
+                                     </motion.div>
                                 ))}
                             </div>
                         </>
@@ -699,6 +648,16 @@ function CommunityFeed() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <CommentDrawer
+                isOpen={!!activeCommentPost}
+                post={activeCommentPost}
+                user={user}
+                setUser={setUser}
+                onClose={() => setActiveCommentPost(null)}
+                comments={activeCommentPost ? (commentsMap[activeCommentPost.id || activeCommentPost._id] || []) : []}
+                onAddComment={handleAddComment}
+            />
         </div>
     )
 }
