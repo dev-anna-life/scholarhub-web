@@ -14,7 +14,12 @@ export default function PostDetail() {
   const [loading, setLoading] = useState(true)
   const [commentText, setCommentText] = useState('')
   const [replyTo, setReplyTo] = useState(null)
+  const [showRepliesMap, setShowRepliesMap] = useState({})
   const [liked, setLiked] = useState(false)
+
+  const toggleShowReplies = (cId) => {
+    setShowRepliesMap(prev => ({ ...prev, [cId]: !prev[cId] }))
+  }
   const [saved, setSaved] = useState(false)
   const [commenting, setCommenting] = useState(false)
 
@@ -117,12 +122,12 @@ export default function PostDetail() {
           </div>
         </motion.div>
 
-        <div className="mt-4 bg-white rounded-2xl p-5 border border-gray-100">
-          <h3 className="font-bold text-dark text-sm mb-3">Comments ({(Array.isArray(c.commentsData) ? c.commentsData : []).length})</h3>
+        <div className="mt-4 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-100 dark:border-slate-800">
+          <h3 className="font-bold text-dark dark:text-white text-sm mb-3">Comments ({(Array.isArray(c.commentsData) ? c.commentsData : []).length})</h3>
 
           {replyTo && (
             <div className="flex items-center justify-between bg-primary/10 text-primary px-3 py-1.5 rounded-xl text-xs font-semibold mb-2">
-              <span>Replying to <strong className="text-dark">@{replyTo.authorName}</strong></span>
+              <span>Replying to <strong className="text-dark dark:text-white">@{replyTo.authorName}</strong></span>
               <button onClick={() => setReplyTo(null)} className="hover:opacity-80 p-0.5">✕</button>
             </div>
           )}
@@ -142,7 +147,7 @@ export default function PostDetail() {
           {(!Array.isArray(c.commentsData) || c.commentsData.length === 0) ? (
             <p className="text-gray-400 text-sm text-center py-4">No comments yet, be the first!</p>
           ) : (
-            <div className="flex flex-col gap-4 max-h-[500px] overflow-y-auto pr-1">
+            <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1">
               {(() => {
                 const allComments = Array.isArray(c.commentsData) ? c.commentsData : []
                 const topLevel = allComments.filter(cm => !cm.parentId)
@@ -159,44 +164,56 @@ export default function PostDetail() {
                   const replies = repliesMap[cId] || []
 
                   return (
-                    <div key={cId} className="flex flex-col gap-2">
-                      <div className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition">
-                        <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+                    <div key={cId} className="flex flex-col gap-1 pb-3 border-b border-gray-100 dark:border-slate-800/60 last:border-0">
+                      <div className="flex items-start gap-2.5 py-1">
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                           {comment.author?.name?.charAt(0) || 'S'}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="text-xs font-bold text-dark">{comment.author?.name || 'Scholar'}</p>
+                            <p className="text-xs font-bold text-dark dark:text-white">{comment.author?.name || 'Scholar'}</p>
                             <span className="text-[10px] text-gray-400">
                               {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">{comment.text}</p>
-                          <button
-                            onClick={() => setReplyTo({ commentId: cId, authorName: comment.author?.name || 'Scholar' })}
-                            className="text-[11px] font-semibold text-primary hover:underline mt-1 cursor-pointer inline-block"
-                          >
-                            Reply
-                          </button>
+                          <p className="text-xs text-gray-700 dark:text-gray-200 mt-0.5 leading-relaxed">{comment.text}</p>
+
+                          <div className="flex items-center gap-4 mt-1">
+                            <button
+                              onClick={() => setReplyTo({ commentId: cId, authorName: comment.author?.name || 'Scholar' })}
+                              className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                            >
+                              Reply
+                            </button>
+
+                            {replies.length > 0 && (
+                              <button
+                                onClick={() => toggleShowReplies(cId)}
+                                className="text-[11px] font-semibold text-gray-400 hover:text-primary transition cursor-pointer flex items-center gap-1"
+                              >
+                                {showRepliesMap[cId] ? 'Hide replies' : `── View ${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}`}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
 
-                      {/* Nested TikTok-style Replies */}
-                      {replies.length > 0 && (
-                        <div className="ml-7 pl-3 border-l-2 border-primary/20 flex flex-col gap-2">
+                      {/* X-style Conversation Thread */}
+                      {replies.length > 0 && showRepliesMap[cId] && (
+                        <div className="ml-4 pl-4 border-l-2 border-primary/30 flex flex-col gap-2 mt-1">
                           {replies.map((reply) => (
-                            <div key={reply.id || reply._id} className="flex items-start gap-2 p-2 rounded-xl bg-black/5 dark:bg-white/5">
-                              <div className="w-7 h-7 bg-primary/15 rounded-lg flex items-center justify-center text-primary text-[11px] font-bold flex-shrink-0">
+                            <div key={reply.id || reply._id} className="flex items-start gap-2 py-1">
+                              <div className="w-6 h-6 bg-primary/15 rounded-full flex items-center justify-center text-primary text-[10px] font-bold flex-shrink-0">
                                 {reply.author?.name?.charAt(0) || 'S'}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between">
-                                  <p className="text-[11px] font-bold text-dark">{reply.author?.name || 'Scholar'}</p>
+                                  <p className="text-[11px] font-bold text-dark dark:text-white">{reply.author?.name || 'Scholar'}</p>
                                   <span className="text-[9px] text-gray-400">
                                     {reply.createdAt ? new Date(reply.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
                                   </span>
                                 </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">{reply.text}</p>
+                                <p className="text-xs text-gray-700 dark:text-gray-200 mt-0.5 leading-relaxed">{reply.text}</p>
                                 <button
                                   onClick={() => setReplyTo({ commentId: cId, authorName: reply.author?.name || 'Scholar' })}
                                   className="text-[10px] font-semibold text-primary hover:underline mt-0.5 cursor-pointer inline-block"
