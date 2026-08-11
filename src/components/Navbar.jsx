@@ -49,6 +49,19 @@ function Navbar() {
   }, [pathname.split('/').slice(0, 2).join('/')])
 
   useEffect(() => {
+    const handleUserStateChange = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem('user') || '{}')
+        if (stored && stored.coins !== undefined) {
+          setUser(prev => ({ ...prev, ...stored }))
+        }
+      } catch (_) {}
+    }
+    window.addEventListener('userStateChange', handleUserStateChange)
+    return () => window.removeEventListener('userStateChange', handleUserStateChange)
+  }, [])
+
+  useEffect(() => {
     const fetchNotifs = async () => {
       try {
         const res = await getNotifications()

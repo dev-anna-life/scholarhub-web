@@ -1,18 +1,19 @@
 'use client'
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle, FiCheck, FiX, FiClock, FiUserCheck, FiUserPlus } from "react-icons/fi"
+import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle, FiCheck, FiX, FiClock, FiUserCheck, FiUserPlus, FiCamera } from "react-icons/fi"
 import { MdLeaderboard, MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
 import { useRouter } from "next/navigation"
-import { getMe, getUserPosts, deletePost, getUserById, followUser } from "../api/auth"
+import { getMe, getUserPosts, deletePost, getUserById, followUser, updateProfile } from "../api/auth"
 import { getSchoolLogo } from "../data/schools"
 
 function Profile() {
   const router = useRouter()
   const [user, setUser] = useState({})
+  const avatarInputRef = useRef(null)
   const [activeTab, setActiveTab] = useState('posts')
   const [myPostCount, setMyPostCount] = useState(0)
   const [myPosts, setMyPosts] = useState([])
@@ -100,16 +101,48 @@ function Profile() {
 
 
 
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) return alert('File size must be under 5MB')
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const base64 = reader.result
+      try {
+        const res = await updateProfile({ avatar: base64 })
+        const updated = res.data?.user || res.data
+        setUser(updated)
+        localStorage.setItem('user', JSON.stringify(updated))
+        window.dispatchEvent(new Event('userStateChange'))
+      } catch (err) {
+        console.error('Failed to update avatar', err)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   return (
     <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8">
       <div className="max-w-3xl mx-auto px-4 py-8">
+        <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-6">
           <div className="h-24 bg-gradient-to-r from-dark to-primary relative">
             <div className="absolute -bottom-8 left-6">
-              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg">
-                {user.name?.charAt(0)?.toUpperCase() || 'S'}
+              <div
+                onClick={() => avatarInputRef.current?.click()}
+                className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg overflow-hidden relative cursor-pointer group"
+                title="Click to update photo"
+              >
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  user.name?.charAt(0)?.toUpperCase() || 'S'
+                )}
+                <div className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <FiCamera size={18} />
+                </div>
               </div>
             </div>
           </div>

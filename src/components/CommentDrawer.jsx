@@ -79,10 +79,21 @@ export default function CommentDrawer({
         commentId: comment.id || comment._id,
         postId: post.id || post._id,
       })
+      const newCoins = res.data?.coins !== undefined ? res.data.coins : Math.max(0, (user?.coins || 0) - rgItem.price)
       setGiftMsg(`✅ Sent ${rgItem.name} reaction!`)
-      if (res.data?.coins !== undefined && setUser) {
-        setUser(u => ({ ...u, coins: res.data.coins }))
+
+      // Immediately deduct coins in local state and localStorage
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
+        storedUser.coins = newCoins
+        localStorage.setItem('user', JSON.stringify(storedUser))
+      } catch (e) {}
+
+      if (setUser) {
+        setUser(u => ({ ...u, coins: newCoins }))
       }
+
+      window.dispatchEvent(new Event('userStateChange'))
       setTimeout(() => { resetGift() }, 1800)
     } catch (err) {
       setGiftMsg(err.response?.data?.message || 'Failed to send gift')

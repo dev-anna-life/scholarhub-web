@@ -341,13 +341,6 @@ function Signup() {
   })
 
   useEffect(() => {
-    if (form.email && !form.username) {
-      const suggested = form.email.split('@')[0].replace(/[^a-z0-9_]/gi, '_').toLowerCase().slice(0, 20)
-      setForm(prev => ({ ...prev, username: suggested }))
-    }
-  }, [form.email])
-
-  useEffect(() => {
     if (form.course) {
       const sugDept = getSuggestedDepartment(form.course)
       const sugFac = getSuggestedFaculty(form.course)
@@ -383,6 +376,9 @@ function Signup() {
   const validateStep1 = () => {
     const newErrors = {}
     if (!form.name.trim()) newErrors.name = 'Full Name is required'
+    if (!form.username.trim()) newErrors.username = 'Username is required'
+    else if (form.username.trim().length < 3) newErrors.username = 'Username must be at least 3 characters'
+    else if (!/^[a-zA-Z0-9_]+$/.test(form.username.trim())) newErrors.username = 'Username can only contain letters, numbers, and underscores'
     if (!form.email.trim()) newErrors.email = 'Email is required'
     if (!form.phone.trim()) newErrors.phone = 'Phone Number is required'
     if (!form.password.trim()) newErrors.password = 'Password is required'
@@ -410,9 +406,6 @@ function Signup() {
     setError('')
     try {
       const payload = { ...form }
-      if (!payload.username && payload.email) {
-        payload.username = payload.email.split('@')[0].replace(/[^a-z0-9_]/gi, '_').toLowerCase().slice(0, 20)
-      }
       const res = await signupUser(payload)
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
@@ -491,6 +484,11 @@ function Signup() {
                   <FiUser className="absolute left-3 top-3.5 text-gray-400" size={16} />
                   <input name="name" type="text" placeholder="Full Name" value={form.name} onChange={handleChange} className={`input-field ${errors.name ? 'border-red-400' : ''}`} />
                   {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-3.5 text-gray-400 font-bold text-xs">@</span>
+                  <input name="username" type="text" placeholder="Choose your Username (e.g. alex_scholar)" value={form.username} onChange={handleChange} className={`input-field !pl-8 ${errors.username ? 'border-red-400' : ''}`} />
+                  {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
                 </div>
                 <div className="relative">
                   <FiMail className="absolute left-3 top-3.5 text-gray-400" size={16} />

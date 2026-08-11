@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiUser, FiMail, FiLock, FiPhone, FiLogOut, FiTrash2, FiCheck, FiEye, FiEyeOff, FiSettings, FiBell, FiShield, FiMoon, FiSun, FiGlobe, FiChevronRight, FiAlertTriangle, FiX, FiSave, FiEdit2, FiBookOpen } from "react-icons/fi"
+import { FiUser, FiMail, FiLock, FiPhone, FiLogOut, FiTrash2, FiCheck, FiEye, FiEyeOff, FiSettings, FiBell, FiShield, FiMoon, FiSun, FiGlobe, FiChevronRight, FiAlertTriangle, FiX, FiSave, FiEdit2, FiBookOpen, FiCamera } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { getMe, updateProfile, updateSchool, changePassword as changePasswordAPI } from "../api/auth"
@@ -21,7 +21,8 @@ function Settings() {
   const [showActivityStatus, setShowActivityStatus] = useState(true)
   const [activeSection, setActiveSection] = useState('account')
   const [editMode, setEditMode] = useState(false)
-  const [editForm, setEditForm] = useState({ name: '', phone: '' })
+  const [editForm, setEditForm] = useState({ name: '', username: '', phone: '', avatar: '' })
+  const avatarInputRef = useRef(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteText, setDeleteText] = useState('')
   const [showPasswordForm, setShowPasswordForm] = useState(false)
@@ -48,7 +49,7 @@ function Settings() {
       try {
         const res = await getMe()
         setUser(res.data)
-        setEditForm({ name: res.data.name || '', phone: res.data.phone || '' })
+        setEditForm({ name: res.data.name || '', username: res.data.username || '', phone: res.data.phone || '', avatar: res.data.avatar || '' })
         const initialSchool = res.data.school || ''
         setSchoolForm({ level: res.data.level || '', school: initialSchool, state: res.data.state || '', course: res.data.course || '', track: res.data.track || '', faculty: res.data.faculty || '', department: res.data.department || '' })
         if (initialSchool) setSchoolQuery(initialSchool)
@@ -61,6 +62,34 @@ function Settings() {
     }
     fetchUser()
   }, [])
+
+  const handleAvatarFile = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image file must be under 5MB')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const base64 = reader.result
+      setEditForm(prev => ({ ...prev, avatar: base64 }))
+      try {
+        setLoading(true)
+        const res = await updateProfile({ avatar: base64 })
+        const updatedUser = res.data?.user || res.data
+        setUser(updatedUser)
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+        window.dispatchEvent(new Event('userStateChange'))
+        showSuccess('Profile picture updated!')
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to update profile picture')
+      } finally {
+        setLoading(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
 
   useEffect(() => {
     if (darkMode) {
@@ -312,6 +341,43 @@ function Settings() {
                     </div>
 
                     <div className="space-y-4">
+                      {/* Profile Picture Upload Section */}
+                      <div className="flex items-center gap-4 py-2 border-b border-gray-100 pb-4">
+                        <div className="relative w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-white text-xl font-bold overflow-hidden shadow-md group">
+                          {user.avatar || editForm.avatar ? (
+                            <img src={editForm.avatar || user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                          ) : (
+                            user.name?.charAt(0)?.toUpperCase() || 'U'
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Change profile photo"
+                          >
+                            <FiCamera size={20} />
+                          </button>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-dark">Profile Photo</p>
+                          <p className="text-xs text-gray-400 mb-2">Upload your custom photo</p>
+                          <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarFile}
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => avatarInputRef.current?.click()}
+                            className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-lg hover:bg-primary/20 transition flex items-center gap-1.5"
+                          >
+                            <FiCamera size={13} /> Change Photo
+                          </button>
+                        </div>
+                      </div>
+
                       <div>
                         <label className="block text-xs font-semibold text-gray-500 mb-1">Full Name</label>
                         <input
@@ -319,6 +385,18 @@ function Settings() {
                           value={editMode ? editForm.name : user.name || ''}
                           onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
                           disabled={!editMode}
+                          className={`w-full px-3 py-2.5 rounded-xl border text-sm ${editMode ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50'} text-dark`}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 mb-1">Username</label>
+                        <input
+                          type="text"
+                          value={editMode ? editForm.username : user.username || ''}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/gi, '') }))}
+                          disabled={!editMode}
+                          placeholder="choose_username"
                           className={`w-full px-3 py-2.5 rounded-xl border text-sm ${editMode ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50'} text-dark`}
                         />
                       </div>
