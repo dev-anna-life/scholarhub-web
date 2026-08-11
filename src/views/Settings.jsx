@@ -63,32 +63,59 @@ function Settings() {
     fetchUser()
   }, [])
 
-  const handleAvatarFile = (e) => {
+function compressImage(file, maxDimension = 300, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let width = img.width
+        let height = img.height
+        if (width > height) {
+          if (width > maxDimension) {
+            height = Math.round((height * maxDimension) / width)
+            width = maxDimension
+          }
+        } else {
+          if (height > maxDimension) {
+            width = Math.round((width * maxDimension) / height)
+            height = maxDimension
+          }
+        }
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL('image/jpeg', quality))
+      }
+      img.onerror = reject
+      img.src = e.target.result
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+  const handleAvatarFile = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image file must be under 5MB')
-      return
+    setLoading(true)
+    setError('')
+    try {
+      const compressedBase64 = await compressImage(file)
+      setEditForm(prev => ({ ...prev, avatar: compressedBase64 }))
+      const res = await updateProfile({ avatar: compressedBase64 })
+      const updatedUser = res.data?.user || res.data
+      setUser(updatedUser)
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      window.dispatchEvent(new Event('userStateChange'))
+      showSuccess('Profile picture updated successfully!')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update profile picture')
+    } finally {
+      setLoading(false)
     }
-    const reader = new FileReader()
-    reader.onload = async () => {
-      const base64 = reader.result
-      setEditForm(prev => ({ ...prev, avatar: base64 }))
-      try {
-        setLoading(true)
-        const res = await updateProfile({ avatar: base64 })
-        const updatedUser = res.data?.user || res.data
-        setUser(updatedUser)
-        localStorage.setItem('user', JSON.stringify(updatedUser))
-        window.dispatchEvent(new Event('userStateChange'))
-        showSuccess('Profile picture updated!')
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to update profile picture')
-      } finally {
-        setLoading(false)
-      }
-    }
-    reader.readAsDataURL(file)
   }
 
   useEffect(() => {

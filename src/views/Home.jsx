@@ -207,7 +207,8 @@ function Home() {
                 id: post.id || post._id,
                 authorId: post.author?.id || post.author?._id || '',
                 author: post.author?.name || 'Student',
-                avatar: post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH',
+                authorAvatar: post.author?.avatar || '',
+                avatar: post.author?.avatar ? post.author.avatar : (post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH'),
                 school: post.author?.school || '',
                 level: post.author?.level || '',
                 community: post.community || '',
@@ -519,8 +520,12 @@ function Home() {
 
                     <div
                         onClick={() => router.push('/profile')}
-                        className="w-8 h-8 flex-shrink-0 bg-primary rounded-xl flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:opacity-90 transition">
-                        {user.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'SH'}
+                        className="w-8 h-8 flex-shrink-0 bg-primary rounded-xl flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:opacity-90 transition overflow-hidden">
+                        {user?.avatar ? (
+                            <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                            user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'SH'
+                        )}
                     </div>
                 </div>
             </div>
@@ -673,8 +678,12 @@ function Home() {
                                         <div className="flex items-start gap-2 mb-3">
                                             <div
                                                 onClick={() => post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`)}
-                                                className={`w-8 h-8 md:w-9 md:h-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:bg-primary/20 transition' : ''}`}>
-                                                {post.avatar}
+                                                className={`w-8 h-8 md:w-9 md:h-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 overflow-hidden ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:bg-primary/20 transition' : ''}`}>
+                                                {post.authorAvatar || (post.avatar && post.avatar.startsWith('data:image')) ? (
+                                                    <img src={post.authorAvatar || post.avatar} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    post.avatar
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p
