@@ -39,10 +39,22 @@ export default function NotificationsView() {
 
   const handleNotifClick = (notif) => {
     const from = notif.fromUser || notif.sender
+    const fromId = from?.id || from?._id
+    const postId = notif.postId || notif.post?.id || notif.post?._id
     if (notif.type === 'message') {
-      router.push('/chat')
-    } else if (from?._id) {
-      router.push(`/profile/${from._id}`)
+      router.push(fromId ? `/chat?user=${fromId}` : '/chat')
+    } else if (notif.type === 'follow') {
+      if (fromId) router.push(`/profile/${fromId}`)
+    } else if (notif.type === 'like' || notif.type === 'comment') {
+      if (postId) router.push(`/post/${postId}`)
+      else if (fromId) router.push(`/profile/${fromId}`)
+      else router.push('/feed')
+    } else if (notif.type === 'gift') {
+      router.push('/profile')
+    } else {
+      if (postId) router.push(`/post/${postId}`)
+      else if (fromId) router.push(`/profile/${fromId}`)
+      else router.push('/feed')
     }
   }
 
