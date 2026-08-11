@@ -77,6 +77,21 @@ function Home() {
         }
         document.addEventListener('mousedown', handler)
         return () => document.removeEventListener('mousedown', handler)
+    useEffect(() => {
+        const unlockAudio = () => {
+            ensureAudio()
+            window.removeEventListener('click', unlockAudio)
+            window.removeEventListener('touchstart', unlockAudio)
+            window.removeEventListener('keydown', unlockAudio)
+        }
+        window.addEventListener('click', unlockAudio)
+        window.addEventListener('touchstart', unlockAudio)
+        window.addEventListener('keydown', unlockAudio)
+        return () => {
+            window.removeEventListener('click', unlockAudio)
+            window.removeEventListener('touchstart', unlockAudio)
+            window.removeEventListener('keydown', unlockAudio)
+        }
     }, [])
 
     const ensureAudio = () => {
@@ -84,7 +99,7 @@ function Home() {
             audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
         }
         if (audioCtxRef.current.state === 'suspended') {
-            audioCtxRef.current.resume()
+            audioCtxRef.current.resume().catch(() => {})
         }
     }
 
@@ -92,21 +107,30 @@ function Home() {
         try {
             ensureAudio()
             const ctx = audioCtxRef.current
-            const playTone = (freq, start, duration) => {
-                const osc = ctx.createOscillator()
-                const gain = ctx.createGain()
-                osc.connect(gain)
-                gain.connect(ctx.destination)
-                osc.frequency.value = freq
-                osc.type = 'sine'
-                gain.gain.setValueAtTime(0.15, start)
-                gain.gain.exponentialRampToValueAtTime(0.001, start + duration)
-                osc.start(start)
-                osc.stop(start + duration)
+            if (ctx) {
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => {})
+                }
+                const playTone = (freq, start, duration) => {
+                    const osc = ctx.createOscillator()
+                    const gain = ctx.createGain()
+                    osc.connect(gain)
+                    gain.connect(ctx.destination)
+                    osc.frequency.value = freq
+                    osc.type = 'sine'
+                    gain.gain.setValueAtTime(0.3, start)
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + duration)
+                    osc.start(start)
+                    osc.stop(start + duration)
+                }
+                const now = ctx.currentTime
+                playTone(523.25, now, 0.15) // C5
+                playTone(659.25, now + 0.12, 0.2) // E5
+                playTone(783.99, now + 0.24, 0.25) // G5 chime!
             }
-            playTone(523, ctx.currentTime, 0.1)
-            playTone(659, ctx.currentTime + 0.12, 0.15)
-        } catch (_) {}
+        } catch (e) {
+            console.error('Audio play error', e)
+        }
     }
 
     const showDesktopNotif = (title, body) => {

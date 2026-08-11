@@ -191,7 +191,7 @@ export default function PostDetail() {
                                 onClick={() => toggleShowReplies(cId)}
                                 className="text-[11px] font-semibold text-gray-400 hover:text-primary transition cursor-pointer flex items-center gap-1"
                               >
-                                {showRepliesMap[cId] ? 'Hide replies' : `── View ${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}`}
+                                {showRepliesMap[cId] ? 'Hide replies' : `View ${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}`}
                               </button>
                             )}
                           </div>
