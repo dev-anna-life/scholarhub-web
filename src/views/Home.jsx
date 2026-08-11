@@ -761,7 +761,7 @@ function Home() {
                                                                                     className={`w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 ${authorId && authorId !== user.id ? 'cursor-pointer hover:bg-primary/20' : ''}`}>
                                                                                     {comment.author?.name?.charAt(0) || 'S'}
                                                                                 </div>
-                                                                                <div className="flex-1 bg-gray-50 rounded-xl px-3 py-2">
+                                                                                <div className="flex-1 bg-black/5 dark:bg-white/5 rounded-xl px-3 py-2">
                                                                                     <p
                                                                                         onClick={() => authorId && authorId !== user.id && router.push(`/profile/${authorId}`)}
                                                                                         className={`text-xs font-semibold text-dark ${authorId && authorId !== user.id ? 'cursor-pointer hover:text-primary' : ''}`}>
@@ -770,7 +770,7 @@ function Home() {
                                                                                             <span className="text-[10px] text-primary font-medium ml-1">• {comment.author.badge}</span>
                                                                                         )}
                                                                                     </p>
-                                                                                    <p className="text-xs text-gray-600 mt-0.5">{comment.text}</p>
+                                                                                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{comment.text}</p>
                                                                                     <button
                                                                                         onClick={() => setReplyToMap(prev => ({ ...prev, [post.id]: { commentId: cId, authorName: comment.author?.name || 'Scholar' } }))}
                                                                                         className="text-[10px] font-semibold text-primary hover:underline mt-1 cursor-pointer inline-block"
@@ -791,7 +791,7 @@ function Home() {
                                                                                                     className={`w-6 h-6 bg-primary/15 rounded-md flex items-center justify-center text-primary text-[10px] font-bold flex-shrink-0 ${replyAuthorId && replyAuthorId !== user.id ? 'cursor-pointer hover:bg-primary/25' : ''}`}>
                                                                                                     {reply.author?.name?.charAt(0) || 'S'}
                                                                                                 </div>
-                                                                                                <div className="flex-1 bg-gray-100/70 rounded-xl px-2.5 py-1.5">
+                                                                                                <div className="flex-1 bg-black/5 dark:bg-white/5 rounded-xl px-2.5 py-1.5">
                                                                                                     <p className="text-[11px] font-semibold text-dark">{reply.author?.name || 'Scholar'}</p>
                                                                                                     <p className="text-xs text-gray-600 mt-0.5">{reply.text}</p>
                                                                                                     <button

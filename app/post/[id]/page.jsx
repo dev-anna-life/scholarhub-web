@@ -160,7 +160,7 @@ export default function PostDetail() {
 
                   return (
                     <div key={cId} className="flex flex-col gap-2">
-                      <div className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-50/80 transition">
+                      <div className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition">
                         <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                           {comment.author?.name?.charAt(0) || 'S'}
                         </div>
@@ -185,7 +185,7 @@ export default function PostDetail() {
                       {replies.length > 0 && (
                         <div className="ml-7 pl-3 border-l-2 border-primary/20 flex flex-col gap-2">
                           {replies.map((reply) => (
-                            <div key={reply.id || reply._id} className="flex items-start gap-2 p-2 rounded-xl bg-gray-50/60">
+                            <div key={reply.id || reply._id} className="flex items-start gap-2 p-2 rounded-xl bg-black/5 dark:bg-white/5">
                               <div className="w-7 h-7 bg-primary/15 rounded-lg flex items-center justify-center text-primary text-[11px] font-bold flex-shrink-0">
                                 {reply.author?.name?.charAt(0) || 'S'}
                               </div>
