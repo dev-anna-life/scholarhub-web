@@ -602,32 +602,6 @@ function Chat() {
                         </div>
                     </div>
 
-                    {/* TikTok Style Message Request Banner */}
-                    {!followingChatUser && activeChatDetails && messages.length === 0 && (
-                        <div className="bg-slate-900 text-white border-t border-slate-800 px-4 py-3 shadow-lg">
-                            <div className="max-w-2xl mx-auto flex items-start gap-3">
-                                <div className="w-9 h-9 bg-primary/20 text-primary rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <FiMessageCircle size={18} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-sm text-white truncate">
-                                        Send message request to {activeChat.name?.split(' ')[0] || activeChat.name}
-                                    </p>
-                                    <p className="text-xs text-gray-300 mt-0.5 leading-relaxed">
-                                        You can send a direct message until the user replies. You can also follow them to stay connected.
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={handleFollowActiveUser}
-                                    disabled={followLoading}
-                                    className="bg-primary text-white text-xs font-semibold px-3.5 py-2 rounded-xl hover:opacity-90 transition flex-shrink-0 shadow-md shadow-primary/20"
-                                >
-                                    {followingChatUser ? 'Following' : 'Follow'}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
                     <div className="bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 px-4 py-3 mb-16 md:mb-0">
                         <div className="max-w-2xl mx-auto flex gap-2 items-end">
                             <textarea
