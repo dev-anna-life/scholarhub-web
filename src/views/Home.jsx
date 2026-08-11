@@ -176,7 +176,7 @@ function Home() {
             let catParam = ''
             let comId = ''
             if (activeTab === 'category') catParam = categoryTabs[0] || ''
-            if (activeTab === 'community' && activeCommunity) { comId = activeCommunity._id }
+            if (activeTab === 'community' && activeCommunity) { comId = activeCommunity.id || activeCommunity._id || '' }
             const [postsRes, myPostsRes, notifRes, leaderRes, commRes, savedRes] = await Promise.all([
                 getPosts(pageNum, searchQuery, tabParam, catParam, comId).catch(() => ({ data: { posts: [], totalPages: 1 } })),
                 getUserPosts().catch(() => ({ data: [] })),
@@ -542,13 +542,17 @@ function Home() {
                             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition whitespace-nowrap flex-shrink-0 ${activeTab === 'following' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
                             Following
                         </button>
-                        {userCommunities.filter(c => c.type !== 'general').map(c => (
-                            <button key={c._id}
-                                onClick={() => { setActiveCommunity(c); setActiveTab('community'); setPage(1) }}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition whitespace-nowrap flex-shrink-0 ${activeTab === 'community' && activeCommunity?._id === c._id ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
-                                {c.name}
-                            </button>
-                        ))}
+                        {userCommunities.filter(c => c.type !== 'general').map(c => {
+                            const cId = c.id || c._id
+                            const isActive = activeTab === 'community' && (activeCommunity?.id === cId || activeCommunity?._id === cId)
+                            return (
+                                <button key={cId}
+                                    onClick={() => { setActiveCommunity(c); setActiveTab('community'); setPage(1) }}
+                                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
+                                    {c.name}
+                                </button>
+                            )
+                        })}
                         {categoryTabs.map(cat => (
                             <button key={cat} onClick={() => { setActiveTab('category'); setActiveCommunity(null); setPage(1) }}
                                 className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition whitespace-nowrap flex-shrink-0 items-center gap-1 ${activeTab === 'category' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
