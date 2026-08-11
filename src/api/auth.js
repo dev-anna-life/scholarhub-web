@@ -13,6 +13,7 @@ API.interceptors.request.use((req) => {
 })
 
 export const signupUser = (formData) => API.post('/auth/signup', formData)
+export const checkUsername = (username) => API.get(`/auth/check-username?username=${encodeURIComponent(username)}`)
 export const loginUser = (formData) => API.post('/auth/login', formData)
 export const getMe = () => API.get('/auth/me')
 export const createPost = (postData) => API.post('/posts', postData)

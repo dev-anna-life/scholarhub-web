@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiEye, FiEyeOff, FiSearch, FiX, FiCheck } from "react-icons/fi";
 import Link from "next/link"
 import { useRouter } from "next/navigation";
-import { signupUser, updateSchool, searchSchools, requestSchool } from "../api/auth"
+import { signupUser, updateSchool, searchSchools, requestSchool, checkUsername } from "../api/auth"
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuth } from "../api/auth";
 import { courses } from '../data/courses'
@@ -362,6 +362,40 @@ function Signup() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  const [usernameStatus, setUsernameStatus] = useState({ state: '', msg: '' })
+  const usernameTimerRef = useRef(null)
+
+  useEffect(() => {
+    if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current)
+    const u = form.username.trim()
+    if (!u || u.length < 3) {
+      setUsernameStatus({ state: '', msg: '' })
+      return
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(u)) {
+      setUsernameStatus({ state: 'error', msg: 'Only letters, numbers and underscores allowed' })
+      return
+    }
+
+    setUsernameStatus({ state: 'checking', msg: 'Checking availability...' })
+    usernameTimerRef.current = setTimeout(async () => {
+      try {
+        const { data } = await checkUsername(u)
+        if (data.available) {
+          setUsernameStatus({ state: 'available', msg: 'Username available' })
+          setErrors(prev => ({ ...prev, username: '' }))
+        } else {
+          setUsernameStatus({ state: 'taken', msg: data.message || 'Username already taken' })
+          setErrors(prev => ({ ...prev, username: data.message || 'Username already taken' }))
+        }
+      } catch (_) {
+        setUsernameStatus({ state: '', msg: '' })
+      }
+    }, 400)
+
+    return () => { if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current) }
+  }, [form.username])
+
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
   const toggleInterest = (item) => {
@@ -487,8 +521,11 @@ function Signup() {
                 </div>
                 <div className="relative">
                   <span className="absolute left-3 top-3.5 text-gray-400 font-bold text-xs">@</span>
-                  <input name="username" type="text" placeholder="Choose your Username (e.g. alex_scholar)" value={form.username} onChange={handleChange} className={`input-field !pl-8 ${errors.username ? 'border-red-400' : ''}`} />
-                  {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
+                  <input name="username" type="text" placeholder="Choose your Username (e.g. alex_scholar)" value={form.username} onChange={handleChange} className={`input-field !pl-8 ${usernameStatus.state === 'taken' || errors.username ? 'border-red-400' : usernameStatus.state === 'available' ? 'border-emerald-500' : ''}`} />
+                  {usernameStatus.state === 'available' && <p className="text-emerald-600 text-xs font-semibold mt-1 flex items-center gap-1"><FiCheck size={12} /> {usernameStatus.msg}</p>}
+                  {usernameStatus.state === 'taken' && <p className="text-red-500 text-xs font-semibold mt-1">❌ {usernameStatus.msg}</p>}
+                  {usernameStatus.state === 'checking' && <p className="text-gray-400 text-xs mt-1 animate-pulse">Checking availability...</p>}
+                  {errors.username && usernameStatus.state !== 'taken' && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
                 </div>
                 <div className="relative">
                   <FiMail className="absolute left-3 top-3.5 text-gray-400" size={16} />
