@@ -204,6 +204,9 @@ function CommunityView({ communityId }) {
                             </motion.div>
                         ))}
                     </div>
+                )}
+            </div>
+
             <CommentDrawer
                 isOpen={!!activeCommentPost}
                 post={activeCommentPost}
