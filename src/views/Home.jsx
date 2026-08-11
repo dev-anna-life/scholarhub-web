@@ -77,6 +77,8 @@ function Home() {
         }
         document.addEventListener('mousedown', handler)
         return () => document.removeEventListener('mousedown', handler)
+    }, [])
+
     useEffect(() => {
         const unlockAudio = () => {
             ensureAudio()
