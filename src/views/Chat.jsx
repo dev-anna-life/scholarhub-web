@@ -438,8 +438,8 @@ function Chat() {
                                             {lastMsg?.text || (conv.user?.isOnline ? 'Active now' : '')}
                                         </p>
                                         {conv.user.school && (
-                                            <span className="text-white font-bold rounded-full px-1.5 py-0.5 ml-2 flex-shrink-0"
-                                                style={{ backgroundColor: stringToColor(conv.user.school), fontSize: '9px' }}>
+                                            <span className="text-white font-bold rounded-full px-2 py-0.5 ml-2 flex-shrink-0"
+                                                style={{ backgroundColor: stringToColor(conv.user.school), fontSize: '11px' }}>
                                                 {getSchoolAbbr(conv.user.school)}
                                             </span>
                                         )}
@@ -471,11 +471,11 @@ function Chat() {
                             <div className="flex items-center gap-2">
                                 <p className="font-bold text-dark text-sm truncate">{activeChat.name}</p>
                                 {(activeChatDetails?.isOnline || activeChat?.isOnline) ? (
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> Active now
                                     </span>
                                 ) : (
-                                    <span className="text-[10px] text-gray-400 font-medium">
+                                    <span className="text-xs text-gray-400 font-medium">
                                         {getPresenceText(activeChatDetails?.lastActive || activeChat?.lastActive, false)}
                                     </span>
                                 )}
@@ -483,7 +483,7 @@ function Chat() {
                             <div className="flex items-center gap-2 mt-0.5">
                                 {activeChat.school && (
                                     <span className="text-white font-bold rounded-full px-2 py-0.5"
-                                        style={{ backgroundColor: stringToColor(activeChat.school), fontSize: '10px' }}>
+                                        style={{ backgroundColor: stringToColor(activeChat.school), fontSize: '11px' }}>
                                         {getSchoolAbbr(activeChat.school)}
                                     </span>
                                 )}

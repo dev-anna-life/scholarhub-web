@@ -117,7 +117,7 @@ function Profile() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-xl font-extrabold text-dark">{user.name || 'Student'}</h2>
-                <p className="text-xs font-semibold text-primary mb-0.5">
+                <p className="text-sm font-semibold text-primary mb-0.5">
                   @{user.username || user.name?.toLowerCase().replace(/\s+/g, '')}
                 </p>
                 <p className="text-sm text-gray-400">{user.email}</p>
@@ -138,12 +138,12 @@ function Profile() {
             <div className="flex items-center gap-4 mb-4 mt-2">
               <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
                 <p className="font-extrabold text-dark text-lg">{followersCount}</p>
-                <p className="text-xs text-gray-400">Followers</p>
+                <p className="text-xs font-medium text-gray-500">Followers</p>
               </div>
               <div className="w-px h-8 bg-gray-100" />
               <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
                 <p className="font-extrabold text-dark text-lg">{followingCount}</p>
-                <p className="text-xs text-gray-400">Following</p>
+                <p className="text-xs font-medium text-gray-500">Following</p>
               </div>
             </div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">

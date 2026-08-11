@@ -100,7 +100,7 @@ export default function NotificationsView() {
                     <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">
                       {notif.type === 'message' || notif.type === 'gift' ? notif.text : notif.post?.title}
                     </p>
-                    <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 font-medium">
                       {new Date(notif.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </p>
                     {notif.type === 'follow' && fromId && !isFollowing && (
