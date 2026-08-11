@@ -118,6 +118,7 @@ function Chat() {
                 }
                 if (userRes?.data) {
                     setActiveChatDetails(userRes.data)
+                    setFollowingChatUser(!!userRes.data.isFollowing)
                     setActiveChat(prev => prev ? { ...prev, isOnline: userRes.data.isOnline, lastActive: userRes.data.lastActive } : prev)
                 }
             } catch (err) {
@@ -524,15 +525,17 @@ function Chat() {
                                         {getSchoolAbbr(activeChat.school)}
                                     </span>
                                 )}
-                                {!followingChatUser && (
-                                    <button
-                                        onClick={handleFollowActiveUser}
-                                        disabled={followLoading}
-                                        className="mt-3 px-5 py-1.5 bg-primary text-white rounded-xl text-xs font-semibold hover:opacity-90 transition flex items-center gap-1 shadow-sm shadow-primary/20"
-                                    >
-                                        {followingChatUser ? 'Following' : 'Follow'}
-                                    </button>
-                                )}
+                                <button
+                                    onClick={handleFollowActiveUser}
+                                    disabled={followLoading}
+                                    className={`mt-3 px-5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1 shadow-sm ${
+                                        followingChatUser
+                                            ? 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200 hover:bg-red-50 hover:text-red-600'
+                                            : 'bg-primary text-white hover:opacity-90 shadow-primary/20'
+                                    }`}
+                                >
+                                    {followingChatUser ? 'Following' : 'Follow'}
+                                </button>
                             </div>
 
                             {messages.length === 0 ? (
@@ -582,7 +585,7 @@ function Chat() {
                     </div>
 
                     {/* TikTok Style Message Request Banner */}
-                    {!followingChatUser && (
+                    {!followingChatUser && messages.length === 0 && (
                         <div className="bg-slate-900 text-white border-t border-slate-800 px-4 py-3 shadow-lg">
                             <div className="max-w-2xl mx-auto flex items-start gap-3">
                                 <div className="w-9 h-9 bg-primary/20 text-primary rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5">
