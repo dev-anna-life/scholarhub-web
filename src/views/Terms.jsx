@@ -59,8 +59,8 @@ function Terms() {
             </section>
 
             <section>
-              <h2 className="text-lg font-bold text-dark mb-2">5. Coin System</h2>
-              <p>Coins are virtual rewards earned through platform activity. They have no real-world monetary value and cannot be exchanged for cash. ScholarHub reserves the right to modify the coin system at any time.</p>
+              <h2 className="text-lg font-bold text-dark mb-2">5. ScholarHub Coins & Rewards</h2>
+              <p>ScholarHub Coins are real platform reward points earned through academic contributions, daily study streaks, community engagement, and peer support. Earned coins can be redeemed for real mobile airtime, data bundles, gift items, and exclusive student perks via the Coin Shop. Coins can also be transferred between registered students. ScholarHub guarantees all validly earned coin balances and redemption requests are fulfilled promptly.</p>
             </section>
 
             <section>

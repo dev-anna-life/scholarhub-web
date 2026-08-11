@@ -11,7 +11,7 @@ function Privacy() {
     <div className="min-h-screen bg-light pt-16 md:pt-0 relative z-10">
       <div className="max-w-3xl mx-auto px-4 py-8 md:pl-10">
         <button
-          onClick={() => router.push(-1)}
+          onClick={() => router.back()}
           className="text-sm text-gray-500 hover:text-primary mb-6 flex items-center gap-1"
         >
           <FiArrowLeft size={14} /> Back
@@ -27,17 +27,17 @@ function Privacy() {
             <h1 className="text-2xl font-extrabold text-dark">Privacy Policy</h1>
           </div>
 
-          <p className="text-sm text-gray-500 mb-6">Last updated: May 4, 2026</p>
+          <p className="text-sm text-gray-500 mb-6">Last updated: August 11, 2026</p>
 
           <div className="space-y-6 text-sm text-gray-600">
             <section>
               <h2 className="text-lg font-bold text-dark mb-2">1. Information We Collect</h2>
               <p className="mb-2">We collect information you provide directly, including:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Full name and email address</li>
-                <li>Phone number and school information</li>
-                <li>Posts, comments, and interactions on the platform</li>
-                <li>Profile data such as education level and interests</li>
+                <li>Full name, email address, and academic level</li>
+                <li>Phone number and school/faculty/department details</li>
+                <li>Posts, comments, study activity, and direct messages</li>
+                <li>Airtime and data phone number redemptions for earned coins</li>
               </ul>
             </section>
 
@@ -46,16 +46,21 @@ function Privacy() {
               <p className="mb-2">We use your information to:</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Create and manage your ScholarHub account</li>
-                <li>Connect you with other students and communities</li>
-                <li>Provide personalized content based on your interests</li>
-                <li>Maintain platform security and prevent abuse</li>
-                <li>Send important notifications about your account</li>
+                <li>Connect you with students in your school, faculty, and department</li>
+                <li>Fulfill airtime and data reward redemptions for earned coins</li>
+                <li>Maintain platform security and prevent spam or abuse</li>
+                <li>Send important email notifications for activity and direct messages</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-lg font-bold text-dark mb-2">3. Data Sharing</h2>
-              <p>We do not sell your personal information. Your profile may be visible to other users on the platform based on your privacy settings. We may share data with service providers who help us operate the platform.</p>
+              <h2 className="text-lg font-bold text-dark mb-2">3. Activity & Online Status Privacy</h2>
+              <p>You have total control over your online presence. You can toggle your **Activity Status** on or off anytime under <strong>Settings → Privacy Settings</strong>. When turned off, your active status is hidden from all users, and you also won't see other users' active status.</p>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-bold text-dark mb-2">4. Data Sharing</h2>
+              <p>We do not sell your personal information. Your profile and posts are displayed according to your community and level settings. We share data only with authorized telecom providers to deliver airtime/data rewards you redeem.</p>
             </section>
 
             <section>
