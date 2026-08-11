@@ -113,7 +113,15 @@ export default function PostDetail() {
               <FiMessageCircle size={16} />
               <span className="text-sm">{(Array.isArray(c.commentsData) ? c.commentsData : []).length}</span>
             </button>
-            <button className="flex items-center gap-1.5 text-gray-400 hover:text-primary transition ml-auto">
+            <button onClick={() => {
+              const postUrl = window.location.href
+              if (navigator.share) {
+                navigator.share({ title: c.title || 'ScholarHub Post', url: postUrl })
+              } else {
+                navigator.clipboard.writeText(postUrl)
+                alert('Post link copied to clipboard!')
+              }
+            }} className="flex items-center gap-1.5 text-gray-400 hover:text-primary transition ml-auto">
               <FiShare2 size={16} />
             </button>
             <button onClick={() => setSaved(!saved)} className={`transition ${saved ? 'text-primary' : 'text-gray-300 hover:text-primary'}`}>

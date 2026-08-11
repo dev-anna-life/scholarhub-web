@@ -329,11 +329,12 @@ function Home() {
     }
 
     const handleShare = (post) => {
+        const postUrl = `${window.location.origin}/post/${post.id || post._id}`
         if (navigator.share) {
-            navigator.share({ title: post.title, text: post.content, url: window.location.href })
+            navigator.share({ title: post.title || 'ScholarHub Post', url: postUrl })
         } else {
-            navigator.clipboard.writeText(window.location.href)
-            alert('Link copied!')
+            navigator.clipboard.writeText(postUrl)
+            alert('Post link copied to clipboard!')
         }
     }
 
