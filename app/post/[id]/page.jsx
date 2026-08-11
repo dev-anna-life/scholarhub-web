@@ -13,6 +13,7 @@ export default function PostDetail() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [commentText, setCommentText] = useState('')
+  const [replyTo, setReplyTo] = useState(null)
   const [liked, setLiked] = useState(false)
   const [saved, setSaved] = useState(false)
   const [commenting, setCommenting] = useState(false)
@@ -40,7 +41,7 @@ export default function PostDetail() {
     if (!commentText.trim()) return
     setCommenting(true)
     try {
-      const res = await addComment(id, commentText)
+      const res = await addComment(id, commentText, replyTo?.commentId || null)
       const newComment = res.data
       setPost(p => {
         if (!p) return p
@@ -51,6 +52,7 @@ export default function PostDetail() {
         }
       })
       setCommentText('')
+      setReplyTo(null)
     } catch (err) {
       console.error('Failed to add comment', err)
     } finally {
@@ -118,8 +120,20 @@ export default function PostDetail() {
         <div className="mt-4 bg-white rounded-2xl p-5 border border-gray-100">
           <h3 className="font-bold text-dark text-sm mb-3">Comments ({(Array.isArray(c.commentsData) ? c.commentsData : []).length})</h3>
 
+          {replyTo && (
+            <div className="flex items-center justify-between bg-primary/10 text-primary px-3 py-1.5 rounded-xl text-xs font-semibold mb-2">
+              <span>Replying to <strong className="text-dark">@{replyTo.authorName}</strong></span>
+              <button onClick={() => setReplyTo(null)} className="hover:opacity-80 p-0.5">✕</button>
+            </div>
+          )}
+
           <div className="flex items-center gap-2 mb-4">
-            <input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Write a comment..." className="flex-1 input-field text-sm py-2" />
+            <input
+              value={commentText}
+              onChange={e => setCommentText(e.target.value)}
+              placeholder={replyTo ? `Reply to ${replyTo.authorName}...` : "Write a comment..."}
+              className="flex-1 input-field text-sm py-2"
+            />
             <button onClick={handleComment} disabled={commenting || !commentText.trim()} className="btn-primary !w-auto !px-4 !py-2">
               <FiSend size={15} />
             </button>
@@ -128,19 +142,76 @@ export default function PostDetail() {
           {(!Array.isArray(c.commentsData) || c.commentsData.length === 0) ? (
             <p className="text-gray-400 text-sm text-center py-4">No comments yet, be the first!</p>
           ) : (
-            <div className="flex flex-col gap-3 max-h-80 overflow-y-auto">
-              {(Array.isArray(c.commentsData) ? c.commentsData : []).map((comment, ci) => (
-                <div key={comment.id || ci} className="flex items-start gap-2 p-2 rounded-xl hover:bg-gray-50 transition">
-                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
-                    {comment.author?.name?.charAt(0) || 'S'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-dark">{comment.author?.name || 'Scholar'}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{comment.text}</p>
-                    <p className="text-xs text-gray-300 mt-0.5">{comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : ''}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col gap-4 max-h-[500px] overflow-y-auto pr-1">
+              {(() => {
+                const allComments = Array.isArray(c.commentsData) ? c.commentsData : []
+                const topLevel = allComments.filter(cm => !cm.parentId)
+                const repliesMap = {}
+                allComments.forEach(cm => {
+                  if (cm.parentId) {
+                    if (!repliesMap[cm.parentId]) repliesMap[cm.parentId] = []
+                    repliesMap[cm.parentId].push(cm)
+                  }
+                })
+
+                return topLevel.map((comment) => {
+                  const cId = comment.id || comment._id
+                  const replies = repliesMap[cId] || []
+
+                  return (
+                    <div key={cId} className="flex flex-col gap-2">
+                      <div className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-50/80 transition">
+                        <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+                          {comment.author?.name?.charAt(0) || 'S'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-bold text-dark">{comment.author?.name || 'Scholar'}</p>
+                            <span className="text-[10px] text-gray-400">
+                              {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">{comment.text}</p>
+                          <button
+                            onClick={() => setReplyTo({ commentId: cId, authorName: comment.author?.name || 'Scholar' })}
+                            className="text-[11px] font-semibold text-primary hover:underline mt-1 cursor-pointer inline-block"
+                          >
+                            Reply
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Nested TikTok-style Replies */}
+                      {replies.length > 0 && (
+                        <div className="ml-7 pl-3 border-l-2 border-primary/20 flex flex-col gap-2">
+                          {replies.map((reply) => (
+                            <div key={reply.id || reply._id} className="flex items-start gap-2 p-2 rounded-xl bg-gray-50/60">
+                              <div className="w-7 h-7 bg-primary/15 rounded-lg flex items-center justify-center text-primary text-[11px] font-bold flex-shrink-0">
+                                {reply.author?.name?.charAt(0) || 'S'}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-[11px] font-bold text-dark">{reply.author?.name || 'Scholar'}</p>
+                                  <span className="text-[9px] text-gray-400">
+                                    {reply.createdAt ? new Date(reply.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">{reply.text}</p>
+                                <button
+                                  onClick={() => setReplyTo({ commentId: cId, authorName: reply.author?.name || 'Scholar' })}
+                                  className="text-[10px] font-semibold text-primary hover:underline mt-0.5 cursor-pointer inline-block"
+                                >
+                                  Reply
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })
+              })()}
             </div>
           )}
         </div>

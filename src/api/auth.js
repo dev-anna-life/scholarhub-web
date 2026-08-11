@@ -36,7 +36,7 @@ export const getPosts = (page = 1, search = '', tab = '', category = '', communi
 export const getPostById = (id) => API.get(`/posts/${id}`)
 export const likePost = (id) => API.post(`/posts/${id}/like`)
 export const getComments = (id) => API.get(`/posts/${id}/comments`)
-export const addComment = (id, text) => API.post(`/posts/${id}/comments`, { text })
+export const addComment = (id, text, parentId = null) => API.post(`/posts/${id}/comments`, { text, parentId })
 export const getLeaderboard = () => API.get('/auth/leaderboard')
 export const getNotifications = () => API.get('/notifications')
 export const markNotificationsRead = () => API.post('/notifications')

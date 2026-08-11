@@ -266,14 +266,18 @@ function Home() {
         }
     }
 
+    const [replyToMap, setReplyToMap] = useState({})
+
     const handleAddComment = async (postId) => {
         if (!commentText.trim()) return
         setCommentLoading(true)
+        const parentId = replyToMap[postId]?.commentId || null
         try {
-            const res = await addComment(postId, commentText)
+            const res = await addComment(postId, commentText, parentId)
             setCommentsMap(prev => ({ ...prev, [postId]: [...(prev[postId] || []), res.data] }))
             setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentCount: (p.commentCount || 0) + 1 } : p))
             setCommentText('')
+            setReplyToMap(prev => ({ ...prev, [postId]: null }))
         } catch (err) {
             console.error(err)
         } finally {
@@ -727,34 +731,95 @@ function Home() {
                                                     animate={{ opacity: 1, height: 'auto' }}
                                                     exit={{ opacity: 0, height: 0 }}
                                                     className="mt-3 pt-3 border-t border-gray-100">
-                                                    <div className="flex flex-col gap-3 mb-3 max-h-48 overflow-y-auto">
+                                                    <div className="flex flex-col gap-3 mb-3 max-h-64 overflow-y-auto">
                                                         {!commentsMap[post.id] ? (
                                                             <p className="text-xs text-gray-400 text-center py-2">Loading comments...</p>
                                                         ) : commentsMap[post.id].length === 0 ? (
                                                             <p className="text-xs text-gray-400 text-center py-2">No comments yet, be the first!</p>
                                                         ) : (
-                                                            commentsMap[post.id].map((comment, ci) => (
-                                                                <div key={ci} className="flex items-start gap-2">
-                                                                    <div
-                                                                        onClick={() => comment.author?._id && comment.author._id !== user.id && router.push(`/profile/${comment.author._id}`)}
-                                                                        className={`w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 ${comment.author?._id && comment.author._id !== user.id ? 'cursor-pointer hover:bg-primary/20' : ''}`}>
-                                                                        {comment.author?.name?.charAt(0) || 'S'}
-                                                                    </div>
-                                                                    <div className="flex-1 bg-gray-50 rounded-xl px-3 py-2">
-                                                                        <p
-                                                                            onClick={() => comment.author?._id && comment.author._id !== user.id && router.push(`/profile/${comment.author._id}`)}
-                                                                            className={`text-xs font-semibold text-dark ${comment.author?._id && comment.author._id !== user.id ? 'cursor-pointer hover:text-primary' : ''}`}>
-                                                                            {comment.author?.name || 'Student'}
-                                                                            {comment.author?.badge && comment.author.badge !== 'Beginner' && (
-                                                                                <span className="text-[10px] text-primary font-medium ml-1">• {comment.author.badge}</span>
+                                                            (() => {
+                                                                const allComments = commentsMap[post.id] || []
+                                                                const topLevel = allComments.filter(cm => !cm.parentId)
+                                                                const repliesMap = {}
+                                                                allComments.forEach(cm => {
+                                                                    if (cm.parentId) {
+                                                                        if (!repliesMap[cm.parentId]) repliesMap[cm.parentId] = []
+                                                                        repliesMap[cm.parentId].push(cm)
+                                                                    }
+                                                                })
+
+                                                                return topLevel.map((comment) => {
+                                                                    const cId = comment.id || comment._id
+                                                                    const replies = repliesMap[cId] || []
+                                                                    const authorId = comment.author?.id || comment.author?._id
+
+                                                                    return (
+                                                                        <div key={cId} className="flex flex-col gap-1.5">
+                                                                            <div className="flex items-start gap-2">
+                                                                                <div
+                                                                                    onClick={() => authorId && authorId !== user.id && router.push(`/profile/${authorId}`)}
+                                                                                    className={`w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 ${authorId && authorId !== user.id ? 'cursor-pointer hover:bg-primary/20' : ''}`}>
+                                                                                    {comment.author?.name?.charAt(0) || 'S'}
+                                                                                </div>
+                                                                                <div className="flex-1 bg-gray-50 rounded-xl px-3 py-2">
+                                                                                    <p
+                                                                                        onClick={() => authorId && authorId !== user.id && router.push(`/profile/${authorId}`)}
+                                                                                        className={`text-xs font-semibold text-dark ${authorId && authorId !== user.id ? 'cursor-pointer hover:text-primary' : ''}`}>
+                                                                                        {comment.author?.name || 'Student'}
+                                                                                        {comment.author?.badge && comment.author.badge !== 'Beginner' && (
+                                                                                            <span className="text-[10px] text-primary font-medium ml-1">• {comment.author.badge}</span>
+                                                                                        )}
+                                                                                    </p>
+                                                                                    <p className="text-xs text-gray-600 mt-0.5">{comment.text}</p>
+                                                                                    <button
+                                                                                        onClick={() => setReplyToMap(prev => ({ ...prev, [post.id]: { commentId: cId, authorName: comment.author?.name || 'Scholar' } }))}
+                                                                                        className="text-[10px] font-semibold text-primary hover:underline mt-1 cursor-pointer inline-block"
+                                                                                    >
+                                                                                        Reply
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            {replies.length > 0 && (
+                                                                                <div className="ml-6 pl-2.5 border-l-2 border-primary/20 flex flex-col gap-1.5">
+                                                                                    {replies.map((reply) => {
+                                                                                        const replyAuthorId = reply.author?.id || reply.author?._id
+                                                                                        return (
+                                                                                            <div key={reply.id || reply._id} className="flex items-start gap-2">
+                                                                                                <div
+                                                                                                    onClick={() => replyAuthorId && replyAuthorId !== user.id && router.push(`/profile/${replyAuthorId}`)}
+                                                                                                    className={`w-6 h-6 bg-primary/15 rounded-md flex items-center justify-center text-primary text-[10px] font-bold flex-shrink-0 ${replyAuthorId && replyAuthorId !== user.id ? 'cursor-pointer hover:bg-primary/25' : ''}`}>
+                                                                                                    {reply.author?.name?.charAt(0) || 'S'}
+                                                                                                </div>
+                                                                                                <div className="flex-1 bg-gray-100/70 rounded-xl px-2.5 py-1.5">
+                                                                                                    <p className="text-[11px] font-semibold text-dark">{reply.author?.name || 'Scholar'}</p>
+                                                                                                    <p className="text-xs text-gray-600 mt-0.5">{reply.text}</p>
+                                                                                                    <button
+                                                                                                        onClick={() => setReplyToMap(prev => ({ ...prev, [post.id]: { commentId: cId, authorName: reply.author?.name || 'Scholar' } }))}
+                                                                                                        className="text-[10px] font-semibold text-primary hover:underline mt-0.5 cursor-pointer inline-block"
+                                                                                                    >
+                                                                                                        Reply
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        )
+                                                                                    })}
+                                                                                </div>
                                                                             )}
-                                                                        </p>
-                                                                        <p className="text-xs text-gray-600 mt-0.5">{comment.text}</p>
-                                                                    </div>
-                                                                </div>
-                                                            ))
+                                                                        </div>
+                                                                    )
+                                                                })
+                                                            })()
                                                         )}
                                                     </div>
+
+                                                    {replyToMap[post.id] && (
+                                                        <div className="flex items-center justify-between bg-primary/10 text-primary px-3 py-1 rounded-lg text-xs font-semibold mb-2">
+                                                            <span>Replying to <strong className="text-dark">@{replyToMap[post.id].authorName}</strong></span>
+                                                            <button onClick={() => setReplyToMap(prev => ({ ...prev, [post.id]: null }))} className="hover:opacity-80">✕</button>
+                                                        </div>
+                                                    )}
+
                                                     <div className="flex gap-2">
                                                         <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                                             {user.name?.charAt(0) || 'S'}
@@ -762,7 +827,7 @@ function Home() {
                                                         <div className="flex-1 flex gap-2">
                                                             <input
                                                                 type="text"
-                                                                placeholder="Write a comment..."
+                                                                placeholder={replyToMap[post.id] ? `Reply to ${replyToMap[post.id].authorName}...` : "Write a comment..."}
                                                                 value={commentText}
                                                                 onChange={e => setCommentText(e.target.value)}
                                                                 onKeyDown={e => e.key === 'Enter' && handleAddComment(post.id)}
