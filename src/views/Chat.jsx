@@ -197,7 +197,7 @@ function Chat() {
 
         setActiveChat(chatUser)
         setActiveChatDetails(null)
-        setFollowingChatUser(false)
+        setFollowingChatUser(Boolean(chatUser?.isFollowing))
         setShowSearch(false)
         setSearchQuery('')
         setSearchResults([])
@@ -570,9 +570,23 @@ function Chat() {
                                                         } ${msg.temp ? 'opacity-70' : ''}`}>
                                                         {msg.text}
                                                     </div>
-                                                    <p className="text-xs text-gray-400 mt-0.5 px-1">
+                                                    <p className="text-xs text-gray-400 mt-0.5 px-1 flex items-center">
                                                         {formatTime(msg.createdAt)}
-                                                        {isMe && !msg.temp && <span className="ml-1 text-primary"><FiCheck size={12} /></span>}
+                                                        {isMe && !msg.temp && (
+                                                            msg.read ? (
+                                                                <span className="inline-flex items-center text-emerald-500 font-bold ml-1" title="Read">
+                                                                    <FiCheck size={11} className="-mr-1.5" /><FiCheck size={11} />
+                                                                </span>
+                                                            ) : (activeChatDetails?.isOnline || activeChat?.isOnline) ? (
+                                                                <span className="inline-flex items-center text-gray-400 ml-1" title="Delivered (Online)">
+                                                                    <FiCheck size={11} className="-mr-1.5" /><FiCheck size={11} />
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center text-gray-400 ml-1" title="Sent (Offline)">
+                                                                    <FiCheck size={11} />
+                                                                </span>
+                                                            )
+                                                        )}
                                                     </p>
                                                 </div>
                                             </motion.div>
@@ -585,7 +599,7 @@ function Chat() {
                     </div>
 
                     {/* TikTok Style Message Request Banner */}
-                    {!followingChatUser && messages.length === 0 && (
+                    {!followingChatUser && activeChatDetails && messages.length === 0 && (
                         <div className="bg-slate-900 text-white border-t border-slate-800 px-4 py-3 shadow-lg">
                             <div className="max-w-2xl mx-auto flex items-start gap-3">
                                 <div className="w-9 h-9 bg-primary/20 text-primary rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5">
