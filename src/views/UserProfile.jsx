@@ -25,6 +25,21 @@ function getSchoolAbbr(school) {
     return school.split(' ').filter(w => w.length > 2).map(w => w[0].toUpperCase()).join('').slice(0, 6) || school.slice(0, 4).toUpperCase()
 }
 
+const getPresenceText = (lastActive, isOnline) => {
+    if (isOnline) return 'Active now'
+    if (!lastActive) return 'Active yesterday'
+    const diffMs = Date.now() - new Date(lastActive).getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    if (diffMins < 1) return 'Active now'
+    if (diffMins < 60) return `Active ${diffMins}m ago`
+    const diffHours = Math.floor(diffMins / 60)
+    if (diffHours < 24) return `Active ${diffHours}h ago`
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffDays <= 1) return 'Active yesterday'
+    if (diffDays < 7) return `Active ${diffDays}d ago`
+    return 'Active yesterday'
+}
+
 function UserProfile() {
     const params = useParams() || {}
     const userId = params.userId
@@ -282,8 +297,13 @@ function UserProfile() {
 
                     <div className="px-5 pb-5">
                         <div className="flex items-end justify-between -mt-8 mb-4">
-                            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg flex-shrink-0">
-                                {profileUser.name?.charAt(0)?.toUpperCase() || 'S'}
+                            <div className="relative">
+                                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg flex-shrink-0">
+                                    {profileUser.name?.charAt(0)?.toUpperCase() || 'S'}
+                                </div>
+                                {profileUser?.isOnline && (
+                                    <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+                                )}
                             </div>
 
                             {!isOwnProfile && (
@@ -328,7 +348,18 @@ function UserProfile() {
                             )}
                         </div>
 
-                        <h2 className="text-xl font-extrabold text-dark mb-0.5">{profileUser.name}</h2>
+                        <div className="flex items-center gap-2.5 mb-0.5 flex-wrap">
+                            <h2 className="text-xl font-extrabold text-dark">{profileUser.name}</h2>
+                            {profileUser?.isOnline ? (
+                                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Active now
+                                </span>
+                            ) : (
+                                <span className="text-xs text-gray-400 font-medium">
+                                    {getPresenceText(profileUser?.lastActive, false)}
+                                </span>
+                            )}
+                        </div>
                         <p className="text-xs font-semibold text-primary mb-1.5 flex items-center gap-1.5">
                             <span>@{profileUser.username || profileUser.name?.toLowerCase().replace(/\s+/g, '')}</span>
                             <span className="text-gray-300 font-normal">•</span>
