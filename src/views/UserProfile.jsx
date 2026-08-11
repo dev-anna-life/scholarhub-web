@@ -268,7 +268,7 @@ function UserProfile() {
     }
 
     return (
-        <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
+        <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8">
             <div className="max-w-3xl mx-auto px-4 py-6">
 
                 <button onClick={() => router.back()}

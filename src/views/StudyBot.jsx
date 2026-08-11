@@ -121,7 +121,7 @@ function StudyBot() {
     }
 
     return (
-        <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex flex-col">
+        <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8 flex flex-col">
 
             <div className="bg-dark px-4 py-4 flex items-center justify-between sticky top-12 md:top-0 z-30">
                 <div className="flex items-center gap-3">

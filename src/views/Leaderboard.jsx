@@ -98,7 +98,7 @@ function Leaderboard() {
     ]
 
     return (
-        <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
+        <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8">
 
             <div className="bg-dark px-4 py-8">
                 <div className="max-w-2xl mx-auto">

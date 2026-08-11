@@ -111,7 +111,7 @@ function Community() {
   const globalComs = myComs.filter(c => c.type === 'general')
 
   return (
-    <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0">
+    <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8">
       <div className="sticky top-0 z-40 bg-dark px-4 md:px-6 py-3 md:py-4">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-xl md:text-2xl font-extrabold text-white">Communities</h1>

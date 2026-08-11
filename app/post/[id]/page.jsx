@@ -76,7 +76,7 @@ export default function PostDetail() {
   const c = post
 
   return (
-    <div className="min-h-screen bg-light">
+    <div className="min-h-screen bg-light pb-24 md:pb-8">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-500 hover:text-primary transition mb-4">
           <FiArrowLeft size={18} /> Back

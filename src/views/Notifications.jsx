@@ -47,7 +47,7 @@ export default function NotificationsView() {
   }
 
   return (
-    <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-6 pb-20">
+    <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-6 pb-24 md:pb-8">
       <div className="max-w-2xl mx-auto px-4">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => router.back()} className="p-2 bg-white dark:bg-dark rounded-xl border border-gray-150 dark:border-slate-800 text-dark dark:text-white hover:opacity-80 transition">

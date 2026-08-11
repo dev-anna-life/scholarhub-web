@@ -197,7 +197,7 @@ function SchoolFeed() {
     }
 
     return (
-        <div className="min-h-screen bg-light md:pl-56 pt-14 md:pt-0">
+        <div className="min-h-screen bg-light md:pl-56 pt-14 md:pt-0 pb-24 md:pb-8">
             <div className="bg-gradient-to-r from-dark to-primary px-4 md:px-6 py-4 pb-6 md:py-8">
                 <div className="max-w-5xl mx-auto">
                     <button onClick={() => router.push('/community')}

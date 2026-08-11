@@ -521,7 +521,7 @@ function Chat() {
                         </div>
                     )}
 
-                    <div className="bg-white border-t border-gray-100 px-4 py-3">
+                    <div className="bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 px-4 py-3 mb-16 md:mb-0">
                         <div className="max-w-2xl mx-auto flex gap-2 items-end">
                             <textarea
                                 value={input}
