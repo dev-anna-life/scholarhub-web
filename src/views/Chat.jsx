@@ -72,7 +72,7 @@ function Chat() {
 
     const getPresenceText = (lastActive, isOnline) => {
         if (isOnline) return 'Active now'
-        if (!lastActive) return 'Offline'
+        if (!lastActive) return 'Active yesterday'
         const diffMs = Date.now() - new Date(lastActive).getTime()
         const diffMins = Math.floor(diffMs / 60000)
         if (diffMins < 1) return 'Active now'
@@ -80,9 +80,9 @@ function Chat() {
         const diffHours = Math.floor(diffMins / 60)
         if (diffHours < 24) return `Active ${diffHours}h ago`
         const diffDays = Math.floor(diffHours / 24)
-        if (diffDays === 1) return 'Active yesterday'
+        if (diffDays <= 1) return 'Active yesterday'
         if (diffDays < 7) return `Active ${diffDays}d ago`
-        return 'Offline'
+        return 'Active yesterday'
     }
 
     useEffect(() => {
