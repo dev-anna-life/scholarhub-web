@@ -269,14 +269,14 @@ function Settings() {
                     onClick={() => setActiveSection(section.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all mb-0.5 ${
                       activeSection === section.id
-                        ? `${section.bg} ${section.color} font-semibold`
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-dark'
+                        ? `${section.bg} ${section.color} font-semibold dark:bg-primary/20 dark:text-primary`
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-primary dark:hover:text-white'
                     }`}
                   >
                     <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                      activeSection === section.id ? section.bg : 'bg-gray-100'
+                      activeSection === section.id ? section.bg : 'bg-gray-100 dark:bg-white/10'
                     }`}>
-                      <section.icon size={15} className={activeSection === section.id ? section.color : 'text-gray-500'} />
+                      <section.icon size={15} className={activeSection === section.id ? section.color : 'text-gray-500 dark:text-gray-400'} />
                     </span>
                     {section.label}
                   </button>
