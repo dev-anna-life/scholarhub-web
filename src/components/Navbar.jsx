@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { MdLeaderboard } from "react-icons/md"
 import { HiUserGroup } from "react-icons/hi"
-import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiPlus, FiGlobe, FiLock, FiFileText, FiLogOut } from "react-icons/fi"
+import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiGlobe, FiLock, FiFileText, FiLogOut } from "react-icons/fi"
 import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
 import Image from "next/image"
@@ -15,12 +15,12 @@ const mainLinks = [
   { label: 'Home', icon: FiHome, path: '/feed' },
   { label: 'Community', icon: HiUserGroup, path: '/community' },
   { label: 'Leaderboard', icon: MdLeaderboard, path: '/leaderboard' },
-  { label: 'Chat', icon: FiMessageSquare, path: '/chat' },
+  { label: 'Chat', icon: FiMessageSquare, path: '/chat', hasRedBadge: true },
   { label: 'Profile', icon: FiUser, path: '/profile' },
 ]
 
 const moreLinks = [
-  { label: 'Notifications', icon: FiBell, path: '/notifications' },
+  { label: 'Notifications', icon: FiBell, path: '/notifications', hasRedBadge: true },
   { label: 'Find People', icon: FiSearch, path: '/search' },
   { label: 'Coin Shop', icon: BsShop, path: '/shop' },
   { label: 'Settings', icon: FiSettings, path: '/settings' },
@@ -73,29 +73,28 @@ function Navbar() {
       } catch (_) {}
     }
     fetchNotifs()
-    const interval = setInterval(fetchNotifs, 5000)
+    const interval = setInterval(fetchNotifs, 15000)
     return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
-    const handler = (e) => {
+    const handleClickOutside = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
         setShowNotifDropdown(false)
       }
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const handleNotifClick = async (notif) => {
+    try {
+      await markNotificationsRead([notif._id])
+      setNotifications(prev => prev.map(n => n._id === notif._id ? { ...n, read: true } : n))
+      setUnreadCount(prev => Math.max(0, prev - 1))
+    } catch (_) {}
     setShowNotifDropdown(false)
-    if (!notif.read) {
-      try {
-        await markNotificationsRead()
-        setUnreadCount(0)
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-      } catch (_) {}
-    }
+
     const from = notif.fromUser || notif.sender
     const fromId = from?.id || from?._id
     const postId = notif.post?.id || notif.post?._id || notif.postId
@@ -130,42 +129,54 @@ function Navbar() {
 
   return (
     <>
+      {/* Desktop Sidebar — Clean Theme Adaptive (Matching Images 2 & 3) */}
       <motion.div
         initial={{ x: -80, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="hidden md:flex flex-col fixed left-0 top-0 h-full w-56 bg-dark text-white px-4 py-8 z-50"
+        className="hidden md:flex flex-col fixed left-0 top-0 h-full w-56 bg-white dark:bg-[#121212] text-dark dark:text-white border-r border-gray-100 dark:border-white/10 px-4 py-8 z-50 shadow-xs"
       >
-        <div className="flex items-center gap-2 mb-10 px-2">
+        {/* Brand Logo */}
+        <div className="flex items-center gap-2 mb-8 px-2">
           <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={32} height={32} className="rounded-full" />
-          <h1 className="text-2xl font-extrabold">
-            Scholar<span className="text-accent">Hub</span>
+          <h1 className="text-2xl font-extrabold text-dark dark:text-white">
+            Scholar<span className="text-primary">Hub</span>
           </h1>
         </div>
+
         {user && (
           <>
-            <Link href="/shop" className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 mb-2 mx-2 text-sm text-white hover:bg-white/20 transition">
-              <BsCoin size={16} className="text-yellow-400" />
+            {/* Shop & Coin button */}
+            <Link href="/shop" className="flex items-center gap-2 bg-gray-100 dark:bg-white/10 rounded-xl px-3 py-2 mb-2 mx-1 text-sm text-dark dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition font-semibold">
+              <BsCoin size={16} className="text-amber-500" />
               <span className="font-bold">{user.coins ?? 0}</span>
-              <span className="text-gray-400 ml-auto text-xs">Shop</span>
+              <span className="text-gray-400 dark:text-gray-400 ml-auto text-xs font-normal">Shop</span>
             </Link>
-            <div ref={notifRef} className="relative mx-2 mb-4">
+
+            {/* Notifications Dropdown trigger — RED BADGE FOR UNREAD */}
+            <div ref={notifRef} className="relative mx-1 mb-4">
               <button onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-                className="flex items-center gap-2 w-full bg-white/5 rounded-lg px-3 py-2 text-sm text-white hover:bg-white/15 transition">
-                <FiBell size={16} />
+                className="flex items-center gap-2.5 w-full bg-gray-100 dark:bg-white/10 rounded-xl px-3 py-2 text-sm text-dark dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 transition font-semibold">
+                <FiBell size={16} className="text-gray-600 dark:text-gray-300" />
                 <span>Notifications</span>
                 {unreadCount > 0 && (
-                  <span className="ml-auto bg-accent text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center justify-center animate-pulse">
                     {unreadCount}
                   </span>
                 )}
               </button>
+
               <AnimatePresence>
                 {showNotifDropdown && (
                   <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                    className="absolute left-0 top-full mt-2 w-72 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden">
-                    <div className="px-4 py-3 border-b border-gray-50">
-                      <p className="font-bold text-dark text-sm">Notifications</p>
+                    className="absolute left-0 top-full mt-2 w-72 bg-white dark:bg-[#1e1e22] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
+                      <p className="font-bold text-dark dark:text-white text-sm">Notifications</p>
+                      {unreadCount > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {unreadCount} new
+                        </span>
+                      )}
                     </div>
                     <div className="max-h-80 overflow-y-auto">
                       {notifications.length === 0 ? (
@@ -175,32 +186,21 @@ function Navbar() {
                           const from = notif.fromUser || notif.sender
                           return (
                             <div key={notif._id || i} onClick={() => handleNotifClick(notif)}
-                              className={`px-4 py-3 border-b border-gray-50 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition ${!notif.read ? 'bg-primary/5' : ''}`}>
+                              className={`px-4 py-3 border-b border-gray-50 dark:border-white/5 flex items-start gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5 transition ${!notif.read ? 'bg-red-500/5 dark:bg-red-500/10' : ''}`}>
                               <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                                 {from?.name?.charAt(0) || 'S'}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs text-dark">
+                                <p className="text-xs text-dark dark:text-white">
                                   <span className="font-semibold hover:text-primary cursor-pointer">{from?.name?.split(' ')[0] || 'Someone'}</span>
                                   {notif.type === 'follow' ? ' started following you' : notif.type === 'message' ? ' sent you a message' : notif.type === 'like' ? ' liked your post' : notif.type === 'gift' ? ' sent you a gift' : ' commented on your post'}
                                 </p>
                                 <p className="text-xs text-gray-400 truncate mt-0.5">{notif.type === 'message' || notif.type === 'gift' ? notif.text : notif.post?.title}</p>
-                                <p className="text-xs text-gray-300 mt-0.5">
+                                <p className="text-[10px] text-gray-400 mt-0.5">
                                   {new Date(notif.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
                                 </p>
-                                {notif.type === 'follow' && (from?.id || from?._id) && (() => {
-                                  const fromId = from?.id || from?._id
-                                  const isFollowing = Boolean(from?.isFollowing || notif.isFollowing || followedNotifs.has(fromId))
-                                  if (isFollowing) return null
-                                  return (
-                                    <button onClick={(e) => handleFollowBack(e, fromId)}
-                                      className="mt-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-primary text-white hover:opacity-90 transition">
-                                      Follow Back
-                                    </button>
-                                  )
-                                })()}
                               </div>
-                              {!notif.read && <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1" />}
+                              {!notif.read && <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-1" />}
                             </div>
                           )
                         })
@@ -212,23 +212,30 @@ function Navbar() {
             </div>
           </>
         )}
+
+        {/* Navigation Items (Clean X / Facebook style as in Images 2 & 3) */}
         <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-6 scrollbar-thin mt-2">
           <div>
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">Main</p>
+            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">Main</p>
             <nav className="flex flex-col gap-1">
-              {mainLinks.map(({ label, icon: Icon, path }) => {
+              {mainLinks.map(({ label, icon: Icon, path, hasRedBadge }) => {
                 const active = pathname === path
                 return (
                   <Link
                     key={label}
                     href={path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
-                      ? 'bg-primary text-white font-bold'
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${active
+                      ? 'bg-primary/10 text-primary font-extrabold dark:bg-white/10 dark:text-white'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-dark dark:hover:text-white'
                     }`}
                   >
-                    <Icon size={18} />
-                    {label}
+                    <Icon size={19} className={active ? 'text-primary dark:text-white' : ''} />
+                    <span>{label}</span>
+                    {hasRedBadge && label === 'Chat' && unreadCount > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 )
               })}
@@ -236,30 +243,35 @@ function Navbar() {
           </div>
 
           <div>
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">More</p>
+            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">More</p>
             <nav className="flex flex-col gap-1">
-              {moreLinks.map(({ label, icon: Icon, path }) => {
+              {moreLinks.map(({ label, icon: Icon, path, hasRedBadge }) => {
                 const active = pathname === path
                 return (
                   <Link
                     key={label}
                     href={path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
-                      ? 'bg-primary text-white font-bold'
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${active
+                      ? 'bg-primary/10 text-primary font-extrabold dark:bg-white/10 dark:text-white'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-dark dark:hover:text-white'
                     }`}
                   >
-                    <Icon size={18} />
-                    {label}
+                    <Icon size={19} className={active ? 'text-primary dark:text-white' : ''} />
+                    <span>{label}</span>
+                    {hasRedBadge && unreadCount > 0 && (
+                      <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 )
               })}
-              <div className="border-t border-white/10 mt-2 pt-2">
+              <div className="border-t border-gray-100 dark:border-white/10 mt-2 pt-2">
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-all duration-200 text-left w-full"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-500/10 transition-all duration-200 text-left w-full cursor-pointer"
                 >
-                  <FiLogOut size={18} />
+                  <FiLogOut size={19} />
                   Logout
                 </button>
               </div>
@@ -268,36 +280,39 @@ function Navbar() {
         </div>
       </motion.div>
 
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-dark text-white px-4 py-3 flex items-center justify-between z-50 h-12">
+      {/* Mobile Header Bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-[#121212] text-dark dark:text-white px-4 py-3 flex items-center justify-between z-50 h-14 border-b border-gray-100 dark:border-white/10">
         <Link href="/feed" className="flex items-center gap-2 active:opacity-80">
-          <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={24} height={24} className="rounded-full" />
-          <h1 className="text-lg font-extrabold">
-            Scholar<span className="text-accent">Hub</span>
+          <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={26} height={26} className="rounded-full" />
+          <h1 className="text-lg font-extrabold text-dark dark:text-white">
+            Scholar<span className="text-primary">Hub</span>
           </h1>
         </Link>
         <div className="flex items-center gap-3">
           {user && (
             <>
-              <button onClick={() => setShowNotifDropdown(!showNotifDropdown)} className="relative p-1">
-                <FiBell size={18} />
+              {/* Notification icon button with RED BADGE */}
+              <button onClick={() => setShowNotifDropdown(!showNotifDropdown)} className="relative p-1.5 text-dark dark:text-white">
+                <FiBell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full text-white text-xs flex items-center justify-center font-bold">
+                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
               </button>
-              <Link href="/shop" className="flex items-center gap-1 text-sm">
-                <BsCoin size={14} className="text-yellow-400" />
-                <span className="font-bold">{user.coins ?? 0}</span>
+              <Link href="/shop" className="flex items-center gap-1 text-sm font-bold text-dark dark:text-white">
+                <BsCoin size={15} className="text-amber-500" />
+                <span>{user.coins ?? 0}</span>
               </Link>
             </>
           )}
-          <button onClick={() => setOpen(true)} className="p-1">
-            <FiMenu size={20} />
+          <button onClick={() => setOpen(true)} className="p-1.5 text-dark dark:text-white">
+            <FiMenu size={22} />
           </button>
         </div>
       </div>
 
+      {/* Mobile Drawer Menu */}
       <AnimatePresence>
         {open && (
           <>
@@ -315,41 +330,46 @@ function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="md:hidden fixed top-0 left-0 bottom-0 w-72 bg-dark text-white px-5 py-8 z-[1000] flex flex-col shadow-2xl"
+              className="md:hidden fixed top-0 left-0 bottom-0 w-72 bg-white dark:bg-[#121212] text-dark dark:text-white px-5 py-8 z-[1000] flex flex-col shadow-2xl border-r border-gray-100 dark:border-white/10"
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                   <Image src="/scholarhub-logo.svg" alt="ScholarHub" width={28} height={28} className="rounded-full" />
-                  <h1 className="text-xl font-extrabold text-white">
-                    Scholar<span className="text-accent">Hub</span>
+                  <h1 className="text-xl font-extrabold text-dark dark:text-white">
+                    Scholar<span className="text-primary">Hub</span>
                   </h1>
                 </div>
                 <button
                   onClick={() => setOpen(false)}
-                  className="p-2 rounded-xl hover:bg-white/10 transition"
+                  className="p-2 rounded-xl text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition"
                 >
                   <FiX size={20} />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-6 mt-4 scrollbar-thin">
+              <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-6 mt-2 scrollbar-thin">
                 <div>
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">Main</p>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">Main</p>
                   <nav className="flex flex-col gap-1">
-                    {mainLinks.map(({ label, icon: Icon, path }) => {
+                    {mainLinks.map(({ label, icon: Icon, path, hasRedBadge }) => {
                       const active = pathname === path
                       return (
                         <Link
                           key={label}
                           href={path}
                           onClick={() => setOpen(false)}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
-                            ? 'bg-primary text-white font-bold'
-                            : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${active
+                            ? 'bg-primary/10 text-primary font-bold dark:bg-white/10 dark:text-white'
+                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-dark dark:hover:text-white'
                           }`}
                         >
-                          <Icon size={18} />
-                          {label}
+                          <Icon size={19} className={active ? 'text-primary dark:text-white' : ''} />
+                          <span>{label}</span>
+                          {hasRedBadge && label === 'Chat' && unreadCount > 0 && (
+                            <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                              {unreadCount}
+                            </span>
+                          )}
                         </Link>
                       )
                     })}
@@ -357,73 +377,46 @@ function Navbar() {
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 mb-2">More</p>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">More</p>
                   <nav className="flex flex-col gap-1">
-                    {moreLinks.map(({ label, icon: Icon, path }) => {
+                    {moreLinks.map(({ label, icon: Icon, path, hasRedBadge }) => {
                       const active = pathname === path
                       return (
                         <Link
                           key={label}
                           href={path}
                           onClick={() => setOpen(false)}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${active
-                            ? 'bg-primary text-white font-bold'
-                            : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200 ${active
+                            ? 'bg-primary/10 text-primary font-bold dark:bg-white/10 dark:text-white'
+                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-dark dark:hover:text-white'
                           }`}
                         >
-                          <Icon size={18} />
-                          {label}
+                          <Icon size={19} className={active ? 'text-primary dark:text-white' : ''} />
+                          <span>{label}</span>
+                          {hasRedBadge && unreadCount > 0 && (
+                            <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                              {unreadCount}
+                            </span>
+                          )}
                         </Link>
                       )
                     })}
-                    <div className="border-t border-white/10 mt-2 pt-2">
+                    <div className="border-t border-gray-100 dark:border-white/10 mt-2 pt-2">
                       <button
-                        onClick={() => { setOpen(false); handleLogout(); }}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-all duration-200 text-left w-full"
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-500/10 transition-all duration-200 text-left w-full"
                       >
-                        <FiLogOut size={18} />
+                        <FiLogOut size={19} />
                         Logout
                       </button>
                     </div>
                   </nav>
                 </div>
               </div>
-
-              <div className="mt-auto pt-6 border-t border-white/10">
-                <p className="text-xs text-gray-500 text-center">
-                  ScholarHub © 2026
-                </p>
-                <p className="text-xs text-gray-600 text-center mt-1">
-                  Built for African students <FiGlobe size={10} className="inline" />
-                </p>
-              </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-      {(pathname === '/feed' || pathname === '/') && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark/95 backdrop-blur-md border-t border-white/10 z-50 flex items-center justify-around px-1 py-1.5" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 4px), 6px)' }}>
-          <Link href="/feed" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/feed' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-            <FiHome size={20} />
-            <span className="text-xs font-semibold">Home</span>
-          </Link>
-          <Link href="/community" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname.startsWith('/community') ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-            <HiUserGroup size={20} />
-            <span className="text-xs font-semibold">Community</span>
-          </Link>
-          <Link href="/feed?create=true" className="flex flex-col items-center justify-center w-10 h-10 bg-primary text-white rounded-2xl shadow-lg shadow-primary/30 -mt-3 border-2 border-dark">
-            <FiPlus size={22} />
-          </Link>
-          <Link href="/chat" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/chat' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-            <FiMessageSquare size={20} />
-            <span className="text-xs font-semibold">Messages</span>
-          </Link>
-          <Link href="/profile" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/profile' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-            <FiUser size={20} />
-            <span className="text-xs font-semibold">Profile</span>
-          </Link>
-        </nav>
-      )}
     </>
   )
 }
