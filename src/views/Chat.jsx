@@ -540,7 +540,11 @@ function Chat() {
 
                             {messages.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <p className="text-xs text-gray-400">No messages yet. Send a message request below!</p>
+                                    <p className="text-xs text-gray-400">
+                                        {followingChatUser
+                                            ? "No messages yet. Say hello to start the conversation!"
+                                            : "No messages yet. Send a message request below!"}
+                                    </p>
                                 </div>
                             ) : (
                                 messages.map((msg, i) => {
