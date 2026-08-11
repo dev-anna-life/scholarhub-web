@@ -388,27 +388,29 @@ function Navbar() {
           </>
         )}
       </AnimatePresence>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark/95 backdrop-blur-md border-t border-white/10 z-50 flex items-center justify-around px-1 py-1.5" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 4px), 6px)' }}>
-        <Link href="/feed" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/feed' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiHome size={20} />
-          <span className="text-xs font-semibold">Home</span>
-        </Link>
-        <Link href="/community" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname.startsWith('/community') ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-          <HiUserGroup size={20} />
-          <span className="text-xs font-semibold">Community</span>
-        </Link>
-        <Link href="/feed?create=true" className="flex flex-col items-center justify-center w-10 h-10 bg-primary text-white rounded-2xl shadow-lg shadow-primary/30 -mt-3 border-2 border-dark">
-          <FiPlus size={22} />
-        </Link>
-        <Link href="/chat" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/chat' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiMessageSquare size={20} />
-          <span className="text-xs font-semibold">Messages</span>
-        </Link>
-        <Link href="/profile" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/profile' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
-          <FiUser size={20} />
-          <span className="text-xs font-semibold">Profile</span>
-        </Link>
-      </nav>
+      {(pathname === '/feed' || pathname === '/') && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-dark/95 backdrop-blur-md border-t border-white/10 z-50 flex items-center justify-around px-1 py-1.5" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 4px), 6px)' }}>
+          <Link href="/feed" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/feed' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
+            <FiHome size={20} />
+            <span className="text-xs font-semibold">Home</span>
+          </Link>
+          <Link href="/community" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname.startsWith('/community') ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
+            <HiUserGroup size={20} />
+            <span className="text-xs font-semibold">Community</span>
+          </Link>
+          <Link href="/feed?create=true" className="flex flex-col items-center justify-center w-10 h-10 bg-primary text-white rounded-2xl shadow-lg shadow-primary/30 -mt-3 border-2 border-dark">
+            <FiPlus size={22} />
+          </Link>
+          <Link href="/chat" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/chat' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
+            <FiMessageSquare size={20} />
+            <span className="text-xs font-semibold">Messages</span>
+          </Link>
+          <Link href="/profile" className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition ${pathname === '/profile' ? 'text-primary font-bold' : 'text-gray-400 hover:text-gray-200'}`}>
+            <FiUser size={20} />
+            <span className="text-xs font-semibold">Profile</span>
+          </Link>
+        </nav>
+      )}
     </>
   )
 }

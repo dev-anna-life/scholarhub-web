@@ -331,12 +331,12 @@ function Settings() {
                             value={showEmailForm ? newEmail : user.email || ''}
                             disabled={!showEmailForm}
                             onChange={(e) => setNewEmail(e.target.value)}
-                            className={`flex-1 px-3 py-2.5 rounded-xl border text-sm ${showEmailForm ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50'} text-dark`}
+                            className={`flex-1 min-w-0 px-3 py-2.5 rounded-xl border text-sm ${showEmailForm ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50'} text-dark truncate`}
                           />
                           {!showEmailForm ? (
-                            <button onClick={() => setShowEmailForm(true)} className="text-primary text-sm font-medium">Change</button>
+                            <button onClick={() => setShowEmailForm(true)} className="text-primary text-sm font-medium flex-shrink-0 px-1">Change</button>
                           ) : (
-                            <div className="flex gap-1">
+                            <div className="flex gap-1 flex-shrink-0">
                               <button onClick={handleChangeEmail} disabled={loading} className="bg-primary text-white px-3 py-2 rounded-lg text-sm font-medium disabled:opacity-50">Save</button>
                               <button onClick={() => { setShowEmailForm(false); setNewEmail('') }} className="bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-sm font-medium">Cancel</button>
                             </div>
