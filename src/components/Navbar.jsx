@@ -92,12 +92,11 @@ function Navbar() {
       if (fromId) router.push(`/profile/${fromId}`)
     } else if (notif.type === 'like' || notif.type === 'comment') {
       if (postId) router.push(`/post/${postId}`)
-      else if (fromId) router.push(`/profile/${fromId}`)
       else router.push('/feed')
     } else if (notif.type === 'gift') {
       router.push('/profile')
     } else {
-      if (fromId) router.push(`/profile/${fromId}`)
+      if (postId) router.push(`/post/${postId}`)
       else router.push('/feed')
     }
   }
@@ -178,10 +177,12 @@ function Navbar() {
                                 </p>
                                 {notif.type === 'follow' && (from?.id || from?._id) && (() => {
                                   const fromId = from?.id || from?._id
+                                  const isFollowing = Boolean(from?.isFollowing || notif.isFollowing || followedNotifs.has(fromId))
+                                  if (isFollowing) return null
                                   return (
                                     <button onClick={(e) => handleFollowBack(e, fromId)}
-                                      className={`mt-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${followedNotifs.has(fromId) ? 'bg-gray-100 text-gray-500' : 'bg-primary text-white hover:opacity-90'}`}>
-                                      {followedNotifs.has(fromId) ? 'Following' : 'Follow Back'}
+                                      className="mt-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-primary text-white hover:opacity-90 transition">
+                                      Follow Back
                                     </button>
                                   )
                                 })()}

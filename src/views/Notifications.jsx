@@ -47,13 +47,11 @@ export default function NotificationsView() {
       if (fromId) router.push(`/profile/${fromId}`)
     } else if (notif.type === 'like' || notif.type === 'comment') {
       if (postId) router.push(`/post/${postId}`)
-      else if (fromId) router.push(`/profile/${fromId}`)
       else router.push('/feed')
     } else if (notif.type === 'gift') {
       router.push('/profile')
     } else {
       if (postId) router.push(`/post/${postId}`)
-      else if (fromId) router.push(`/profile/${fromId}`)
       else router.push('/feed')
     }
   }
@@ -86,6 +84,8 @@ export default function NotificationsView() {
           <div className="bg-white dark:bg-dark border border-gray-100 dark:border-slate-850 rounded-2xl divide-y divide-gray-50 dark:divide-slate-800 shadow-sm overflow-hidden">
             {notifications.map((notif, i) => {
               const from = notif.fromUser || notif.sender
+              const fromId = from?.id || from?._id
+              const isFollowing = Boolean(from?.isFollowing || notif.isFollowing || (fromId && followedUsers.has(fromId)))
               return (
                 <div key={notif._id || i} onClick={() => handleNotifClick(notif)}
                   className="p-4 flex items-start gap-4 cursor-pointer hover:bg-gray-50/50 dark:hover:bg-slate-900/10 transition">
@@ -103,10 +103,10 @@ export default function NotificationsView() {
                     <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-1">
                       {new Date(notif.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    {notif.type === 'follow' && from?._id && (
-                      <button onClick={(e) => { e.stopPropagation(); handleFollowBack(from._id) }}
-                        className={`mt-2 px-3 py-1 rounded-lg text-xs font-semibold transition ${followedUsers.has(from._id) ? 'bg-gray-150 text-gray-500' : 'bg-primary text-white hover:opacity-90'}`}>
-                        {followedUsers.has(from._id) ? 'Following' : 'Follow Back'}
+                    {notif.type === 'follow' && fromId && !isFollowing && (
+                      <button onClick={(e) => { e.stopPropagation(); handleFollowBack(fromId) }}
+                        className="mt-2 px-3 py-1 rounded-lg text-xs font-semibold bg-primary text-white hover:opacity-90 transition">
+                        Follow Back
                       </button>
                     )}
                   </div>
