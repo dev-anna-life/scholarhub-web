@@ -75,6 +75,7 @@ function UserProfile() {
     const [sendAmount, setSendAmount] = useState('')
     const [sendingCoins, setSendingCoins] = useState(false)
     const [sendMsg, setSendMsg] = useState(null)
+    const [showImageModal, setShowImageModal] = useState(null)
 
     const fetchMyFollowing = async () => {
         try {
@@ -298,8 +299,16 @@ function UserProfile() {
                     <div className="px-5 pb-5">
                         <div className="flex items-end justify-between -mt-8 mb-4">
                             <div className="relative">
-                                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg flex-shrink-0">
-                                    {profileUser.name?.charAt(0)?.toUpperCase() || 'S'}
+                                <div
+                                    onClick={() => (profileUser?.avatar ? setShowImageModal(profileUser.avatar) : null)}
+                                    className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg flex-shrink-0 overflow-hidden cursor-pointer relative group"
+                                    title="Click to view profile picture"
+                                >
+                                    {profileUser?.avatar ? (
+                                        <img src={profileUser.avatar} alt={profileUser.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        profileUser.name?.charAt(0)?.toUpperCase() || 'S'
+                                    )}
                                 </div>
                                 {profileUser?.isOnline && (
                                     <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
@@ -684,6 +693,23 @@ function UserProfile() {
                                 </div>
                             </div>
                         </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {showImageModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowImageModal(null)}
+                        className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4 cursor-pointer"
+                    >
+                        <button onClick={() => setShowImageModal(null)} className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full transition">
+                            <FiX size={24} />
+                        </button>
+                        <img src={showImageModal} alt="Profile Picture" className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl" />
                     </motion.div>
                 )}
             </AnimatePresence>

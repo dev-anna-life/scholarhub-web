@@ -150,6 +150,8 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
     }
   }
 
+  const [showImageModal, setShowImageModal] = useState(null)
+
   return (
     <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8">
       <div className="max-w-3xl mx-auto px-4 py-8">
@@ -158,21 +160,26 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-6">
           <div className="h-24 bg-gradient-to-r from-dark to-primary relative">
-            <div className="absolute -bottom-8 left-6">
+            <div className="absolute -bottom-8 left-6 flex items-center gap-2">
               <div
-                onClick={() => avatarInputRef.current?.click()}
+                onClick={() => (user.avatar ? setShowImageModal(user.avatar) : avatarInputRef.current?.click())}
                 className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg overflow-hidden relative cursor-pointer group"
-                title="Click to update photo"
+                title="Click to view photo"
               >
                 {user.avatar ? (
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
                   user.name?.charAt(0)?.toUpperCase() || 'S'
                 )}
-                <div className="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <FiCamera size={18} />
-                </div>
               </div>
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                className="mt-6 p-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-xs font-semibold flex items-center gap-1 transition"
+                title="Change photo"
+              >
+                <FiCamera size={14} />
+              </button>
             </div>
           </div>
           <div className="pt-10 px-6 pb-6">
@@ -463,6 +470,23 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                 </button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showImageModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowImageModal(null)}
+            className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4 cursor-pointer"
+          >
+            <button onClick={() => setShowImageModal(null)} className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full transition">
+              <FiX size={24} />
+            </button>
+            <img src={showImageModal} alt="Profile Picture" className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl" />
           </motion.div>
         )}
       </AnimatePresence>
