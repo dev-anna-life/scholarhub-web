@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiX, FiSend, FiGift, FiThumbsUp, FiCompass,
@@ -30,24 +30,16 @@ export default function CommentDrawer({
   const [commentText, setCommentText] = useState('')
   const [replyTo, setReplyTo] = useState(null)
   const [commenting, setCommenting] = useState(false)
-  const [activeGiftCommentId, setActiveGiftCommentId] = useState(null)
-  const [showGiftPanel, setShowGiftPanel] = useState(false)
   const [giftTargetComment, setGiftTargetComment] = useState(null)
   const [gifting, setGifting] = useState(false)
   const [giftMsg, setGiftMsg] = useState('')
   const [showRepliesMap, setShowRepliesMap] = useState({})
   const listRef = useRef(null)
 
-  useEffect(() => {
-    if (!isOpen) {
-      setCommentText('')
-      setReplyTo(null)
-      setActiveGiftCommentId(null)
-      setShowGiftPanel(false)
-      setGiftTargetComment(null)
-      setGiftMsg('')
-    }
-  }, [isOpen])
+  const resetGift = () => {
+    setGiftTargetComment(null)
+    setGiftMsg('')
+  }
 
   const toggleShowReplies = (cId) => {
     setShowRepliesMap(prev => ({ ...prev, [cId]: !prev[cId] }))
@@ -61,7 +53,6 @@ export default function CommentDrawer({
       setCommentText('')
       setReplyTo(null)
       if (onRefreshComments) onRefreshComments(post.id || post._id)
-      // Scroll to bottom of comments
       setTimeout(() => { if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight }, 100)
     } catch (err) {
       console.error('Failed to add comment', err)
@@ -70,8 +61,9 @@ export default function CommentDrawer({
     }
   }
 
-  const handleSendGift = async (rgItem, comment) => {
-    const recipientId = comment.author?.id || comment.author?._id || comment.authorId
+  const handleSendGift = async (rgItem) => {
+    const comment = giftTargetComment
+    const recipientId = comment?.author?.id || comment?.author?._id || comment?.authorId
     if (!recipientId) return
     const currentUserId = user?.id || user?._id
     if (recipientId === currentUserId) {
@@ -91,22 +83,12 @@ export default function CommentDrawer({
       if (res.data?.coins !== undefined && setUser) {
         setUser(u => ({ ...u, coins: res.data.coins }))
       }
-      setTimeout(() => {
-        setShowGiftPanel(false)
-        setGiftTargetComment(null)
-        setGiftMsg('')
-      }, 1800)
+      setTimeout(() => { resetGift() }, 1800)
     } catch (err) {
       setGiftMsg(err.response?.data?.message || 'Failed to send gift')
     } finally {
       setGifting(false)
     }
-  }
-
-  const openGiftPanel = (comment) => {
-    setGiftTargetComment(comment)
-    setShowGiftPanel(true)
-    setGiftMsg('')
   }
 
   if (!isOpen || !post) return null
@@ -122,9 +104,8 @@ export default function CommentDrawer({
 
   return (
     <AnimatePresence>
-      {/* Full-screen overlay - clicking backdrop closes drawer */}
       <div className="fixed inset-0 z-[999] flex flex-col justify-end">
-        {/* Dark backdrop */}
+        {/* Backdrop — click to close */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -133,23 +114,23 @@ export default function CommentDrawer({
           className="absolute inset-0 bg-black/50"
         />
 
-        {/* Bottom Sheet — Full width, TikTok / X style */}
+        {/* Bottom Sheet — full-width, TikTok/X style, RELATIVE so gift panel stays inside */}
         <motion.div
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           onClick={e => e.stopPropagation()}
-          className="relative z-10 w-full bg-[#1c1c1e] rounded-t-3xl flex flex-col"
+          className="relative z-10 w-full bg-[#1c1c1e] rounded-t-3xl flex flex-col overflow-hidden"
           style={{ maxHeight: '82vh' }}
         >
           {/* Drag handle */}
-          <div className="flex justify-center pt-2.5 pb-1">
+          <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0">
             <div className="w-9 h-1 rounded-full bg-white/20" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-2 border-b border-white/8">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.08] flex-shrink-0">
             <div className="flex items-center gap-2">
               <FiMessageCircle className="text-white/60" size={16} />
               <h3 className="text-sm font-bold text-white">
@@ -165,7 +146,7 @@ export default function CommentDrawer({
           </div>
 
           {/* Comment List */}
-          <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-4" style={{ minHeight: 160 }}>
+          <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
             {loading ? (
               <div className="flex items-center justify-center py-10 text-white/40 text-xs">
                 Loading comments...
@@ -181,7 +162,6 @@ export default function CommentDrawer({
                 const replies = repliesMap[cId] || []
                 return (
                   <div key={cId} className="flex flex-col gap-1">
-                    {/* Comment row */}
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                         {comment.author?.name?.charAt(0)?.toUpperCase() || 'S'}
@@ -194,7 +174,6 @@ export default function CommentDrawer({
                           </span>
                         </div>
                         <p className="text-sm text-white/80 leading-snug">{comment.text}</p>
-                        {/* Actions */}
                         <div className="flex items-center gap-4 mt-1.5">
                           <button
                             onClick={() => setReplyTo({ commentId: cId, authorName: comment.author?.name || 'Scholar' })}
@@ -203,7 +182,7 @@ export default function CommentDrawer({
                             Reply
                           </button>
                           <button
-                            onClick={() => openGiftPanel(comment)}
+                            onClick={() => { setGiftTargetComment(comment); setGiftMsg('') }}
                             className="text-[11px] font-semibold text-amber-400/80 hover:text-amber-400 flex items-center gap-1 transition"
                           >
                             <FiGift size={11} /> Gift
@@ -241,7 +220,7 @@ export default function CommentDrawer({
                                     Reply
                                   </button>
                                   <button
-                                    onClick={() => openGiftPanel(reply)}
+                                    onClick={() => { setGiftTargetComment(reply); setGiftMsg('') }}
                                     className="text-[10px] font-semibold text-amber-400/70 hover:text-amber-400 flex items-center gap-1 transition"
                                   >
                                     <FiGift size={10} /> Gift
@@ -260,7 +239,7 @@ export default function CommentDrawer({
           </div>
 
           {/* Comment Input Footer */}
-          <div className="px-3 pb-5 pt-2 border-t border-white/8 bg-[#1c1c1e]">
+          <div className="px-3 pb-5 pt-2 border-t border-white/[0.08] bg-[#1c1c1e] flex-shrink-0">
             {replyTo && (
               <div className="flex items-center justify-between bg-primary/15 px-3 py-1.5 rounded-xl text-xs text-primary font-semibold mb-2">
                 <span>Replying to <strong>@{replyTo.authorName}</strong></span>
@@ -271,7 +250,7 @@ export default function CommentDrawer({
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                 {user?.name?.charAt(0)?.toUpperCase() || 'S'}
               </div>
-              <div className="flex-1 flex items-center gap-2 bg-white/8 rounded-full px-4 py-2.5 border border-white/10">
+              <div className="flex-1 flex items-center gap-2 bg-white/[0.08] rounded-full px-4 py-2.5 border border-white/10">
                 <input
                   type="text"
                   placeholder={replyTo ? `Reply to ${replyTo.authorName}...` : 'Add comment...'}
@@ -280,9 +259,9 @@ export default function CommentDrawer({
                   onKeyDown={e => e.key === 'Enter' && handleSendComment()}
                   className="flex-1 bg-transparent text-sm text-white placeholder-white/30 focus:outline-none"
                 />
-                {/* Gift icon in input bar */}
+                {/* Gift icon inside input — opens gift panel WITHIN the drawer */}
                 <button
-                  onClick={() => setShowGiftPanel(true)}
+                  onClick={() => { setGiftTargetComment(null); setGiftMsg('') }}
                   className="text-amber-400/60 hover:text-amber-400 transition flex-shrink-0"
                   title="Send a gift reaction"
                 >
@@ -298,74 +277,55 @@ export default function CommentDrawer({
               </button>
             </div>
           </div>
-        </motion.div>
 
-        {/* Gift Panel — slides up over the drawer */}
-        <AnimatePresence>
-          {showGiftPanel && (
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="absolute bottom-0 left-0 right-0 z-20 bg-[#242428] rounded-t-3xl px-4 pt-4 pb-8 border-t border-white/10"
-            >
-              <div className="flex justify-center mb-3">
-                <div className="w-9 h-1 rounded-full bg-white/20" />
-              </div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <FiGift className="text-amber-400" size={18} />
-                  <h4 className="text-sm font-bold text-white">
-                    {giftTargetComment ? `Gift @${giftTargetComment.author?.name || 'Scholar'}` : 'Send a Reaction Gift'}
-                  </h4>
+          {/* ─── Gift Panel — INSIDE the drawer (absolute over the drawer only) ─── */}
+          <AnimatePresence>
+            {(giftTargetComment !== undefined && giftTargetComment !== null && giftTargetComment !== false) || giftTargetComment === null && false ? null : null}
+            {giftTargetComment && (
+              <motion.div
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                className="absolute inset-0 bg-[#242428] rounded-t-3xl flex flex-col px-4 pt-4 pb-6 z-20"
+              >
+                {/* Gift panel drag handle */}
+                <div className="flex justify-center mb-3">
+                  <div className="w-9 h-1 rounded-full bg-white/20" />
                 </div>
-                <button
-                  onClick={() => { setShowGiftPanel(false); setGiftTargetComment(null); setGiftMsg('') }}
-                  className="p-1.5 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition"
-                >
-                  <FiX size={18} />
-                </button>
-              </div>
 
-              {giftMsg && (
-                <div className={`text-xs font-semibold mb-3 px-3 py-2 rounded-xl ${giftMsg.startsWith('✅') ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-                  {giftMsg}
-                </div>
-              )}
-
-              {!giftTargetComment && comments.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-xs text-white/40 mb-2">Choose a commenter to gift:</p>
-                  <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-                    {topLevel.map(comment => {
-                      const cId = comment.id || comment._id
-                      return (
-                        <button
-                          key={cId}
-                          onClick={() => setGiftTargetComment(comment)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-white/8 hover:bg-white/15 border border-white/10 rounded-full text-xs text-white transition"
-                        >
-                          <div className="w-4 h-4 rounded-full bg-primary/30 flex items-center justify-center text-primary text-[8px] font-bold">
-                            {comment.author?.name?.charAt(0)?.toUpperCase() || 'S'}
-                          </div>
-                          {comment.author?.name || 'Scholar'}
-                        </button>
-                      )
-                    })}
+                {/* Gift panel header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <FiGift className="text-amber-400" size={18} />
+                    <h4 className="text-sm font-bold text-white">
+                      Gift @{giftTargetComment.author?.name || 'Scholar'}
+                    </h4>
                   </div>
+                  <button
+                    onClick={resetGift}
+                    className="p-1.5 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition"
+                  >
+                    <FiX size={18} />
+                  </button>
                 </div>
-              )}
 
-              {giftTargetComment && (
-                <div className="grid grid-cols-2 gap-2">
+                {giftMsg && (
+                  <div className={`text-xs font-semibold mb-3 px-3 py-2 rounded-xl ${giftMsg.startsWith('✅') ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+                    {giftMsg}
+                  </div>
+                )}
+
+                <p className="text-xs text-white/40 mb-3">Choose a reaction gift to send:</p>
+
+                <div className="grid grid-cols-2 gap-2 overflow-y-auto">
                   {REACTION_GIFTS.map((rg) => {
                     const IconComponent = rg.icon
                     return (
                       <button
                         key={rg.id}
                         disabled={gifting}
-                        onClick={() => handleSendGift(rg, giftTargetComment)}
+                        onClick={() => handleSendGift(rg)}
                         className={`flex items-center gap-3 p-3 rounded-2xl border text-left transition disabled:opacity-40 ${rg.color}`}
                       >
                         <IconComponent size={20} className="flex-shrink-0" />
@@ -377,14 +337,12 @@ export default function CommentDrawer({
                     )
                   })}
                 </div>
-              )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {/* ─────────────────────────────────────────────────────────────────── */}
 
-              {!giftTargetComment && comments.length === 0 && (
-                <p className="text-xs text-white/40 text-center py-4">No comments to gift yet. Comment first!</p>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </motion.div>
       </div>
     </AnimatePresence>
   )
