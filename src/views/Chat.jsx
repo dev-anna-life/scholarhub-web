@@ -70,15 +70,64 @@ function Chat() {
     const [followingChatUser, setFollowingChatUser] = useState(false)
     const [followLoading, setFollowLoading] = useState(false)
 
+    const getPresenceText = (lastActive, isOnline) => {
+        if (isOnline) return 'Active now'
+        if (!lastActive) return 'Offline'
+        const diffMs = Date.now() - new Date(lastActive).getTime()
+        const diffMins = Math.floor(diffMs / 60000)
+        if (diffMins < 1) return 'Active now'
+        if (diffMins < 60) return `Active ${diffMins}m ago`
+        const diffHours = Math.floor(diffMins / 60)
+        if (diffHours < 24) return `Active ${diffHours}h ago`
+        const diffDays = Math.floor(diffHours / 24)
+        if (diffDays === 1) return 'Active yesterday'
+        if (diffDays < 7) return `Active ${diffDays}d ago`
+        return 'Offline'
+    }
+
     useEffect(() => {
         try { setUser(JSON.parse(localStorage.getItem('user') || '{}')) } catch (e) {}
     }, [])
 
     useEffect(() => {
         fetchConversations()
-        const interval = setInterval(fetchConversations, 10000)
+        const interval = setInterval(fetchConversations, 4000)
         return () => clearInterval(interval)
     }, [])
+
+    // Real-time polling for active chat messages & presence
+    useEffect(() => {
+        if (!activeChat) return
+        const activeChatId = activeChat.id || activeChat._id
+        if (!activeChatId) return
+
+        const pollActiveMessages = async () => {
+            try {
+                const [msgRes, userRes] = await Promise.all([
+                    getMessages(activeChatId).catch(() => null),
+                    getUserById(activeChatId).catch(() => null)
+                ])
+
+                if (msgRes?.data && Array.isArray(msgRes.data)) {
+                    setMessages(prev => {
+                        const tempMsgs = prev.filter(m => m.temp)
+                        const fetchedIds = new Set(msgRes.data.map(m => (m.id || m._id)?.toString()))
+                        const uniqueTemp = tempMsgs.filter(m => !fetchedIds.has(m._id?.toString()))
+                        return [...msgRes.data, ...uniqueTemp]
+                    })
+                }
+                if (userRes?.data) {
+                    setActiveChatDetails(userRes.data)
+                    setActiveChat(prev => prev ? { ...prev, isOnline: userRes.data.isOnline, lastActive: userRes.data.lastActive } : prev)
+                }
+            } catch (err) {
+                console.error('Active chat polling error:', err)
+            }
+        }
+
+        const interval = setInterval(pollActiveMessages, 3000)
+        return () => clearInterval(interval)
+    }, [activeChat])
 
     // Handle opening chat from URL param e.g. /chat?user=userId
     useEffect(() => {
@@ -364,6 +413,9 @@ function Chat() {
                             >
                                 <div className="relative">
                                     <Avatar name={conv.user.name} school={conv.user.school} />
+                                    {conv.user?.isOnline && (
+                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
+                                    )}
                                     {conv.unread > 0 && (
                                         <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-white text-xs flex items-center justify-center font-bold">
                                             {conv.unread}
@@ -372,15 +424,17 @@ function Chat() {
                                 </div>
                                 <div className="flex-1 text-left min-w-0">
                                     <div className="flex items-center justify-between mb-0.5">
-                                        <p className="text-sm font-semibold text-dark truncate">{conv.user.name}</p>
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                            <p className="text-sm font-semibold text-dark truncate">{conv.user.name}</p>
+                                        </div>
                                         <p className="text-xs text-gray-400 flex-shrink-0 ml-2">
                                             {lastMsg?.createdAt ? formatTime(lastMsg.createdAt) : ''}
                                         </p>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <p className={`text-xs truncate flex-1 ${conv.unread > 0 ? 'text-dark font-semibold' : 'text-gray-400'}`}>
-                                            {lastMsg?.sender?._id === user.id ? 'You: ' : ''}
-                                            {lastMsg?.text || ''}
+                                            {((lastMsg?.senderId || lastMsg?.sender?.id || lastMsg?.sender?._id)?.toString() === (user.id || user._id)?.toString()) ? 'You: ' : ''}
+                                            {lastMsg?.text || (conv.user?.isOnline ? 'Active now' : '')}
                                         </p>
                                         {conv.user.school && (
                                             <span className="text-white font-bold rounded-full px-1.5 py-0.5 ml-2 flex-shrink-0"
@@ -406,17 +460,33 @@ function Chat() {
                         >
                             <FiArrowLeft size={18} className="text-dark" />
                         </button>
-                        <Avatar name={activeChat.name} school={activeChat.school} />
+                        <div className="relative">
+                            <Avatar name={activeChat.name} school={activeChat.school} />
+                            {(activeChatDetails?.isOnline || activeChat?.isOnline) && (
+                                <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+                            )}
+                        </div>
                         <div className="flex-1 min-w-0">
-                            <p className="font-bold text-dark text-sm truncate">{activeChat.name}</p>
                             <div className="flex items-center gap-2">
+                                <p className="font-bold text-dark text-sm truncate">{activeChat.name}</p>
+                                {(activeChatDetails?.isOnline || activeChat?.isOnline) ? (
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> Active now
+                                    </span>
+                                ) : (
+                                    <span className="text-[10px] text-gray-400 font-medium">
+                                        {getPresenceText(activeChatDetails?.lastActive || activeChat?.lastActive, false)}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
                                 {activeChat.school && (
                                     <span className="text-white font-bold rounded-full px-2 py-0.5"
                                         style={{ backgroundColor: stringToColor(activeChat.school), fontSize: '10px' }}>
                                         {getSchoolAbbr(activeChat.school)}
                                     </span>
                                 )}
-                                <span className="text-xs text-gray-400">{activeChat.level}</span>
+                                <span className="text-xs text-gray-400">@{activeChatDetails?.username || activeChat?.username || 'scholar'}</span>
                             </div>
                         </div>
                     </div>
@@ -425,12 +495,26 @@ function Chat() {
                         <div className="flex flex-col gap-2 max-w-2xl mx-auto">
                             {/* TikTok Style Top Profile Card */}
                             <div className="flex flex-col items-center justify-center text-center py-6 px-4 mb-4 border-b border-gray-200/60">
-                                <Avatar name={activeChat?.name} school={activeChat?.school} size="lg" />
+                                <div className="relative">
+                                    <Avatar name={activeChat?.name} school={activeChat?.school} size="lg" />
+                                    {(activeChatDetails?.isOnline || activeChat?.isOnline) && (
+                                        <span className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+                                    )}
+                                </div>
                                 <h2 className="font-extrabold text-dark text-base mt-2.5">{activeChat?.name || 'Scholar'}</h2>
                                 <p className="text-xs text-gray-400 font-medium mt-0.5">
                                     @{activeChatDetails?.username || activeChat?.username || (activeChat?.name ? activeChat.name.toLowerCase().replace(/\s+/g, '') : 'scholar')}
                                 </p>
-                                <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500 font-medium">
+                                {(activeChatDetails?.isOnline || activeChat?.isOnline) ? (
+                                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 mt-1">
+                                        <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Active now
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-gray-400 font-medium mt-1">
+                                        {getPresenceText(activeChatDetails?.lastActive || activeChat?.lastActive, false)}
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 font-medium">
                                     <span>{activeChatDetails?.followingCount ?? 0} following</span>
                                     <span>·</span>
                                     <span>{activeChatDetails?.followersCount ?? 0} followers</span>
@@ -457,11 +541,13 @@ function Chat() {
                                 </div>
                             ) : (
                                 messages.map((msg, i) => {
-                                    if (!msg?.sender) return null
-                                    const isMe = msg.sender._id === user.id || msg.sender._id === user._id
+                                    const sId = (msg.senderId || msg.sender?.id || msg.sender?._id)?.toString()
+                                    const myId = (user.id || user._id)?.toString()
+                                    const isMe = Boolean(sId && myId && sId === myId)
                                     const showDate = i === 0 || formatDate(messages[i - 1]?.createdAt) !== formatDate(msg.createdAt)
+                                    const mKey = msg.id || msg._id || i
                                     return (
-                                        <div key={msg._id}>
+                                        <div key={mKey}>
                                             {showDate && (
                                                 <div className="flex items-center justify-center my-3">
                                                     <span className="text-xs text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-100">
