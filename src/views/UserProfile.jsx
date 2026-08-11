@@ -350,13 +350,9 @@ function UserProfile() {
 
                         <div className="flex items-center gap-2.5 mb-0.5 flex-wrap">
                             <h2 className="text-xl font-extrabold text-dark">{profileUser.name}</h2>
-                            {profileUser?.isOnline ? (
+                            {profileUser?.isOnline && (
                                 <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Active now
-                                </span>
-                            ) : (
-                                <span className="text-xs text-gray-400 font-medium">
-                                    {getPresenceText(profileUser?.lastActive, false)}
                                 </span>
                             )}
                         </div>
