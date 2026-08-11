@@ -18,6 +18,7 @@ function Settings() {
   const [weeklyDigest, setWeeklyDigest] = useState(true)
   const [profileVisibility, setProfileVisibility] = useState('public')
   const [twoFactor, setTwoFactor] = useState(false)
+  const [showActivityStatus, setShowActivityStatus] = useState(true)
   const [activeSection, setActiveSection] = useState('account')
   const [editMode, setEditMode] = useState(false)
   const [editForm, setEditForm] = useState({ name: '', phone: '' })
@@ -52,6 +53,7 @@ function Settings() {
         setSchoolForm({ level: res.data.level || '', school: initialSchool, state: res.data.state || '', course: res.data.course || '', track: res.data.track || '', faculty: res.data.faculty || '', department: res.data.department || '' })
         if (initialSchool) setSchoolQuery(initialSchool)
         setTwoFactor(res.data.twoFactorEnabled || false)
+        setShowActivityStatus(res.data.showActivityStatus !== false)
         localStorage.setItem('user', JSON.stringify(res.data))
       } catch (err) {
         console.error('Failed to fetch user:', err)
@@ -87,6 +89,19 @@ function Settings() {
   const handleLogout = () => {
     localStorage.clear()
     router.push('/login')
+  }
+
+  const handleToggleActivityStatus = async (enabled) => {
+    setShowActivityStatus(enabled)
+    try {
+      const res = await updateProfile({ showActivityStatus: enabled })
+      if (res.data?.user) {
+        setUser(res.data.user)
+        localStorage.setItem('user', JSON.stringify(res.data.user))
+      }
+    } catch (err) {
+      console.error('Failed to update activity status:', err)
+    }
   }
 
   const handleUpdateProfile = async () => {
@@ -688,8 +703,18 @@ function Settings() {
                       Privacy Settings
                     </h2>
 
-                    <div className="space-y-4">
-                      <div>
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-dark">Activity Status</p>
+                          <p className="text-xs text-gray-400 mt-0.5 max-w-sm leading-relaxed">
+                            Allow followers and contacts to see when you're active. When turned off, your active status will be hidden and you won't see other people's active status either.
+                          </p>
+                        </div>
+                        <Toggle enabled={showActivityStatus} onChange={handleToggleActivityStatus} />
+                      </div>
+
+                      <div className="border-t border-gray-100 pt-5">
                         <p className="text-sm font-medium text-dark mb-2">Profile Visibility</p>
                         <div className="flex gap-2">
                           {['public', 'private'].map(opt => (
