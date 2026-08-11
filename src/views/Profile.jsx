@@ -28,12 +28,13 @@ function Profile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const [userRes, postsRes] = await Promise.all([getMe(), getUserPosts()])
+        const [userRes, postsRes] = await Promise.all([getMe(), getUserPosts().catch(() => ({ data: [] }))])
         const userData = userRes.data
         setUser(userData)
         localStorage.setItem('user', JSON.stringify(userData))
-        setMyPosts(postsRes.data)
-        setMyPostCount(postsRes.data.length)
+        const fetchedPosts = Array.isArray(postsRes.data) ? postsRes.data : (postsRes.data?.posts || [])
+        setMyPosts(fetchedPosts)
+        setMyPostCount(fetchedPosts.length)
         
         try {
           const detailRes = await getUserById(userData.id)
