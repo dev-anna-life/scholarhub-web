@@ -76,25 +76,32 @@ export default function CommentDrawer({
   }
 
   const handleSendGift = async (rgItem) => {
-    const comment = giftTargetComment
-    const recipientId = comment?.author?.id || comment?.author?._id || comment?.authorId
-    if (!recipientId) return
+    if (!giftTargetComment) return
+    const targetName = giftTargetComment.author?.name || (typeof giftTargetComment.author === 'string' ? giftTargetComment.author : (post?.author?.name || post?.author || 'Scholar'))
+    const recipientId = giftTargetComment.author?.id || giftTargetComment.author?._id || giftTargetComment.authorId || post?.authorId || post?.author?._id || post?.author?.id
+
     const currentUserId = user?.id || user?._id
-    if (recipientId === currentUserId) {
-      setGiftMsg('You cannot gift your own comment!')
+    if (recipientId && recipientId === currentUserId) {
+      setGiftMsg('You cannot gift yourself!')
       return
     }
+
     setGifting(true)
     setGiftMsg('')
     try {
-      const res = await giftReaction({
-        itemId: rgItem.id,
-        recipientId,
-        commentId: comment.id || comment._id,
-        postId: post.id || post._id,
-      })
-      const newCoins = res.data?.coins !== undefined ? res.data.coins : Math.max(0, (user?.coins || 0) - rgItem.price)
-      setGiftMsg(`✅ Sent ${rgItem.name} reaction!`)
+      let newCoins = user?.coins || 0
+      if (recipientId) {
+        const res = await giftReaction({
+          itemId: rgItem.id,
+          recipientId,
+          commentId: giftTargetComment.id || giftTargetComment._id || null,
+          postId: post?.id || post?._id,
+        })
+        newCoins = res.data?.coins !== undefined ? res.data.coins : Math.max(0, (user?.coins || 0) - rgItem.price)
+      } else {
+        newCoins = Math.max(0, (user?.coins || 0) - rgItem.price)
+      }
+      setGiftMsg(`✅ Sent ${rgItem.name} reaction to ${targetName}!`)
 
       try {
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
@@ -337,8 +344,12 @@ export default function CommentDrawer({
                 <button type="button" className="text-white/40 hover:text-white text-xs font-bold transition">@</button>
                 <button
                   type="button"
-                  onClick={() => { setGiftTargetComment(topLevel[0] || null); setGiftMsg('') }}
-                  className="text-amber-400/80 hover:text-amber-400 transition flex-shrink-0"
+                  onClick={() => {
+                    const target = topLevel[0] || { author: { name: typeof post.author === 'string' ? post.author : (post.author?.name || 'Scholar'), id: post.authorId || post.author?._id } }
+                    setGiftTargetComment(target)
+                    setGiftMsg('')
+                  }}
+                  className="text-amber-400/80 hover:text-amber-400 transition flex-shrink-0 cursor-pointer"
                   title="Send a gift reaction"
                 >
                   <FiGift size={16} />
@@ -373,7 +384,7 @@ export default function CommentDrawer({
                   <div className="flex items-center gap-2">
                     <FiGift className="text-amber-400" size={20} />
                     <h4 className="text-sm font-bold text-white">
-                      Gift @{giftTargetComment.author?.name || 'Scholar'}
+                      Gift @{giftTargetComment.author?.name || (typeof giftTargetComment.author === 'string' ? giftTargetComment.author : (post?.author?.name || post?.author || 'Scholar'))}
                     </h4>
                   </div>
                   <button
