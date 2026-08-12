@@ -1,14 +1,14 @@
 'use client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiX, FiGift, FiThumbsUp, FiLightbulb, FiPalette, FiZap, FiStar, FiAward, FiCheck } from 'react-icons/fi'
+import { FiX, FiGift, FiThumbsUp, FiLightbulb, FiImage, FiZap, FiStar, FiAward, FiCheck } from 'react-icons/fi'
 import { BsCoin } from 'react-icons/bs'
 import { giftReaction, sendCoins } from '../api/auth'
 
 const reactionGifts = [
   { id: 'gift_helpful', name: 'Helpful', price: 10, icon: FiThumbsUp, color: 'text-blue-500 bg-blue-50 dark:bg-blue-500/10' },
   { id: 'gift_insightful', name: 'Insightful', price: 25, icon: FiLightbulb, color: 'text-amber-500 bg-amber-50 dark:bg-amber-500/10' },
-  { id: 'gift_creative', name: 'Creative', price: 50, icon: FiPalette, color: 'text-purple-500 bg-purple-50 dark:bg-purple-500/10' },
+  { id: 'gift_creative', name: 'Creative', price: 50, icon: FiImage, color: 'text-purple-500 bg-purple-50 dark:bg-purple-500/10' },
   { id: 'gift_brilliant', name: 'Brilliant', price: 100, icon: FiZap, color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-500/10' },
   { id: 'gift_intelligent', name: 'Super Intelligent', price: 250, icon: FiStar, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' },
   { id: 'gift_masterclass', name: 'Masterclass', price: 500, icon: FiAward, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' },
