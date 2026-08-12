@@ -1,11 +1,12 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiUsers, FiInbox, FiHome, FiCheck } from "react-icons/fi"
+import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiUsers, FiInbox, FiHome, FiCheck, FiGift } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
 import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, savePost, getSavedPosts } from '../api/auth'
 import SOSButton from '../components/SOSButton'
 import CommentDrawer from '../components/CommentDrawer'
+import PostGiftModal from '../components/PostGiftModal'
 import { getSchoolAbbr, stringToColor } from '../utils/school'
 import axios from 'axios'
 
@@ -25,6 +26,7 @@ function Home() {
     const [userCommunities, setUserCommunities] = useState([])
     const [selectedCommunityIds, setSelectedCommunityIds] = useState([])
     const [activeCommentPost, setActiveCommentPost] = useState(null)
+    const [giftPost, setGiftPost] = useState(null)
     const [myPostCount, setMyPostCount] = useState(0)
     const [postLoading, setPostLoading] = useState(false)
     const [postError, setPostError] = useState('')
@@ -753,6 +755,12 @@ function Home() {
                                                 className="flex items-center gap-1 text-gray-400 hover:text-primary transition-colors duration-200">
                                                 <FiShare2 size={14} />
                                             </button>
+                                            <button onClick={() => setGiftPost(post)}
+                                                className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-colors duration-200 cursor-pointer text-xs font-bold"
+                                                title="Gift post author">
+                                                <FiGift size={13} />
+                                                <span>Gift</span>
+                                            </button>
                                             <button onClick={() => toggleSave(post.id)}
                                                 className={`ml-auto transition-colors duration-200 ${post.saved ? 'text-primary' : 'text-gray-300 hover:text-primary'}`}>
                                                 <FiBookmark size={14} className={post.saved ? 'fill-current' : ''} />
@@ -941,6 +949,12 @@ function Home() {
                 onClose={() => setActiveCommentPost(null)}
                 comments={activeCommentPost ? (commentsMap[activeCommentPost.id || activeCommentPost._id] || []) : []}
                 onAddComment={handleAddComment}
+            />
+
+            <PostGiftModal
+                isOpen={Boolean(giftPost)}
+                post={giftPost}
+                onClose={() => setGiftPost(null)}
             />
 
             <SOSButton />

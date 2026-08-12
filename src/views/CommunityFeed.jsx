@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch, FiCheck, FiInbox, FiFileText } from "react-icons/fi"
+import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiTrendingUp, FiStar, FiBookOpen, FiZap, FiAward, FiSend, FiMessageSquare, FiLock, FiExternalLink, FiMapPin, FiSearch, FiCheck, FiInbox, FiFileText, FiGift } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe, getMyCommunities, getCommunityFeed } from "../api/auth"
 import CommentDrawer from "../components/CommentDrawer"
+import PostGiftModal from "../components/PostGiftModal"
 import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
 
 const communityData = {
@@ -57,6 +58,7 @@ function CommunityFeed() {
     const [commentLoading, setCommentLoading] = useState(false)
     const [topContributors, setTopContributors] = useState([])
     const [showCreatePost, setShowCreatePost] = useState(false)
+    const [giftPost, setGiftPost] = useState(null)
     const [postSuccess, setPostSuccess] = useState(false)
     const [postError, setPostError] = useState('')
     const [postLoading, setPostLoading] = useState(false)
@@ -459,6 +461,12 @@ function CommunityFeed() {
                                                 <FiShare2 size={14} />
                                                 <span className="text-xs hidden sm:block">Share</span>
                                             </button>
+                                            <button onClick={(e) => { e.stopPropagation(); setGiftPost(post) }}
+                                                className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-colors duration-200 cursor-pointer text-xs font-bold"
+                                                title="Gift post author">
+                                                <FiGift size={13} />
+                                                <span>Gift</span>
+                                            </button>
                                             {post.authorId && post.authorId !== user.id && (
                                                 <button onClick={(e) => { e.stopPropagation(); router.push(`/chat?user=${post.authorId}`) }}
                                                     className="flex items-center gap-1 text-sm text-gray-400 hover:text-primary transition-colors duration-200">
@@ -657,6 +665,12 @@ function CommunityFeed() {
                 onClose={() => setActiveCommentPost(null)}
                 comments={activeCommentPost ? (commentsMap[activeCommentPost.id || activeCommentPost._id] || []) : []}
                 onAddComment={handleAddComment}
+            />
+
+            <PostGiftModal
+                isOpen={Boolean(giftPost)}
+                post={giftPost}
+                onClose={() => setGiftPost(null)}
             />
         </div>
     )

@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
-import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiBookOpen, FiSend, FiLock, FiMapPin, FiCheck, FiInbox } from "react-icons/fi"
+import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiUsers, FiBookOpen, FiSend, FiLock, FiMapPin, FiCheck, FiInbox, FiGift } from "react-icons/fi"
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from '../api/auth'
 import CommentDrawer from '../components/CommentDrawer'
+import PostGiftModal from '../components/PostGiftModal'
 
 function SchoolFeed() {
     const params = useParams() || {}
@@ -19,6 +20,7 @@ function SchoolFeed() {
     const [posts, setPosts] = useState([])
     const [loading, setLoading] = useState(false)
     const [joined, setJoined] = useState(false)
+    const [giftPost, setGiftPost] = useState(null)
 
     const schoolLevels = {
         'King\'s College, Lagos': 'Secondary',
@@ -328,6 +330,12 @@ function SchoolFeed() {
                                                 <FiShare2 size={14} />
                                                 <span className="text-xs hidden sm:block">Share</span>
                                             </button>
+                                            <button onClick={(e) => { e.stopPropagation(); setGiftPost(post) }}
+                                                className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-colors duration-200 cursor-pointer text-xs font-bold"
+                                                title="Gift post author">
+                                                <FiGift size={13} />
+                                                <span>Gift</span>
+                                            </button>
                                             <button onClick={(e) => { e.stopPropagation(); toggleSave(post.id) }}
                                                 className={`ml-auto transition-colors duration-200 ${post.saved ? 'text-primary' : 'text-gray-300 hover:text-primary'}`}>
                                                 <FiBookmark size={14} className={post.saved ? 'fill-current' : ''} />
@@ -416,6 +424,12 @@ function SchoolFeed() {
                 onClose={() => setActiveCommentPost(null)}
                 comments={activeCommentPost ? (commentsMap[activeCommentPost.id || activeCommentPost._id] || []) : []}
                 onAddComment={handleAddComment}
+            />
+
+            <PostGiftModal
+                isOpen={Boolean(giftPost)}
+                post={giftPost}
+                onClose={() => setGiftPost(null)}
             />
         </div>
     )
