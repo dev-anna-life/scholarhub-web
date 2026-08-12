@@ -253,6 +253,13 @@ function CommunityFeed() {
         return res.data
     }
 
+    const handleRefreshComments = async (postId) => {
+        try {
+            const res = await getComments(postId)
+            setCommentsMap(prev => ({ ...prev, [postId]: res.data }))
+        } catch (_) {}
+    }
+
     const handleCreatePost = async () => {
         if (!newPost.title.trim() || !newPost.content.trim()) { setPostError('Title and content are required'); return }
         const subs = user?.badgeSubscriptions || []
@@ -665,6 +672,7 @@ function CommunityFeed() {
                 onClose={() => setActiveCommentPost(null)}
                 comments={activeCommentPost ? (commentsMap[activeCommentPost.id || activeCommentPost._id] || []) : []}
                 onAddComment={handleAddComment}
+                onRefreshComments={handleRefreshComments}
             />
 
             <PostGiftModal

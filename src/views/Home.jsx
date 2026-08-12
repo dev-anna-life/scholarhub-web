@@ -309,6 +309,13 @@ function Home() {
         return res.data
     }
 
+    const handleRefreshComments = async (postId) => {
+        try {
+            const res = await getComments(postId)
+            setCommentsMap(prev => ({ ...prev, [postId]: res.data }))
+        } catch (_) {}
+    }
+
     const handleBellClick = async () => {
         ensureAudio()
         setShowNotifications(!showNotifications)
@@ -949,6 +956,7 @@ function Home() {
                 onClose={() => setActiveCommentPost(null)}
                 comments={activeCommentPost ? (commentsMap[activeCommentPost.id || activeCommentPost._id] || []) : []}
                 onAddComment={handleAddComment}
+                onRefreshComments={handleRefreshComments}
             />
 
             <PostGiftModal

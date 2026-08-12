@@ -77,6 +77,7 @@ export default function CommentDrawer({
 
   const handleSendGift = async (rgItem) => {
     if (!giftTargetComment) return
+    const comment = giftTargetComment
     const targetName = giftTargetComment.author?.name || (typeof giftTargetComment.author === 'string' ? giftTargetComment.author : (post?.author?.name || post?.author || 'Scholar'))
     const recipientId = giftTargetComment.author?.id || giftTargetComment.author?._id || giftTargetComment.authorId || post?.authorId || post?.author?._id || post?.author?.id
 
@@ -103,6 +104,11 @@ export default function CommentDrawer({
       }
       setGiftMsg(`✅ Sent ${rgItem.name} reaction to ${targetName}!`)
 
+      if (comment) {
+        if (!comment.gifts) comment.gifts = []
+        comment.gifts = [...comment.gifts, rgItem.id]
+      }
+
       try {
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
         storedUser.coins = newCoins
@@ -113,6 +119,10 @@ export default function CommentDrawer({
         setUser(u => ({ ...u, coins: newCoins }))
       }
 
+      if (onRefreshComments) {
+        onRefreshComments(post?.id || post?._id)
+      }
+
       window.dispatchEvent(new Event('userStateChange'))
       setTimeout(() => { resetGift() }, 1800)
     } catch (err) {
@@ -120,6 +130,29 @@ export default function CommentDrawer({
     } finally {
       setGifting(false)
     }
+  }
+
+  const renderCommentGifts = (gifts = []) => {
+    if (!gifts || gifts.length === 0) return null
+    const counts = {}
+    gifts.forEach(g => counts[g] = (counts[g] || 0) + 1)
+
+    return (
+      <div className="flex flex-wrap gap-1 mt-1.5 mb-1">
+        {Object.entries(counts).map(([giftId, count]) => {
+          const giftObj = REACTION_GIFTS.find(g => g.id === giftId)
+          if (!giftObj) return null
+          const GiftIcon = giftObj.icon
+          return (
+            <div key={giftId} className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-amber-400" title={`${giftObj.name} reaction`}>
+              <GiftIcon size={9} className="text-amber-400 flex-shrink-0" />
+              <span>{giftObj.name}</span>
+              {count > 1 && <span className="text-white/60 ml-0.5">x{count}</span>}
+            </div>
+          )
+        })}
+      </div>
+    )
   }
 
   if (!isOpen || !post) return null
@@ -207,6 +240,8 @@ export default function CommentDrawer({
                           {comment.text}
                         </p>
 
+                        {renderCommentGifts(comment.gifts)}
+
                         {/* Action details (Time, Reply, Gift) */}
                         <div className="flex items-center gap-4 mt-1.5 text-xs text-white/40">
                           <span>
@@ -276,6 +311,7 @@ export default function CommentDrawer({
                                     <p className="text-xs text-white/80 leading-relaxed mt-0.5">
                                       {reply.text}
                                     </p>
+                                    {renderCommentGifts(reply.gifts)}
                                     <div className="flex items-center gap-3 mt-1 text-[11px] text-white/40">
                                       <span>{reply.createdAt ? new Date(reply.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Just now'}</span>
                                       <button

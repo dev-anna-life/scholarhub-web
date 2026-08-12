@@ -93,6 +93,13 @@ function CommunityView({ communityId }) {
         return res.data
     }
 
+    const handleRefreshComments = async (postId) => {
+        try {
+            const res = await getComments(postId)
+            setCommentsMap(prev => ({ ...prev, [postId]: res.data }))
+        } catch (_) {}
+    }
+
     const handleShare = (post) => {
         const postUrl = `${window.location.origin}/post/${post.id || post._id}`
         if (navigator.share) navigator.share({ title: post.title || 'ScholarHub Post', url: postUrl })
@@ -215,6 +222,7 @@ function CommunityView({ communityId }) {
                 onClose={() => setActiveCommentPost(null)}
                 comments={activeCommentPost ? (commentsMap[activeCommentPost.id || activeCommentPost._id] || []) : []}
                 onAddComment={handleAddComment}
+                onRefreshComments={handleRefreshComments}
             />
         </div>
     )

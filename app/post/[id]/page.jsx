@@ -14,6 +14,29 @@ const REACTION_GIFTS = [
   { id: 'gift_masterclass', name: 'Masterclass', price: 500, icon: FiAward, color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' },
 ]
 
+const renderCommentGifts = (gifts = []) => {
+  if (!gifts || gifts.length === 0) return null
+  const counts = {}
+  gifts.forEach(g => counts[g] = (counts[g] || 0) + 1)
+
+  return (
+    <div className="flex flex-wrap gap-1 mt-1.5 mb-1">
+      {Object.entries(counts).map(([giftId, count]) => {
+        const giftObj = REACTION_GIFTS.find(g => g.id === giftId)
+        if (!giftObj) return null
+        const GiftIcon = giftObj.icon
+        return (
+          <div key={giftId} className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-150 text-amber-650 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-400" title={`${giftObj.name} reaction`}>
+            <GiftIcon size={9} className="text-amber-500 flex-shrink-0" />
+            <span>{giftObj.name}</span>
+            {count > 1 && <span className="text-gray-500/80 ml-0.5">x{count}</span>}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function PostDetail() {
   const { id } = useParams()
   const router = useRouter()
@@ -93,9 +116,18 @@ export default function PostDetail() {
         postId: id,
       })
       setGiftMsg(`Success! Awarded ${item.name} (+${item.price} coins)`)
-      if (res.data?.coins !== undefined) {
-        setUser(u => ({ ...u, coins: res.data.coins }))
+      if (comment) {
+        if (!comment.gifts) comment.gifts = []
+        comment.gifts.push(item.id)
       }
+      const newCoins = res.data?.coins !== undefined ? res.data.coins : Math.max(0, (user?.coins || 0) - item.price)
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
+        storedUser.coins = newCoins
+        localStorage.setItem('user', JSON.stringify(storedUser))
+      } catch (e) {}
+      setUser(u => ({ ...u, coins: newCoins }))
+      window.dispatchEvent(new Event('userStateChange'))
       setTimeout(() => { setActiveGiftCommentId(null); setGiftMsg('') }, 2000)
     } catch (err) {
       setGiftMsg(err.response?.data?.message || 'Failed to send gift reaction')
@@ -215,6 +247,7 @@ export default function PostDetail() {
                               </span>
                             </div>
                             <p className="text-xs text-gray-700 dark:text-gray-200 mt-0.5 leading-relaxed">{comment.text}</p>
+                            {renderCommentGifts(comment.gifts)}
 
                             <div className="flex items-center gap-4 mt-1.5 relative">
                               <button
@@ -297,6 +330,7 @@ export default function PostDetail() {
                                       </span>
                                     </div>
                                     <p className="text-xs text-gray-700 mt-0.5 leading-relaxed">{reply.text}</p>
+                                    {renderCommentGifts(reply.gifts)}
                                     <div className="flex items-center gap-3 mt-1 relative">
                                       <button
                                         onClick={() => setReplyTo({ commentId: cId, authorName: reply.author?.name || 'Scholar' })}
