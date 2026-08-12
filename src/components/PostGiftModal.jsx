@@ -22,14 +22,27 @@ export default function PostGiftModal({ post, isOpen, onClose }) {
 
   if (!isOpen || !post) return null
 
-  const authorName = post.author?.name || post.author || 'Author'
-  const recipientId = post.authorId || post.author?._id || post.author?.id
+  const getSafeName = (val) => {
+    if (!val) return 'Author'
+    if (typeof val === 'string') return val
+    if (typeof val === 'object') return val.name || val.username || 'Author'
+    return 'Author'
+  }
+
+  const getSafeUsername = (val, postObj) => {
+    if (postObj?.authorUsername && typeof postObj.authorUsername === 'string') return postObj.authorUsername
+    if (typeof val === 'string') return val
+    if (typeof val === 'object' && val) return val.username || val.name || ''
+    return ''
+  }
+
+  const authorName = getSafeName(post.author)
+  const recipientId = post.authorId || (typeof post.author === 'object' ? (post.author?._id || post.author?.id) : null)
 
   const handleSendReaction = async (gift) => {
     setLoadingId(gift.id)
     setStatusMsg({ text: '', type: '' })
     try {
-      // Get current user coins
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
       const currentCoins = storedUser.coins ?? 0
 
@@ -39,7 +52,6 @@ export default function PostGiftModal({ post, isOpen, onClose }) {
         return
       }
 
-      // Deduct immediately on UI
       const newCoins = Math.max(0, currentCoins - gift.price)
       storedUser.coins = newCoins
       localStorage.setItem('user', JSON.stringify(storedUser))
@@ -83,14 +95,15 @@ export default function PostGiftModal({ post, isOpen, onClose }) {
         return
       }
 
-      // Deduct immediately
       const newCoins = Math.max(0, currentCoins - amount)
       storedUser.coins = newCoins
       localStorage.setItem('user', JSON.stringify(storedUser))
       window.dispatchEvent(new Event('userStateChange'))
 
-      const username = post.authorUsername || post.author
-      await sendCoins(username, amount)
+      const username = getSafeUsername(post.author, post)
+      if (username) {
+        await sendCoins(username, amount)
+      }
 
       setStatusMsg({ text: `💰 Sent ${amount} coins to ${authorName}!`, type: 'success' })
       setTimeout(() => {

@@ -384,7 +384,7 @@ export default function CommentDrawer({
                   <div className="flex items-center gap-2">
                     <FiGift className="text-amber-400" size={20} />
                     <h4 className="text-sm font-bold text-white">
-                      Gift @{giftTargetComment.author?.name || (typeof giftTargetComment.author === 'string' ? giftTargetComment.author : (post?.author?.name || post?.author || 'Scholar'))}
+                      Gift @{typeof giftTargetComment?.author === 'object' ? (giftTargetComment.author?.name || giftTargetComment.author?.username || 'Scholar') : (typeof giftTargetComment?.author === 'string' ? giftTargetComment.author : (typeof post?.author === 'object' ? (post.author?.name || post.author?.username || 'Scholar') : (typeof post?.author === 'string' ? post.author : 'Scholar')))}
                     </h4>
                   </div>
                   <button
