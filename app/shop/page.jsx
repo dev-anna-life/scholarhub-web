@@ -688,21 +688,21 @@ export default function ShopPage() {
 
       {/* Global & African Multi-Gateway Checkout Modal */}
       {selectedPackage && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#1a1a1e] border border-gray-100 dark:border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-scaleUp">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#18181b] border border-gray-100 dark:border-zinc-800 rounded-2xl sm:rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl relative animate-scaleUp">
             <button
               onClick={() => setSelectedPackage(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-dark dark:hover:text-white text-lg font-bold"
+              className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-500 hover:text-dark dark:hover:text-white transition cursor-pointer text-sm font-bold"
             >
               ✕
             </button>
 
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
+            <div className="text-center mb-5 sm:mb-6 pt-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
                 {selectedPackage.type === 'badge' ? 'Subscription Checkout' : 'Coin Package Checkout'}
               </span>
-              <h3 className="text-xl font-extrabold text-dark dark:text-white mt-2">{selectedPackage.name}</h3>
-              <p className="text-2xl font-black text-primary mt-1">
+              <h3 className="text-lg sm:text-xl font-extrabold text-dark dark:text-white mt-2.5">{selectedPackage.name}</h3>
+              <p className="text-xl sm:text-2xl font-black text-primary mt-1">
                 ₦{(selectedPackage.priceNGN || selectedPackage.price).toLocaleString()}
                 <span className="text-xs text-gray-400 font-normal ml-2">(${selectedPackage.priceUSD || ((selectedPackage.priceNGN || selectedPackage.price) / 1000)} USD)</span>
               </p>
@@ -729,21 +729,21 @@ export default function ShopPage() {
                     <button
                       onClick={() => handlePaystackCheckout(selectedPackage)}
                       disabled={processingPayment}
-                      className="w-full p-3.5 bg-emerald-50 hover:bg-emerald-100/80 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
+                      className="w-full p-3 sm:p-3.5 bg-emerald-50 hover:bg-emerald-100/80 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700/60 rounded-xl sm:rounded-2xl text-left transition flex items-center justify-between gap-3 group cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-base sm:text-lg font-bold flex-shrink-0">
                           ₦
                         </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-bold text-dark dark:text-white text-sm">Paystack</span>
-                            <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded-full font-extrabold">Nigeria & Africa</span>
+                            <span className="text-[9px] sm:text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded-full font-extrabold">Nigeria & Africa</span>
                           </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Debit Card, Bank Transfer, USSD, Verve/Mastercard</p>
+                          <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">Cards, Transfers, USSD, Verve/Mastercard</p>
                         </div>
                       </div>
-                      <span className="text-emerald-700 dark:text-emerald-300 font-bold text-sm">
+                      <span className="text-emerald-700 dark:text-emerald-300 font-bold text-xs sm:text-sm flex-shrink-0">
                         ₦{(selectedPackage.priceNGN || selectedPackage.price).toLocaleString()}
                       </span>
                     </button>
@@ -754,50 +754,22 @@ export default function ShopPage() {
                     <button
                       onClick={() => handleFlutterwaveCheckout(selectedPackage)}
                       disabled={processingPayment}
-                      className="w-full p-3.5 bg-orange-50 hover:bg-orange-100/80 dark:bg-orange-950/30 dark:hover:bg-orange-950/50 border border-orange-300 dark:border-orange-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
+                      className="w-full p-3 sm:p-3.5 bg-orange-50 hover:bg-orange-100/80 dark:bg-orange-950/30 dark:hover:bg-orange-950/50 border border-orange-300 dark:border-orange-700/60 rounded-xl sm:rounded-2xl text-left transition flex items-center justify-between gap-3 group cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-base sm:text-lg font-bold flex-shrink-0">
                           <FiGlobe size={18} />
                         </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-bold text-dark dark:text-white text-sm">Flutterwave</span>
-                            <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-extrabold">USA & Global</span>
+                            <span className="text-[9px] sm:text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-extrabold">USA & Global</span>
                           </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">International Visa, Mastercard, Apple Pay, USD/EUR/GBP</p>
+                          <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">Visa, Mastercard, Apple Pay, USD/EUR/GBP</p>
                         </div>
                       </div>
-                      <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">
+                      <span className="text-orange-700 dark:text-orange-300 font-bold text-xs sm:text-sm flex-shrink-0">
                         ${selectedPackage.priceUSD || ((selectedPackage.priceNGN || selectedPackage.price) / 1000)} USD
-                      </span>
-                    </button>
-                  )}
-
-                  {/* Pay with Coins (For Badges, if user has sufficient coins) */}
-                  {selectedPackage.type === 'badge' && (
-                    <button
-                      onClick={() => handlePayWithCoins(selectedPackage)}
-                      disabled={buying === selectedPackage.id || (user?.coins || 0) < (selectedPackage.price || 0)}
-                      className={`w-full p-3.5 rounded-xl text-left transition flex items-center justify-between border ${
-                        (user?.coins || 0) >= (selectedPackage.price || 0)
-                          ? 'bg-amber-50 hover:bg-amber-100/80 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 border-amber-300 dark:border-amber-700/60 cursor-pointer'
-                          : 'bg-gray-100 dark:bg-slate-800/40 border-gray-200 dark:border-slate-800 opacity-60 cursor-not-allowed'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
-                          <BsCoin size={18} />
-                        </div>
-                        <div>
-                          <span className="font-bold text-dark dark:text-white text-sm">Pay with Coins</span>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Balance: {user?.coins || 0} coins {(user?.coins || 0) < (selectedPackage.price || 0) ? '(Insufficient)' : ''}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-amber-700 dark:text-amber-300 font-bold text-sm">
-                        {(selectedPackage.price || 0).toLocaleString()} Coins
                       </span>
                     </button>
                   )}
