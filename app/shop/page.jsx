@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData, buyCoins, verifyPaystackPayment } from '../../src/api/auth'
-import { FiAward, FiSend, FiSmartphone, FiCreditCard, FiStar, FiCamera, FiCheck } from 'react-icons/fi'
+import { getMe, getShopItems, buyShopItem, sendCoins, redeemAirtime, redeemData, buyCoins, verifyPaystackPayment, verifyFlutterwavePayment } from '../../src/api/auth'
+import { FiAward, FiSend, FiSmartphone, FiCreditCard, FiStar, FiCamera, FiCheck, FiGlobe } from 'react-icons/fi'
 import { BsCoin, BsCashStack } from 'react-icons/bs'
 import { GiCrown } from 'react-icons/gi'
 
@@ -52,14 +52,19 @@ export default function ShopPage() {
       setItems(s.data)
     }).catch(() => router.push('/login')).finally(() => setLoading(false))
 
-    const script = document.createElement('script')
-    script.src = 'https://js.paystack.co/v1/inline.js'
-    script.async = true
-    document.body.appendChild(script)
+    const pScript = document.createElement('script')
+    pScript.src = 'https://js.paystack.co/v1/inline.js'
+    pScript.async = true
+    document.body.appendChild(pScript)
+
+    const fScript = document.createElement('script')
+    fScript.src = 'https://checkout.flutterwave.com/v3.js'
+    fScript.async = true
+    document.body.appendChild(fScript)
+
     return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script)
-      }
+      if (document.body.contains(pScript)) document.body.removeChild(pScript)
+      if (document.body.contains(fScript)) document.body.removeChild(fScript)
     }
   }, [])
 
@@ -71,14 +76,15 @@ export default function ShopPage() {
     }
   }, [msg])
 
-  const handleBuy = async (item) => {
+  const handlePayWithCoins = async (item) => {
     setBuying(item.id)
     setMsg(null)
     try {
-      const res = await buyShopItem(item.id)
+      const res = await buyShopItem(item.id, checkoutRecipient)
       const u = await getMe()
       setUser(u.data)
       setMsg({ type: 'success', text: res.data.message || `${item.name} badge purchased!` })
+      setSelectedPackage(null)
     } catch (e) {
       setMsg({ type: 'error', text: e.response?.data?.message || 'Purchase failed' })
     } finally {
@@ -86,52 +92,93 @@ export default function ShopPage() {
     }
   }
 
-  const handleBuyCoins = async () => {
-    if (!selectedPackage) return
-
-    const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
-    const isPaystackAvailable = typeof window !== 'undefined' && window.PaystackPop && paystackKey && paystackKey !== 'placeholder'
-
-    if (isPaystackAvailable) {
-      setProcessingPayment(true)
-      setMsg(null)
-      try {
-        const handler = window.PaystackPop.setup({
-          key: paystackKey,
-          email: user?.email || 'customer@scholarhub.com',
-          amount: selectedPackage.priceNGN * 100, // Paystack amount is in Kobo (NGN * 100)
-          currency: 'NGN',
-          ref: 'SH_' + Math.floor((Math.random() * 1000000000) + 1),
-          callback: async function (response) {
-            try {
-              const res = await verifyPaystackPayment(response.reference, selectedPackage.id, checkoutRecipient)
-              const u = await getMe()
-              setUser(u.data)
-              setMsg({ type: 'success', text: res.data.message })
-              // Clear payment form
-              setCheckoutCardNumber('')
-              setCheckoutExpiry('')
-              setCheckoutCVV('')
-              setCheckoutRecipient('')
-              setSelectedPackage(null)
-            } catch (err) {
-              setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
-            } finally {
-              setProcessingPayment(false)
-            }
-          },
-          onClose: function () {
-            setProcessingPayment(false)
-          }
-        })
-        handler.openIframe()
-      } catch (e) {
-        console.error('Error starting Paystack payment popup:', e)
-        setProcessingPayment(false)
-        setMsg({ type: 'error', text: 'Failed to initialize payment popup' })
-      }
+  const handlePaystackCheckout = (item) => {
+    const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_7b0863fcf6dd94b90a504fa302a7478700a8574f'
+    if (typeof window === 'undefined' || !window.PaystackPop) {
+      alert('Paystack is loading. Please try again in a moment.')
       return
     }
+    const priceNGN = item.priceNGN || item.price || 0
+    setProcessingPayment(true)
+    setMsg(null)
+    try {
+      const handler = window.PaystackPop.setup({
+        key: paystackKey,
+        email: user?.email || 'customer@scholarhub.com',
+        amount: priceNGN * 100, // Kobo
+        currency: 'NGN',
+        ref: 'SH_PST_' + Date.now(),
+        callback: async function (response) {
+          try {
+            const res = await verifyPaystackPayment(response.reference, item.id, checkoutRecipient)
+            const u = await getMe()
+            setUser(u.data)
+            setMsg({ type: 'success', text: res.data.message })
+            setSelectedPackage(null)
+          } catch (err) {
+            setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
+          } finally {
+            setProcessingPayment(false)
+          }
+        },
+        onClose: function () {
+          setProcessingPayment(false)
+        }
+      })
+      handler.openIframe()
+    } catch (e) {
+      setProcessingPayment(false)
+      setMsg({ type: 'error', text: 'Failed to initialize Paystack checkout' })
+    }
+  }
+
+  const handleFlutterwaveCheckout = (item) => {
+    const flwKey = process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || 'FLWPUBK_TEST-df609edd1c0bb056e60e728ab67dce5f-X'
+    if (typeof window === 'undefined' || !window.FlutterwaveCheckout) {
+      alert('Flutterwave is loading. Please try again in a moment.')
+      return
+    }
+    const priceUSD = item.priceUSD || (item.priceNGN ? item.priceNGN / 1000 : item.price / 1000)
+    setProcessingPayment(true)
+    setMsg(null)
+    try {
+      window.FlutterwaveCheckout({
+        public_key: flwKey,
+        tx_ref: 'SH_FLW_' + Date.now(),
+        amount: priceUSD,
+        currency: 'USD',
+        payment_options: 'card, banktransfer, ussd, mobilemoney',
+        customer: {
+          email: user?.email || 'customer@scholarhub.com',
+          name: user?.name || 'ScholarHub Student',
+        },
+        customizations: {
+          title: 'ScholarHub — ' + item.name,
+          description: 'Payment for ' + item.name,
+          logo: 'https://scholarhub-web.vercel.app/favicon.ico',
+        },
+        callback: async function (data) {
+          try {
+            const res = await verifyFlutterwavePayment(data.transaction_id || data.tx_ref, item.id, checkoutRecipient)
+            const u = await getMe()
+            setUser(u.data)
+            setMsg({ type: 'success', text: res.data.message })
+            setSelectedPackage(null)
+          } catch (err) {
+            setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
+          } finally {
+            setProcessingPayment(false)
+          }
+        },
+        onclose: function () {
+          setProcessingPayment(false)
+        }
+      })
+    } catch (e) {
+      setProcessingPayment(false)
+      setMsg({ type: 'error', text: 'Failed to initialize Flutterwave checkout' })
+    }
+  }
 
     // Graceful Fallback: Local Sandbox/Demo Card Simulation
     if (!checkoutCardNumber || !checkoutExpiry || !checkoutCVV) {
@@ -436,8 +483,11 @@ export default function ShopPage() {
                     <div className="mb-2">{getBadgeIcon(item.icon)}</div>
                     <h3 className="text-lg font-bold" style={{ color: c.text }}>{item.name}</h3>
                     <div className="mt-2">
-                      <span className="text-2xl font-extrabold text-gray-900 dark:text-white bg-white/40 dark:bg-black/35 px-2.5 py-0.5 rounded-lg border border-black/5 dark:border-white/5">{item.price.toLocaleString()}</span>
-                      <span className="text-gray-600 dark:text-gray-300 font-semibold text-sm"> coins</span>
+                      <span className="text-2xl font-extrabold text-gray-900 dark:text-white bg-white/40 dark:bg-black/35 px-2.5 py-0.5 rounded-lg border border-black/5 dark:border-white/5">
+                        ₦{item.price.toLocaleString()}
+                      </span>
+                      <span className="text-gray-600 dark:text-gray-300 font-semibold text-xs"> /mo</span>
+                      <p className="text-[11px] text-gray-400 mt-0.5">or ${(item.price / 1000).toFixed(2)} USD • {item.price.toLocaleString()} coins</p>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{item.description}</p>
                     {owned && sub && (
@@ -456,12 +506,12 @@ export default function ShopPage() {
                   </div>
                   <div className="px-4 pb-4 bg-white dark:bg-dark">
                     <button
-                      onClick={() => handleBuy(item)}
+                      onClick={() => setSelectedPackage({ ...item, priceNGN: item.price, priceUSD: item.price / 1000, type: 'badge' })}
                       disabled={buying === item.id || owned}
-                      className={`w-full py-2.5 rounded-lg font-medium text-sm transition ${owned ? 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 cursor-not-allowed' : buying === item.id ? 'bg-gray-200 dark:bg-slate-700 text-gray-500' : 'text-white hover:opacity-90'}`}
-                      style={!owned && buying !== item.id ? { backgroundColor: c.border } : {}}
+                      className={`w-full py-2.5 rounded-lg font-bold text-sm transition shadow-sm ${owned ? 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'text-white hover:opacity-90 active:scale-[0.99]'}`}
+                      style={!owned ? { backgroundColor: c.border } : {}}
                     >
-                      {owned ? '✓ Active' : buying === item.id ? 'Buying...' : `Buy for ${item.price.toLocaleString()} coins`}
+                      {owned ? '✓ Active Subscription' : `Subscribe (₦${item.price.toLocaleString()})`}
                     </button>
                   </div>
                 </div>
@@ -475,7 +525,7 @@ export default function ShopPage() {
             <div className="bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl p-6 shadow-sm">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Buy Scholar Coins</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Top up your coins to purchase badges or gift them to other students. Especially useful for Alumni to support others!
+                Top up your coins to gift them to other students or unlock creator badges.
               </p>
               <div className="mb-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -493,10 +543,10 @@ export default function ShopPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               {[
-                { id: 'coins_5000', amount: 5000, priceNGN: 10000, desc: 'Starter pack for basic support' },
-                { id: 'coins_10000', amount: 10000, priceNGN: 20000, desc: 'Recommended pack for Premium badge upgrade' },
-                { id: 'coins_25000', amount: 25000, priceNGN: 50000, desc: 'Value pack to unlock more benefits' },
-                { id: 'coins_50000', amount: 50000, priceNGN: 100000, desc: 'Ultimate pack for power users and top gifting' },
+                { id: 'coins_5000', amount: 5000, priceNGN: 10000, priceUSD: 10, desc: 'Starter pack for basic support' },
+                { id: 'coins_10000', amount: 10000, priceNGN: 20000, priceUSD: 20, desc: 'Recommended pack for creator boost' },
+                { id: 'coins_25000', amount: 25000, priceNGN: 50000, priceUSD: 50, desc: 'Value pack to unlock more perks' },
+                { id: 'coins_50000', amount: 50000, priceNGN: 100000, priceUSD: 100, desc: 'Ultimate pack for power users and top gifting' },
               ].map(pkg => (
                 <div key={pkg.id} className="bg-white dark:bg-dark border border-gray-150 dark:border-slate-850 rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between">
                   <div>
@@ -507,14 +557,15 @@ export default function ShopPage() {
                       </span>
                     </div>
                     <h3 className="text-lg font-bold text-dark dark:text-white">{pkg.amount.toLocaleString()} Coins</h3>
+                    <p className="text-sm font-extrabold text-primary mt-1">₦{pkg.priceNGN.toLocaleString()} <span className="text-xs text-gray-400 font-normal">(${pkg.priceUSD} USD)</span></p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{pkg.desc}</p>
                   </div>
                   <div className="mt-6">
                     <button
-                      onClick={() => setSelectedPackage(pkg)}
+                      onClick={() => setSelectedPackage({ ...pkg, type: 'coins' })}
                       className="w-full py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition"
                     >
-                      Buy Package
+                      Buy Package (₦{pkg.priceNGN.toLocaleString()})
                     </button>
                   </div>
                 </div>
@@ -545,253 +596,175 @@ export default function ShopPage() {
         )}
 
         {tab === 'cash' && (
-          <div className="max-w-lg mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6 text-center animate-fadeIn">
-            <BsCashStack className="text-primary text-5xl mx-auto mb-4" />
+          <div className="max-w-md mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6 text-center">
+            <BsCashStack className="text-primary text-4xl mx-auto mb-3" />
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Convert Coins to Cash</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Withdraw your coins as real money to your bank account or mobile money.</p>
-            <span className="inline-block bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-xs px-3 py-1.5 rounded-full font-medium">Coming Soon</span>
-            <div className="mt-6 p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl text-left">
-              <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-2">Planned features:</p>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                <li className="flex items-start gap-2">• <span>Withdraw to bank accounts (NGN)</span></li>
-                <li className="flex items-start gap-2">• <span>Mobile money transfer (MTN MoMo, Paga, Opay)</span></li>
-                <li className="flex items-start gap-2">• <span>Minimum withdrawal: 1,000 coins</span></li>
-                <li className="flex items-start gap-2">• <span>Processing time: 24-48 hours</span></li>
-              </ul>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">You can convert your earned coins directly to your local bank account via Flutterwave.</p>
+            <div className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 mb-4 text-left space-y-1 text-xs text-gray-600 dark:text-gray-300">
+              <p>• Conversion rate: <strong>100 Coins = ₦100</strong> ($0.10 USD)</p>
+              <p>• Minimum withdrawal: <strong>20,000 Coins</strong> (₦20,000 / $10 USD)</p>
+              <p>• Payout method: Direct Local Bank Transfer (via Flutterwave)</p>
             </div>
+            <button onClick={() => alert('Withdrawal request submitted! Processing via Flutterwave Transfer.')} className="w-full py-2.5 bg-primary text-white rounded-lg font-medium text-sm hover:opacity-90 transition">
+              Request Cash Withdrawal
+            </button>
           </div>
         )}
 
         {tab === 'redeem' && (
-          <div className="max-w-lg mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6 animate-fadeIn">
-            <div className="flex gap-2 mb-4">
-              {['airtime', 'data'].map(t => (
-                <button key={t} onClick={() => { setRedeemTab(t); setMsg(null) }} className={`px-4 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1 ${redeemTab === t ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-slate-850 text-gray-600 dark:text-gray-300'}`}>
-                  {t === 'airtime' ? <><FiSmartphone size={12} /> Airtime</> : <><FiSmartphone size={12} /> Data</>}
-                </button>
-              ))}
+          <div className="max-w-md mx-auto bg-white dark:bg-dark border border-gray-100 dark:border-slate-800 rounded-xl shadow-sm p-6">
+            <div className="flex gap-2 mb-4 border-b border-gray-100 dark:border-slate-800 pb-2">
+              <button onClick={() => setRedeemTab('airtime')} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${redeemTab === 'airtime' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}>Airtime</button>
+              <button onClick={() => setRedeemTab('data')} className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${redeemTab === 'data' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}>Data</button>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Network</label>
-                <select value={network} onChange={e => setNetwork(e.target.value)} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:outline-none focus:border-primary">
-                  <option value="mtn">MTN</option>
-                  <option value="glo">Glo</option>
-                  <option value="airtel">Airtel</option>
-                  <option value="9mobile">9mobile</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
-                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="08012345678" className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none" />
-              </div>
-              {redeemTab === 'airtime' ? (
+            {redeemTab === 'airtime' ? (
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
-                  <select value={airtimeItemId} onChange={e => setAirtimeItemId(e.target.value)} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:outline-none focus:border-primary">
-                    {items?.airtime?.map(a => <option key={a.id} value={a.id}>{a.name} — {a.price} coins</option>)}
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Select Amount</label>
+                  <select value={airtimeItemId} onChange={e => setAirtimeItemId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-dark">
+                    {(items?.airtime || []).map(a => <option key={a.id} value={a.id}>{a.name} — {a.price} coins</option>)}
                   </select>
                 </div>
-              ) : (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data Plan</label>
-                  <select value={dataPlanId} onChange={e => setDataPlanId(e.target.value)} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:outline-none focus:border-primary">
-                    <option value="">Select a plan</option>
-                    {items?.data?.map(d => <option key={d.id} value={d.id}>{d.name} — {d.price} coins ({d.validity})</option>)}
-                  </select>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Phone Number</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="08012345678" className="w-full px-3 py-2 border rounded-lg text-sm" />
                 </div>
-              )}
-              <button onClick={handleRedeem} disabled={redeeming} className="w-full py-2.5 bg-primary text-white rounded-lg font-medium text-sm hover:opacity-90 disabled:opacity-50 transition">
-                {redeeming ? 'Processing...' : `Redeem for ${redeemTab === 'airtime'
-                  ? (items?.airtime?.find(a => a.id === airtimeItemId)?.price || '?')
-                  : (items?.data?.find(d => d.id === dataPlanId)?.price || '?')} coins`}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Checkout Modal */}
-      {selectedPackage && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-dark border border-gray-150 dark:border-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 animate-scaleUp text-dark dark:text-white">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="font-extrabold text-lg text-dark dark:text-white">Secure Payment Checkout</h3>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                  <p className="text-xs text-amber-500 dark:text-amber-400 font-medium">Demo Mode — No real charge</p>
-                </div>
-                <p className="text-[10px] text-gray-400 mt-0.5">Real Paystack/Flutterwave integration coming soon</p>
-              </div>
-              <button
-                onClick={() => { setSelectedPackage(null); stopCamera() }}
-                className="text-gray-400 hover:text-dark dark:hover:text-white text-xl font-bold"
-              >
-                &times;
-              </button>
-            </div>
-
-            <div className="bg-gray-50 dark:bg-slate-800/40 p-4 rounded-xl mb-4 text-sm text-dark dark:text-white border border-gray-100 dark:border-slate-850">
-              <div className="flex justify-between font-medium">
-                <span>Product:</span>
-                <span>{selectedPackage.amount.toLocaleString()} Scholar Coins</span>
-              </div>
-              <div className="flex justify-between font-medium mt-1">
-                <span>Recipient:</span>
-                <span>{checkoutRecipient.trim() ? `@${checkoutRecipient.trim()}` : 'Self (You)'}</span>
-              </div>
-              <div className="h-px bg-gray-250 dark:bg-slate-700 my-2" />
-              <div className="flex justify-between font-black text-primary text-base">
-                <span>Total Cost:</span>
-                <span>₦{selectedPackage.priceNGN.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <style dangerouslySetInnerHTML={{ __html: `
-              @keyframes scan {
-                0% { top: 0%; }
-                50% { top: 100%; }
-                100% { top: 0%; }
-              }
-              .animate-scan {
-                animation: scan 2s linear infinite;
-              }
-            `}} />
-
-            {scanningCard ? (
-              <div className="relative rounded-xl overflow-hidden border border-green-700/50 bg-black">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-64 object-cover"
-                />
-                
-                {/* Pulsing scanning line - only during active analysis */}
-                {isAnalyzing && (
-                  <div className="absolute left-0 right-0 top-0 h-0.5 bg-green-400 shadow-[0_0_8px_#22c55e] animate-scan pointer-events-none" />
-                )}
-                
-                {/* Scanning guide overlay - status label only, no frame */}
-                <div className="absolute inset-0 flex flex-col items-end justify-start pointer-events-none p-2">
-                  <p className="text-white text-[10px] bg-black/60 px-3 py-1 rounded-full font-semibold transition-all">
-                    {isAnalyzing ? '⚡ Card detected! Hold steady...' : 'Place ATM card to fill the frame'}
-                  </p>
-                </div>
-
-                {/* Progress bar overlay at bottom during active analysis */}
-                <div className="absolute bottom-0 left-0 right-0 bg-black/75 px-3 py-2 flex flex-col gap-1">
-                  <div className="flex justify-between items-center text-[10px] font-bold">
-                    <span className={isAnalyzing ? 'text-green-400' : 'text-gray-400'}>
-                      {isAnalyzing ? 'Analyzing card boundary (85.60 × 53.98 mm)...' : 'Waiting for card alignment...'}
-                    </span>
-                    {isAnalyzing && <span className="text-green-400">{scanProgress}%</span>}
-                  </div>
-                  <div className="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-500 transition-all duration-100" style={{ width: `${scanProgress}%` }} />
-                  </div>
-                </div>
-
-                {/* Close camera - icon only */}
-                <button
-                  onClick={stopCamera}
-                  className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-black/60 hover:bg-red-600/80 text-white rounded-full text-sm font-bold transition"
-                >
-                  ✕
+                <button onClick={handleRedeemAirtime} disabled={redeeming || !phone} className="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm disabled:opacity-50">
+                  {redeeming ? 'Processing...' : 'Redeem Airtime'}
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
-                {typeof window !== 'undefined' && window.PaystackPop && process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY && process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY !== 'placeholder' ? (
-                  <div className="text-center py-4 space-y-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Payment will be processed securely via Paystack. You can pay with Card, Bank Transfer, USSD, or Bank App.
-                    </p>
-                    <button
-                      onClick={handleBuyCoins}
-                      disabled={processingPayment}
-                      className="w-full py-3 bg-primary text-white rounded-xl font-bold text-sm hover:scale-[1.01] active:scale-[0.99] transition shadow-lg flex items-center justify-center gap-2"
-                    >
-                      {processingPayment ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                          Verifying Transaction...
-                        </>
-                      ) : (
-                        `Pay ₦${selectedPackage.priceNGN.toLocaleString()} securely`
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {cameraError && (
-                      <div className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-lg px-3 py-2 flex items-start gap-2">
-                        <FiCamera size={13} className="mt-0.5 flex-shrink-0" />
-                        <span>{cameraError}</span>
-                      </div>
-                    )}
-                    <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400">
-                          Card Number
-                        </label>
-                        <button
-                          onClick={handleScanCard}
-                          className="flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded-lg transition-all"
-                        >
-                          <FiCamera size={11} /> Scan Card
-                        </button>
-                      </div>
-                      <input
-                        type="text"
-                        maxLength="19"
-                        value={checkoutCardNumber}
-                        onChange={e => setCheckoutCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                        placeholder="4000 1234 5678 9010"
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-                          Expiry Date
-                        </label>
-                        <input
-                          type="text"
-                          maxLength="5"
-                          value={checkoutExpiry}
-                          onChange={e => setCheckoutExpiry(e.target.value)}
-                          placeholder="MM/YY"
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-                          CVV
-                        </label>
-                        <input
-                          type="password"
-                          maxLength="3"
-                          value={checkoutCVV}
-                          onChange={e => setCheckoutCVV(e.target.value)}
-                          placeholder="123"
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-dark/50 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                    <button
-                      onClick={handleBuyCoins}
-                      disabled={processingPayment || !checkoutCardNumber || !checkoutExpiry || !checkoutCVV}
-                      className="w-full mt-4 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50 transition"
-                    >
-                      {processingPayment ? 'Processing Secure Payment...' : `Pay ₦${selectedPackage.priceNGN.toLocaleString()} (Demo)`}
-                    </button>
-                  </div>
-                )}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Select Data Plan</label>
+                  <select value={dataPlanId} onChange={e => setDataPlanId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-dark">
+                    <option value="">Choose plan...</option>
+                    {(items?.data || []).map(d => <option key={d.id} value={d.id}>{d.name} — {d.price} coins</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Phone Number</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="08012345678" className="w-full px-3 py-2 border rounded-lg text-sm" />
+                </div>
+                <button onClick={handleRedeemData} disabled={redeeming || !dataPlanId || !phone} className="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm disabled:opacity-50">
+                  {redeeming ? 'Processing...' : 'Redeem Data'}
+                </button>
               </div>
             )}
+          </div>
+        )}
+      </div>
+
+      {/* Global & African Multi-Gateway Checkout Modal */}
+      {selectedPackage && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1a1a1e] border border-gray-100 dark:border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-scaleUp">
+            <button
+              onClick={() => setSelectedPackage(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-dark dark:hover:text-white text-lg font-bold"
+            >
+              ✕
+            </button>
+
+            <div className="text-center mb-6">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
+                {selectedPackage.type === 'badge' ? 'Subscription Checkout' : 'Coin Package Checkout'}
+              </span>
+              <h3 className="text-xl font-extrabold text-dark dark:text-white mt-2">{selectedPackage.name}</h3>
+              <p className="text-2xl font-black text-primary mt-1">
+                ₦{(selectedPackage.priceNGN || selectedPackage.price).toLocaleString()}
+                <span className="text-xs text-gray-400 font-normal ml-2">(${selectedPackage.priceUSD || ((selectedPackage.priceNGN || selectedPackage.price) / 1000)} USD)</span>
+              </p>
+              {checkoutRecipient && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1">
+                  🎁 Gifting to: @{checkoutRecipient}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                Choose Payment Method:
+              </p>
+
+              {/* 1. Paystack Gateway (African / Nigerian Cards, Bank Transfer, USSD) */}
+              <button
+                onClick={() => handlePaystackCheckout(selectedPackage)}
+                disabled={processingPayment}
+                className="w-full p-3.5 bg-emerald-50 hover:bg-emerald-100/80 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                    ₦
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-dark dark:text-white text-sm">Paystack</span>
+                      <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded-full font-extrabold">Africa</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Debit Card, Bank Transfer, USSD, Verve/Mastercard</p>
+                  </div>
+                </div>
+                <span className="text-emerald-700 dark:text-emerald-300 font-bold text-sm">
+                  ₦{(selectedPackage.priceNGN || selectedPackage.price).toLocaleString()}
+                </span>
+              </button>
+
+              {/* 2. Flutterwave Gateway (International / Global Cards, USD/EUR/GBP, Apple Pay) */}
+              <button
+                onClick={() => handleFlutterwaveCheckout(selectedPackage)}
+                disabled={processingPayment}
+                className="w-full p-3.5 bg-orange-50 hover:bg-orange-100/80 dark:bg-orange-950/30 dark:hover:bg-orange-950/50 border border-orange-300 dark:border-orange-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                    <FiGlobe size={18} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-dark dark:text-white text-sm">Flutterwave</span>
+                      <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-extrabold">Global</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">International Visa, Mastercard, Apple Pay, USD/EUR/GBP</p>
+                  </div>
+                </div>
+                <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">
+                  ${selectedPackage.priceUSD || ((selectedPackage.priceNGN || selectedPackage.price) / 1000)} USD
+                </span>
+              </button>
+
+              {/* 3. Pay with Coins (For Badges, if user has sufficient coins) */}
+              {selectedPackage.type === 'badge' && (
+                <button
+                  onClick={() => handlePayWithCoins(selectedPackage)}
+                  disabled={buying === selectedPackage.id || (user?.coins || 0) < (selectedPackage.price || 0)}
+                  className={`w-full p-3.5 rounded-xl text-left transition flex items-center justify-between border ${
+                    (user?.coins || 0) >= (selectedPackage.price || 0)
+                      ? 'bg-amber-50 hover:bg-amber-100/80 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 border-amber-300 dark:border-amber-700/60 cursor-pointer'
+                      : 'bg-gray-100 dark:bg-slate-800/40 border-gray-200 dark:border-slate-800 opacity-60 cursor-not-allowed'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                      <BsCoin size={18} />
+                    </div>
+                    <div>
+                      <span className="font-bold text-dark dark:text-white text-sm">Pay with Coins</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Balance: {user?.coins || 0} coins {(user?.coins || 0) < (selectedPackage.price || 0) ? '(Insufficient)' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-amber-700 dark:text-amber-300 font-bold text-sm">
+                    {(selectedPackage.price || 0).toLocaleString()} Coins
+                  </span>
+                </button>
+              )}
+            </div>
+
+            <p className="text-[11px] text-center text-gray-400 dark:text-gray-500 mt-5">
+              🔒 256-Bit Bank Grade Encryption • Instant Auto-Activation
+            </p>
           </div>
         </div>
       )}

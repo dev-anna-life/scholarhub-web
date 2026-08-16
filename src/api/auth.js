@@ -71,6 +71,7 @@ export const redeemAirtime = (itemId, network, phone) => API.post('/shop/redeem-
 export const redeemData = (itemId, network, phone) => API.post('/shop/redeem-data', { itemId, phone, network })
 export const buyCoins = (itemId, recipientUsername) => API.post('/shop/buy-coins', { itemId, recipientUsername })
 export const verifyPaystackPayment = (reference, itemId, recipientUsername) => API.post('/shop/verify-paystack', { reference, itemId, recipientUsername })
+export const verifyFlutterwavePayment = (transactionId, itemId, recipientUsername) => API.post('/shop/verify-flutterwave', { transactionId, itemId, recipientUsername })
 
 export const getCommunities = (params) => API.get('/communities', { params })
 export const createCommunity = (data) => API.post('/communities', data)
