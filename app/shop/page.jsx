@@ -180,31 +180,6 @@ export default function ShopPage() {
     }
   }
 
-    // Graceful Fallback: Local Sandbox/Demo Card Simulation
-    if (!checkoutCardNumber || !checkoutExpiry || !checkoutCVV) {
-      setMsg({ type: 'error', text: 'Please fill in all card details or use Scan Card' })
-      return
-    }
-    setProcessingPayment(true)
-    setMsg(null)
-    try {
-      const res = await buyCoins(selectedPackage.id, checkoutRecipient)
-      const u = await getMe()
-      setUser(u.data)
-      setMsg({ type: 'success', text: res.data.message })
-      // Clear payment form
-      setCheckoutCardNumber('')
-      setCheckoutExpiry('')
-      setCheckoutCVV('')
-      setCheckoutRecipient('')
-      setSelectedPackage(null)
-    } catch (e) {
-      setMsg({ type: 'error', text: e.response?.data?.message || 'Payment failed. Please try again.' })
-    } finally {
-      setProcessingPayment(false)
-    }
-  }
-
   const stopCamera = useCallback(() => {
     if (scanIntervalRef.current) {
       clearInterval(scanIntervalRef.current)
