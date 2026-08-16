@@ -383,14 +383,20 @@ function Home() {
             } catch (_) {}
         }
         const from = notif.fromUser || notif.sender
+        const fromId = from?.id || from?._id
+        const postId = notif.postId || notif.post?.id || notif.post?._id
+
         if (notif.type === 'message') {
-            router.push('/chat')
+            router.push(fromId ? `/chat?user=${fromId}` : '/chat')
         } else if (notif.type === 'follow') {
-            if (from?._id) router.push(`/profile/${from._id}`)
-        } else if (notif.type === 'like' || notif.type === 'comment') {
-            router.push('/profile')
+            if (fromId) router.push(`/profile/${fromId}`)
+        } else if (notif.type === 'like' || notif.type === 'comment' || notif.type === 'gift') {
+            if (postId) router.push(`/post/${postId}`)
+            else router.push('/feed')
         } else {
-            if (from?._id) router.push(`/profile/${from._id}`)
+            if (postId) router.push(`/post/${postId}`)
+            else if (fromId) router.push(`/profile/${fromId}`)
+            else router.push('/feed')
         }
     }
 

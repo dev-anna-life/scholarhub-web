@@ -102,13 +102,12 @@ function Navbar() {
       router.push(fromId ? `/chat?user=${fromId}` : '/chat')
     } else if (notif.type === 'follow') {
       if (fromId) router.push(`/profile/${fromId}`)
-    } else if (notif.type === 'like' || notif.type === 'comment') {
+    } else if (notif.type === 'like' || notif.type === 'comment' || notif.type === 'gift') {
       if (postId) router.push(`/post/${postId}`)
       else router.push('/feed')
-    } else if (notif.type === 'gift') {
-      router.push('/profile')
     } else {
       if (postId) router.push(`/post/${postId}`)
+      else if (fromId) router.push(`/profile/${fromId}`)
       else router.push('/feed')
     }
   }
