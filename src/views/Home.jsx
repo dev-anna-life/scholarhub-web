@@ -419,7 +419,7 @@ function Home() {
 
         if (tier === 'free') {
             if (wordCount > 80) {
-                setPostError('Free accounts can write up to 80 words. Upgrade to Basic (₦2,000/mo) to post up to 500 words.')
+                setPostError('Free accounts can write up to 80 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
                 return
             }
             if (postVideo) {
@@ -427,8 +427,8 @@ function Home() {
                 return
             }
         } else if (tier === 'basic') {
-            if (wordCount > 500 && charCount > 2500) {
-                setPostError('Basic tier limit is 500 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
+            if (wordCount > 80) {
+                setPostError('Basic tier limit is 80 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
                 return
             }
         } else if (tier === 'premium') {
@@ -996,13 +996,12 @@ function Home() {
                                 <div className="flex justify-between items-center text-[11px] text-gray-400 px-1">
                                     <span className="capitalize font-semibold text-primary">{getUserTier(user).replace('_', ' ')} tier</span>
                                     <span className={
-                                        (getUserTier(user) === 'free' && (newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0) > 80) ||
-                                        (getUserTier(user) === 'basic' && newPost.content.trim().split(/\s+/).length > 500 && newPost.content.length > 2500) ||
+                                        ((getUserTier(user) === 'free' || getUserTier(user) === 'basic') && (newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0) > 80) ||
                                         (getUserTier(user) === 'premium' && newPost.content.trim().split(/\s+/).length > 1000 && newPost.content.length > 5000)
                                             ? 'text-red-500 font-bold'
                                             : ''
                                     }>
-                                        {getUserTier(user) === 'free' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/80 words` : getUserTier(user) === 'basic' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/500 words` : getUserTier(user) === 'premium' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/1,000 words` : 'Unlimited words'}
+                                        {(getUserTier(user) === 'free' || getUserTier(user) === 'basic') ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/80 words` : getUserTier(user) === 'premium' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/1,000 words` : 'Unlimited words'}
                                     </span>
                                 </div>
                                 <select value={newPost.category} onChange={e => setNewPost({ ...newPost, category: e.target.value })}
