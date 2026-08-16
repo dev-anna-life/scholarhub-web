@@ -15,6 +15,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script src="https://js.paystack.co/v1/inline.js" async />
+        <script src="https://checkout.flutterwave.com/v3.js" async />
         <script
           dangerouslySetInnerHTML={{
             __html: `

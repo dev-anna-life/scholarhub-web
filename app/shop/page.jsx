@@ -95,41 +95,82 @@ export default function ShopPage() {
 
   const handlePaystackCheckout = (item) => {
     const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_7b0863fcf6dd94b90a504fa302a7478700a8574f'
+    
+    // Fallback if script hasn't loaded yet
     if (typeof window === 'undefined' || !window.PaystackPop) {
-      alert('Paystack is loading. Please try again in a moment.')
+      const script = document.createElement('script')
+      script.src = 'https://js.paystack.co/v1/inline.js'
+      script.onload = () => handlePaystackCheckout(item)
+      document.head.appendChild(script)
+      setMsg({ type: 'error', text: 'Loading Paystack gateway... please click again in a moment.' })
       return
     }
-    const priceNGN = item.priceNGN || item.price || 0
+
+    const priceNGN = Number(item.priceNGN || item.price || 0)
+    const email = (user?.email && user.email.includes('@')) ? user.email.trim() : 'student@scholarhub.com'
+    const reference = 'SH_PST_' + Date.now()
+
     setProcessingPayment(true)
     setMsg(null)
+
     try {
-      const handler = window.PaystackPop.setup({
-        key: paystackKey,
-        email: user?.email || 'customer@scholarhub.com',
-        amount: priceNGN * 100, // Kobo
-        currency: 'NGN',
-        ref: 'SH_PST_' + Date.now(),
-        callback: async function (response) {
-          try {
-            const res = await verifyPaystackPayment(response.reference, item.id, checkoutRecipient)
-            const u = await getMe()
-            setUser(u.data)
-            setMsg({ type: 'success', text: res.data.message })
-            setSelectedPackage(null)
-          } catch (err) {
-            setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
-          } finally {
+      if (typeof window.PaystackPop?.setup === 'function') {
+        const handler = window.PaystackPop.setup({
+          key: paystackKey,
+          email: email,
+          amount: Math.round(priceNGN * 100), // in Kobo
+          currency: 'NGN',
+          ref: reference,
+          callback: async function (response) {
+            try {
+              const res = await verifyPaystackPayment(response.reference || response.trxref || reference, item.id, checkoutRecipient)
+              const u = await getMe()
+              setUser(u.data)
+              setMsg({ type: 'success', text: res.data?.message || 'Payment completed successfully!' })
+              setSelectedPackage(null)
+            } catch (err) {
+              setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
+            } finally {
+              setProcessingPayment(false)
+            }
+          },
+          onClose: function () {
             setProcessingPayment(false)
           }
-        },
-        onClose: function () {
-          setProcessingPayment(false)
-        }
-      })
-      handler.openIframe()
+        })
+        handler.openIframe()
+      } else if (typeof window.PaystackPop === 'function') {
+        const paystack = new window.PaystackPop()
+        paystack.newTransaction({
+          key: paystackKey,
+          email: email,
+          amount: Math.round(priceNGN * 100),
+          currency: 'NGN',
+          reference: reference,
+          onSuccess: async function (transaction) {
+            try {
+              const res = await verifyPaystackPayment(transaction.reference || reference, item.id, checkoutRecipient)
+              const u = await getMe()
+              setUser(u.data)
+              setMsg({ type: 'success', text: res.data?.message || 'Payment completed successfully!' })
+              setSelectedPackage(null)
+            } catch (err) {
+              setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
+            } finally {
+              setProcessingPayment(false)
+            }
+          },
+          onCancel: function () {
+            setProcessingPayment(false)
+          }
+        })
+      } else {
+        throw new Error('Paystack checkout popup could not be initialized')
+      }
     } catch (e) {
+      console.error('Paystack initialization error:', e)
       setProcessingPayment(false)
-      setMsg({ type: 'error', text: 'Failed to initialize Paystack checkout' })
+      setMsg({ type: 'error', text: e.message || 'Failed to initialize Paystack checkout' })
     }
   }
 

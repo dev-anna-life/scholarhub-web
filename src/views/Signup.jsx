@@ -17,7 +17,7 @@ const fadeUp = {
   exit: { opacity: 0, y: 30, transition: { duration: 0.3 } },
 }
 
-const levels = ['Secondary', 'University']
+const levels = ['Secondary', 'University', 'Alumni']
 const secondaryInterests = ['Sciences', 'Mathematics', 'English & Literature', 'Arts & Creativity', 'Commerce / Business', 'Technology / ICT', 'History & Government', 'Sports']
 const universityInterests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
 const tracks = ['Science', 'Art', 'Commercial']
@@ -485,12 +485,12 @@ function Signup() {
 
   const validateStep2 = () => {
     const newErrors = {}
-    if (!form.level) newErrors.level = 'Please select your education level'
+    if (!form.level) newErrors.level = 'Please select your education level / status'
     if (!form.country) newErrors.country = 'Country is required'
     if (!form.state.trim()) newErrors.state = 'State is required'
     if (!form.school.trim()) newErrors.school = 'School name is required'
     if (form.level === 'Secondary' && !form.track) newErrors.track = 'Please select a track'
-    if (form.level === 'University') {
+    if (form.level === 'University' || form.level === 'Alumni') {
       if (!form.faculty) newErrors.faculty = 'Faculty is required'
       if (!form.department) newErrors.department = 'Department is required'
     }
@@ -592,7 +592,7 @@ function Signup() {
                 </div>
                 <div className="relative">
                   <FiMail className="absolute left-3 top-3.5 text-gray-400" size={16} />
-                  <input name="email" type="email" placeholder="Email Address" value={form.email} onChange={handleChange} className={`input-field ${errors.email ? 'border-red-400' : ''}`} />
+                  <input id="signup-email" name="email" type="email" autoComplete="email" placeholder="Email Address" value={form.email} onChange={handleChange} className={`input-field ${errors.email ? 'border-red-400' : ''}`} />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
@@ -621,12 +621,14 @@ function Signup() {
                     <div className="relative flex-1">
                       <FiPhone className="absolute left-3 top-3.5 text-gray-400" size={16} />
                       <input
+                        id="signup-phone"
                         name="phone"
                         type="tel"
+                        autoComplete="tel-national"
                         placeholder="Phone Number (e.g. 8012345678)"
                         value={rawPhone}
                         onChange={e => {
-                          const val = e.target.value
+                          const val = e.target.value.replace(/[^0-9]/g, '')
                           setRawPhone(val)
                           setForm(prev => ({
                             ...prev,
@@ -664,11 +666,15 @@ function Signup() {
               <h2 className="text-xl font-bold text-dark mb-1">Your school details</h2>
               <p className="text-sm text-gray-400 mb-5">We'll connect you with your school community</p>
 
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-3 gap-2.5 mb-4">
                 {levels.map(level => (
                   <motion.button key={level} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}
-                    onClick={() => setForm(prev => ({ ...prev, level }))}
-                    className={`py-4 rounded-xl border-2 text-sm font-semibold transition-all ${form.level === level ? 'border-primary bg-primary text-white' : 'border-gray-200 text-dark hover:border-primary'}`}>
+                    onClick={() => setForm(prev => ({
+                      ...prev,
+                      level,
+                      status: level === 'Alumni' ? 'Alumni' : 'Current Student'
+                    }))}
+                    className={`py-3.5 px-2 rounded-xl border-2 text-xs font-semibold transition-all ${form.level === level ? 'border-primary bg-primary text-white shadow-sm' : 'border-gray-200 text-dark hover:border-primary'}`}>
                     {level}
                   </motion.button>
                 ))}
@@ -690,7 +696,7 @@ function Signup() {
                 </div>
               )}
 
-              {form.level === 'University' && (
+              {(form.level === 'University' || form.level === 'Alumni') && (
                 <div className="mb-4">
                   <label className="block text-xs font-semibold text-gray-500 mb-2">Course / Field of Study</label>
                   <div className="max-h-32 overflow-y-auto flex flex-wrap gap-1.5 border border-gray-200 rounded-xl p-2">
@@ -719,7 +725,7 @@ function Signup() {
                   onChange={(val) => setForm(prev => ({ ...prev, school: val }))} error={errors.school} />
               </div>
 
-              {form.level === 'University' && (
+              {(form.level === 'University' || form.level === 'Alumni') && (
                 <>
                   <div className="mb-3 relative">
                     <label className="block text-xs font-semibold text-gray-500 mb-1">Faculty</label>
@@ -727,9 +733,8 @@ function Signup() {
                     <input ref={facultyRef} type="text" value={facultyQuery}
                       onFocus={() => setShowFacultyDropdown(true)}
                       onChange={e => { setFacultyQuery(e.target.value); setForm(prev => ({ ...prev, faculty: '', department: '' })); setShowFacultyDropdown(true) }}
-                      placeholder={form.course ? `Suggested: ${getSuggestedFaculty(form.course) || 'Search faculty...'}` : 'Search faculty...'}
+                      placeholder="Search faculty..."
                       className="w-full pl-8 pr-3 py-2 rounded-xl border border-gray-200 text-sm bg-white" />
-                    {form.faculty && <FiCheck size={14} className="absolute right-3 top-[30px] text-green-500" />}
                     {showFacultyDropdown && (
                       <div ref={facultyRef} className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
                         {filteredFaculties.map(f => (
@@ -749,14 +754,13 @@ function Signup() {
                     <input ref={deptRef} type="text" value={deptQuery}
                       onFocus={() => setShowDeptDropdown(true)}
                       onChange={e => { setDeptQuery(e.target.value); setForm(prev => ({ ...prev, department: '' })); setShowDeptDropdown(true) }}
-                      placeholder={form.course ? `Suggested: ${getSuggestedDepartment(form.course) || 'Select department...'}` : 'Select department...'}
+                      placeholder="Select department..."
                       disabled={!form.faculty}
                       className="w-full pl-8 pr-3 py-2 rounded-xl border border-gray-200 text-sm bg-white disabled:bg-gray-50" />
-                    {form.department && <FiCheck size={14} className="absolute right-3 top-[30px] text-green-500" />}
                     {showDeptDropdown && form.faculty && (
                       <div ref={deptRef} className="mt-1 max-h-40 overflow-y-auto border border-gray-100 rounded-xl bg-white shadow-sm z-20 absolute w-full">
                         {filteredDepts.length === 0 ? (
-                          <div className="p-3 text-sm text-gray-400 text-center">{deptQuery ? 'No matching departments' : 'Select a faculty first'}</div>
+                          <div className="p-3 text-sm text-gray-400 text-center">No matching departments</div>
                         ) : filteredDepts.map(d => (
                           <button key={d} type="button" onClick={() => { setForm(prev => ({ ...prev, department: d })); setDeptQuery(d); setShowDeptDropdown(false) }}
                             className={`w-full text-left px-3 py-2 text-sm ${form.department === d ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
