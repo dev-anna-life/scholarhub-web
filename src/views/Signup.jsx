@@ -609,17 +609,17 @@ function Signup() {
                             phone: rawPhone.trim() ? `${c.code} ${rawPhone.trim()}` : ''
                           }))
                         }}
-                        className="w-full h-full py-3 px-2 border border-gray-200 rounded-xl text-xs font-semibold bg-white text-dark focus:border-primary focus:outline-none cursor-pointer"
+                        className="w-full h-full py-3 px-2 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold bg-white dark:bg-zinc-800 text-gray-900 dark:text-white focus:border-primary focus:outline-none cursor-pointer"
                       >
                         {countryList.map((c, i) => (
-                          <option key={i} value={c.code}>
+                          <option key={i} value={c.code} className="bg-white dark:bg-zinc-800 text-gray-900 dark:text-white">
                             {c.flag} {c.code} ({c.name})
                           </option>
                         ))}
                       </select>
                     </div>
                     <div className="relative flex-1">
-                      <FiPhone className="absolute left-3 top-3.5 text-gray-400" size={16} />
+                      <FiPhone className="absolute left-3 top-3.5 text-gray-400 pointer-events-none" size={16} />
                       <input
                         id="signup-phone"
                         name="phone"
@@ -635,7 +635,7 @@ function Signup() {
                             phone: val.trim() ? `${selectedCountry.code} ${val.trim()}` : ''
                           }))
                         }}
-                        className={`input-field !pl-9 ${errors.phone ? 'border-red-400' : ''}`}
+                        className={`input-field !pl-9 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white font-medium ${errors.phone ? 'border-red-400' : ''}`}
                       />
                     </div>
                   </div>

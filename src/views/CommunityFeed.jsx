@@ -307,8 +307,8 @@ function CommunityFeed() {
         const charCount = newPost.content.length
 
         if (!isExtra && !isPremium && !isBasic) {
-            if (charCount > 250) {
-                setPostError('Free accounts can write up to 250 characters. Upgrade to Basic (₦2,000/mo) to post up to 500 words.')
+            if (wordCount > 80) {
+                setPostError('Free accounts can write up to 80 words. Upgrade to Basic (₦2,000/mo) to post up to 500 words.')
                 return
             }
             if (newPost.video) {
@@ -649,7 +649,7 @@ function CommunityFeed() {
                                 const charCount = newPost.content.length
                                 const tierName = isExtra ? 'Extra Premium' : isPremium ? 'Premium' : isBasic ? 'Basic' : 'Free'
 
-                                const over = (!isExtra && !isPremium && !isBasic && charCount > 250) ||
+                                const over = (!isExtra && !isPremium && !isBasic && wordCount > 80) ||
                                              (isBasic && !isPremium && !isExtra && (wordCount > 500 || charCount > 2500)) ||
                                              (isPremium && !isExtra && (wordCount > 1000 || charCount > 5000))
 
@@ -657,7 +657,7 @@ function CommunityFeed() {
                                     <div className="flex justify-between items-center text-xs mb-2 px-1">
                                         <span className="font-semibold text-primary">{tierName} tier</span>
                                         <span className={over ? 'text-red-500 font-bold' : 'text-gray-400'}>
-                                            {!isExtra && !isPremium && !isBasic ? `${charCount}/250 chars` : isBasic ? `${wordCount}/500 words` : isPremium ? `${wordCount}/1,000 words` : 'Unlimited words'}
+                                            {!isExtra && !isPremium && !isBasic ? `${wordCount}/80 words` : isBasic ? `${wordCount}/500 words` : isPremium ? `${wordCount}/1,000 words` : 'Unlimited words'}
                                         </span>
                                     </div>
                                 )

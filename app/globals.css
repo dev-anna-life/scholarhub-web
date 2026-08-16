@@ -610,18 +610,19 @@ html, body {
 .dark .input-field {
   background: #18181b;
   border-color: #27272a;
-  color: #f8faf7;
+  color: #ffffff !important;
 }
 
 .dark .input-field:focus {
-  background: #18181b;
-  border-color: #008751;
+  background: #18181b !important;
+  border-color: #008751 !important;
+  color: #ffffff !important;
 }
 
 .dark select,
 .dark select option {
   background: #18181b;
-  color: #f8faf7;
+  color: #ffffff !important;
   border-color: #27272a;
 }
 
