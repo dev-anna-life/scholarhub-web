@@ -21,19 +21,74 @@ const levels = ['Secondary', 'University']
 const secondaryInterests = ['Sciences', 'Mathematics', 'English & Literature', 'Arts & Creativity', 'Commerce / Business', 'Technology / ICT', 'History & Government', 'Sports']
 const universityInterests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
 const tracks = ['Science', 'Art', 'Commercial']
-const africanCountries = [
-  'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
-  'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad',
-  'Comoros', 'Congo', "Côte d'Ivoire", 'Democratic Republic of the Congo',
-  'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini',
-  'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau',
-  'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar',
-  'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique',
-  'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé and Príncipe',
-  'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa',
-  'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda',
-  'Zambia', 'Zimbabwe'
-].sort()
+
+export const countryList = [
+  { name: 'Nigeria', code: '+234', flag: '🇳🇬', region: 'Africa' },
+  { name: 'United States', code: '+1', flag: '🇺🇸', region: 'Americas' },
+  { name: 'United Kingdom', code: '+44', flag: '🇬🇧', region: 'Europe' },
+  { name: 'Canada', code: '+1', flag: '🇨🇦', region: 'Americas' },
+  { name: 'Ghana', code: '+233', flag: '🇬🇭', region: 'Africa' },
+  { name: 'Kenya', code: '+254', flag: '🇰🇪', region: 'Africa' },
+  { name: 'South Africa', code: '+27', flag: '🇿🇦', region: 'Africa' },
+  { name: 'Uganda', code: '+256', flag: '🇺🇬', region: 'Africa' },
+  { name: 'Rwanda', code: '+250', flag: '🇷🇼', region: 'Africa' },
+  { name: 'Cameroon', code: '+237', flag: '🇨🇲', region: 'Africa' },
+  { name: 'Tanzania', code: '+255', flag: '🇹🇿', region: 'Africa' },
+  { name: 'Senegal', code: '+221', flag: '🇸🇳', region: 'Africa' },
+  { name: 'Egypt', code: '+20', flag: '🇪🇬', region: 'Africa' },
+  { name: 'Germany', code: '+49', flag: '🇩🇪', region: 'Europe' },
+  { name: 'France', code: '+33', flag: '🇫🇷', region: 'Europe' },
+  { name: 'India', code: '+91', flag: '🇮🇳', region: 'Asia' },
+  { name: 'Australia', code: '+61', flag: '🇦🇺', region: 'Oceania' },
+  { name: 'United Arab Emirates', code: '+971', flag: '🇦🇪', region: 'Middle East' },
+  { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦', region: 'Middle East' },
+  { name: 'China', code: '+86', flag: '🇨🇳', region: 'Asia' },
+  { name: 'Brazil', code: '+55', flag: '🇧🇷', region: 'Americas' },
+  { name: 'Algeria', code: '+213', flag: '🇩🇿', region: 'Africa' },
+  { name: 'Angola', code: '+244', flag: '🇦🇴', region: 'Africa' },
+  { name: 'Benin', code: '+229', flag: '🇧🇯', region: 'Africa' },
+  { name: 'Botswana', code: '+267', flag: '🇧🇼', region: 'Africa' },
+  { name: 'Burkina Faso', code: '+226', flag: '🇧🇫', region: 'Africa' },
+  { name: 'Burundi', code: '+257', flag: '🇧🇮', region: 'Africa' },
+  { name: 'Cape Verde', code: '+238', flag: '🇨🇻', region: 'Africa' },
+  { name: 'Central African Republic', code: '+236', flag: '🇨🇫', region: 'Africa' },
+  { name: 'Chad', code: '+235', flag: '🇹🇩', region: 'Africa' },
+  { name: 'Comoros', code: '+269', flag: '🇰🇲', region: 'Africa' },
+  { name: 'Congo', code: '+242', flag: '🇨🇬', region: 'Africa' },
+  { name: "Côte d'Ivoire", code: '+225', flag: '🇨🇮', region: 'Africa' },
+  { name: 'Democratic Republic of the Congo', code: '+243', flag: '🇨🇩', region: 'Africa' },
+  { name: 'Djibouti', code: '+253', flag: '🇩🇯', region: 'Africa' },
+  { name: 'Equatorial Guinea', code: '+240', flag: '🇬🇶', region: 'Africa' },
+  { name: 'Eritrea', code: '+291', flag: '🇪🇷', region: 'Africa' },
+  { name: 'Eswatini', code: '+268', flag: '🇸🇿', region: 'Africa' },
+  { name: 'Ethiopia', code: '+251', flag: '🇪🇹', region: 'Africa' },
+  { name: 'Gabon', code: '+241', flag: '🇬🇦', region: 'Africa' },
+  { name: 'Gambia', code: '+220', flag: '🇬🇲', region: 'Africa' },
+  { name: 'Guinea', code: '+224', flag: '🇬🇳', region: 'Africa' },
+  { name: 'Guinea-Bissau', code: '+245', flag: '🇬🇼', region: 'Africa' },
+  { name: 'Lesotho', code: '+266', flag: '🇱🇸', region: 'Africa' },
+  { name: 'Liberia', code: '+231', flag: '🇱🇷', region: 'Africa' },
+  { name: 'Libya', code: '+218', flag: '🇱🇾', region: 'Africa' },
+  { name: 'Madagascar', code: '+261', flag: '🇲🇬', region: 'Africa' },
+  { name: 'Malawi', code: '+265', flag: '🇲🇼', region: 'Africa' },
+  { name: 'Mali', code: '+223', flag: '🇲🇱', region: 'Africa' },
+  { name: 'Mauritania', code: '+222', flag: '🇲🇷', region: 'Africa' },
+  { name: 'Mauritius', code: '+230', flag: '🇲🇺', region: 'Africa' },
+  { name: 'Morocco', code: '+212', flag: '🇲🇦', region: 'Africa' },
+  { name: 'Mozambique', code: '+258', flag: '🇲🇿', region: 'Africa' },
+  { name: 'Namibia', code: '+264', flag: '🇳🇦', region: 'Africa' },
+  { name: 'Niger', code: '+227', flag: '🇳🇪', region: 'Africa' },
+  { name: 'São Tomé and Príncipe', code: '+239', flag: '🇸🇹', region: 'Africa' },
+  { name: 'Seychelles', code: '+248', flag: '🇸🇨', region: 'Africa' },
+  { name: 'Sierra Leone', code: '+232', flag: '🇸🇱', region: 'Africa' },
+  { name: 'Somalia', code: '+252', flag: '🇸🇴', region: 'Africa' },
+  { name: 'South Sudan', code: '+211', flag: '🇸🇸', region: 'Africa' },
+  { name: 'Sudan', code: '+249', flag: '🇸🇩', region: 'Africa' },
+  { name: 'Togo', code: '+228', flag: '🇹🇬', region: 'Africa' },
+  { name: 'Tunisia', code: '+216', flag: '🇹🇳', region: 'Africa' },
+  { name: 'Zambia', code: '+260', flag: '🇿🇲', region: 'Africa' },
+  { name: 'Zimbabwe', code: '+263', flag: '🇿🇼', region: 'Africa' },
+]
 
 function CountrySelect({ value, onChange, error }) {
   const [query, setQuery] = useState(value || '')
@@ -54,7 +109,9 @@ function CountrySelect({ value, onChange, error }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const filtered = query ? africanCountries.filter(c => c.toLowerCase().includes(query.toLowerCase())) : africanCountries
+  const filtered = query
+    ? countryList.filter(c => c.name.toLowerCase().includes(query.toLowerCase()) || c.code.includes(query))
+    : countryList
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -63,7 +120,7 @@ function CountrySelect({ value, onChange, error }) {
         <input type="text" value={query}
           onChange={e => { setQuery(e.target.value); setSelected(false); onChange(e.target.value) }}
           onFocus={() => setShowDropdown(true)}
-          placeholder="Your country..."
+          placeholder="Search country or dial code (+234, +1...)"
           className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : selected ? 'border-primary' : ''}`} />
         {query && (
           <button type="button" onClick={() => { setQuery(''); setSelected(false); onChange(''); }} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
@@ -77,9 +134,13 @@ function CountrySelect({ value, onChange, error }) {
             <p className="p-3 text-sm text-gray-400 text-center">Type your country</p>
           ) : filtered.map((c, i) => (
             <button key={i} type="button"
-              onClick={() => { setQuery(c); setSelected(true); setShowDropdown(false); onChange(c) }}
-              className="w-full text-left px-3 py-2.5 text-sm text-dark hover:bg-primary/5">
-              {c}
+              onClick={() => { setQuery(c.name); setSelected(true); setShowDropdown(false); onChange(c.name) }}
+              className="w-full text-left px-3 py-2.5 text-sm text-dark hover:bg-primary/5 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <span>{c.flag}</span>
+                <span>{c.name}</span>
+              </span>
+              <span className="text-xs text-gray-400 font-mono font-semibold">{c.code}</span>
             </button>
           ))}
         </div>
@@ -335,9 +396,11 @@ function Signup() {
   const [showDeptDropdown, setShowDeptDropdown] = useState(false)
   const facultyRef = useRef(null)
   const deptRef = useRef(null)
+  const [selectedCountry, setSelectedCountry] = useState(countryList[0])
+  const [rawPhone, setRawPhone] = useState('')
   const [form, setForm] = useState({
     name: '', email: '', phone: '', password: '', username: '',
-    level: '', school: '', country: '', state: '', course: '', track: '', faculty: '', department: '', interests: [],
+    level: '', school: '', country: 'Nigeria', state: '', course: '', track: '', faculty: '', department: '', interests: [],
   })
 
   useEffect(() => {
@@ -532,9 +595,48 @@ function Signup() {
                   <input name="email" type="email" placeholder="Email Address" value={form.email} onChange={handleChange} className={`input-field ${errors.email ? 'border-red-400' : ''}`} />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
-                <div className="relative">
-                  <FiPhone className="absolute left-3 top-3.5 text-gray-400" size={16} />
-                  <input name="phone" type="tel" placeholder="Phone Number" value={form.phone} onChange={handleChange} className={`input-field ${errors.phone ? 'border-red-400' : ''}`} />
+                <div>
+                  <div className="flex gap-2">
+                    <div className="relative w-36 flex-shrink-0">
+                      <select
+                        value={selectedCountry.code}
+                        onChange={e => {
+                          const c = countryList.find(item => item.code === e.target.value) || countryList[0]
+                          setSelectedCountry(c)
+                          setForm(prev => ({
+                            ...prev,
+                            country: c.name,
+                            phone: rawPhone.trim() ? `${c.code} ${rawPhone.trim()}` : ''
+                          }))
+                        }}
+                        className="w-full h-full py-3 px-2 border border-gray-200 rounded-xl text-xs font-semibold bg-white text-dark focus:border-primary focus:outline-none cursor-pointer"
+                      >
+                        {countryList.map((c, i) => (
+                          <option key={i} value={c.code}>
+                            {c.flag} {c.code} ({c.name})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="relative flex-1">
+                      <FiPhone className="absolute left-3 top-3.5 text-gray-400" size={16} />
+                      <input
+                        name="phone"
+                        type="tel"
+                        placeholder="Phone Number (e.g. 8012345678)"
+                        value={rawPhone}
+                        onChange={e => {
+                          const val = e.target.value
+                          setRawPhone(val)
+                          setForm(prev => ({
+                            ...prev,
+                            phone: val.trim() ? `${selectedCountry.code} ${val.trim()}` : ''
+                          }))
+                        }}
+                        className={`input-field !pl-9 ${errors.phone ? 'border-red-400' : ''}`}
+                      />
+                    </div>
+                  </div>
                   {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
                 <div className="relative">

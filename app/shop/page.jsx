@@ -38,6 +38,7 @@ export default function ShopPage() {
   const [checkoutCVV, setCheckoutCVV] = useState('')
   const [checkoutRecipient, setCheckoutRecipient] = useState('')
   const [processingPayment, setProcessingPayment] = useState(false)
+  const [showAllGateways, setShowAllGateways] = useState(false)
   const [scanningCard, setScanningCard] = useState(false)
   const [cameraError, setCameraError] = useState(null)
   const [scanProgress, setScanProgress] = useState(0)
@@ -674,87 +675,111 @@ export default function ShopPage() {
               )}
             </div>
 
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                Choose Payment Method:
-              </p>
+            {(() => {
+              const userCountry = (user?.country || '').toLowerCase().trim()
+              const userPhone = (user?.phone || '').trim()
+              const isNigerian = userCountry === 'nigeria' || userCountry === 'ng' || userPhone.startsWith('+234') || (!userCountry && !userPhone.startsWith('+1') && !userPhone.startsWith('+44') && !userPhone.startsWith('+49') && !userPhone.startsWith('+33') && !userPhone.startsWith('+1'))
 
-              {/* 1. Paystack Gateway (African / Nigerian Cards, Bank Transfer, USSD) */}
-              <button
-                onClick={() => handlePaystackCheckout(selectedPackage)}
-                disabled={processingPayment}
-                className="w-full p-3.5 bg-emerald-50 hover:bg-emerald-100/80 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
-                    ₦
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-dark dark:text-white text-sm">Paystack</span>
-                      <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded-full font-extrabold">Africa</span>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Debit Card, Bank Transfer, USSD, Verve/Mastercard</p>
+              return (
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    Choose Payment Method:
+                  </p>
+
+                  {/* Paystack Gateway (Shown directly for Nigerian / African users or when expanded) */}
+                  {(isNigerian || showAllGateways) && (
+                    <button
+                      onClick={() => handlePaystackCheckout(selectedPackage)}
+                      disabled={processingPayment}
+                      className="w-full p-3.5 bg-emerald-50 hover:bg-emerald-100/80 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                          ₦
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-dark dark:text-white text-sm">Paystack</span>
+                            <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded-full font-extrabold">Nigeria & Africa</span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Debit Card, Bank Transfer, USSD, Verve/Mastercard</p>
+                        </div>
+                      </div>
+                      <span className="text-emerald-700 dark:text-emerald-300 font-bold text-sm">
+                        ₦{(selectedPackage.priceNGN || selectedPackage.price).toLocaleString()}
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Flutterwave Gateway (Shown directly for International / American / Global users or when expanded) */}
+                  {(!isNigerian || showAllGateways) && (
+                    <button
+                      onClick={() => handleFlutterwaveCheckout(selectedPackage)}
+                      disabled={processingPayment}
+                      className="w-full p-3.5 bg-orange-50 hover:bg-orange-100/80 dark:bg-orange-950/30 dark:hover:bg-orange-950/50 border border-orange-300 dark:border-orange-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                          <FiGlobe size={18} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-dark dark:text-white text-sm">Flutterwave</span>
+                            <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-extrabold">USA & Global</span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">International Visa, Mastercard, Apple Pay, USD/EUR/GBP</p>
+                        </div>
+                      </div>
+                      <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">
+                        ${selectedPackage.priceUSD || ((selectedPackage.priceNGN || selectedPackage.price) / 1000)} USD
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Pay with Coins (For Badges, if user has sufficient coins) */}
+                  {selectedPackage.type === 'badge' && (
+                    <button
+                      onClick={() => handlePayWithCoins(selectedPackage)}
+                      disabled={buying === selectedPackage.id || (user?.coins || 0) < (selectedPackage.price || 0)}
+                      className={`w-full p-3.5 rounded-xl text-left transition flex items-center justify-between border ${
+                        (user?.coins || 0) >= (selectedPackage.price || 0)
+                          ? 'bg-amber-50 hover:bg-amber-100/80 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 border-amber-300 dark:border-amber-700/60 cursor-pointer'
+                          : 'bg-gray-100 dark:bg-slate-800/40 border-gray-200 dark:border-slate-800 opacity-60 cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
+                          <BsCoin size={18} />
+                        </div>
+                        <div>
+                          <span className="font-bold text-dark dark:text-white text-sm">Pay with Coins</span>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Balance: {user?.coins || 0} coins {(user?.coins || 0) < (selectedPackage.price || 0) ? '(Insufficient)' : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-amber-700 dark:text-amber-300 font-bold text-sm">
+                        {(selectedPackage.price || 0).toLocaleString()} Coins
+                      </span>
+                    </button>
+                  )}
+
+                  <div className="pt-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowAllGateways(!showAllGateways)}
+                      className="text-xs text-gray-500 hover:text-primary transition underline cursor-pointer"
+                    >
+                      {isNigerian
+                        ? (showAllGateways ? 'Hide Global Payment (Flutterwave)' : '🌍 Outside Nigeria? Pay in USD via Flutterwave')
+                        : (showAllGateways ? 'Hide Nigerian Payment (Paystack)' : '🇳🇬 Have a Nigerian account? Pay in ₦ via Paystack')}
+                    </button>
                   </div>
                 </div>
-                <span className="text-emerald-700 dark:text-emerald-300 font-bold text-sm">
-                  ₦{(selectedPackage.priceNGN || selectedPackage.price).toLocaleString()}
-                </span>
-              </button>
+              )
+            })()}
 
-              {/* 2. Flutterwave Gateway (International / Global Cards, USD/EUR/GBP, Apple Pay) */}
-              <button
-                onClick={() => handleFlutterwaveCheckout(selectedPackage)}
-                disabled={processingPayment}
-                className="w-full p-3.5 bg-orange-50 hover:bg-orange-100/80 dark:bg-orange-950/30 dark:hover:bg-orange-950/50 border border-orange-300 dark:border-orange-700/60 rounded-xl text-left transition flex items-center justify-between group cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
-                    <FiGlobe size={18} />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-dark dark:text-white text-sm">Flutterwave</span>
-                      <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-extrabold">Global</span>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">International Visa, Mastercard, Apple Pay, USD/EUR/GBP</p>
-                  </div>
-                </div>
-                <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">
-                  ${selectedPackage.priceUSD || ((selectedPackage.priceNGN || selectedPackage.price) / 1000)} USD
-                </span>
-              </button>
-
-              {/* 3. Pay with Coins (For Badges, if user has sufficient coins) */}
-              {selectedPackage.type === 'badge' && (
-                <button
-                  onClick={() => handlePayWithCoins(selectedPackage)}
-                  disabled={buying === selectedPackage.id || (user?.coins || 0) < (selectedPackage.price || 0)}
-                  className={`w-full p-3.5 rounded-xl text-left transition flex items-center justify-between border ${
-                    (user?.coins || 0) >= (selectedPackage.price || 0)
-                      ? 'bg-amber-50 hover:bg-amber-100/80 dark:bg-amber-950/30 dark:hover:bg-amber-950/50 border-amber-300 dark:border-amber-700/60 cursor-pointer'
-                      : 'bg-gray-100 dark:bg-slate-800/40 border-gray-200 dark:border-slate-800 opacity-60 cursor-not-allowed'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
-                      <BsCoin size={18} />
-                    </div>
-                    <div>
-                      <span className="font-bold text-dark dark:text-white text-sm">Pay with Coins</span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Balance: {user?.coins || 0} coins {(user?.coins || 0) < (selectedPackage.price || 0) ? '(Insufficient)' : ''}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-amber-700 dark:text-amber-300 font-bold text-sm">
-                    {(selectedPackage.price || 0).toLocaleString()} Coins
-                  </span>
-                </button>
-              )}
-            </div>
-
-            <p className="text-[11px] text-center text-gray-400 dark:text-gray-500 mt-5">
+            <p className="text-[11px] text-center text-gray-400 dark:text-gray-500 mt-4">
               🔒 256-Bit Bank Grade Encryption • Instant Auto-Activation
             </p>
           </div>
