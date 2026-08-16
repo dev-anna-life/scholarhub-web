@@ -129,9 +129,43 @@ function CommunityFeed() {
         reader.readAsDataURL(file)
     }
 
-    const handleVideoChange = (e) => {
-        const file = e.target.files[0]
+    const getVideoDuration = (file) => {
+        return new Promise((resolve) => {
+            const video = document.createElement('video')
+            video.preload = 'metadata'
+            video.onloadedmetadata = () => {
+                window.URL.revokeObjectURL(video.src)
+                resolve(video.duration)
+            }
+            video.onerror = () => resolve(0)
+            video.src = URL.createObjectURL(file)
+        })
+    }
+
+    const handleVideoChange = async (e) => {
+        const file = e.target.files?.[0]
         if (!file) return
+        setPostError('')
+        const subs = user?.badgeSubscriptions || []
+        const now = new Date()
+        const active = subs.filter(s => new Date(s.expiresAt) > now)
+        const isExtra = active.some(s => s.id === 'badge_extra_premium' || s.badgeId === 'badge_extra_premium')
+        const isPremium = active.some(s => s.id === 'badge_premium' || s.badgeId === 'badge_premium')
+        const isBasic = active.some(s => s.id === 'badge_basic' || s.badgeId === 'badge_basic')
+
+        if (!isExtra && !isPremium && !isBasic) {
+            setPostError('Free accounts can only post pictures. Upgrade to Basic (₦2,000/mo) to post up to 30s video.')
+            return
+        }
+
+        const duration = await getVideoDuration(file)
+        const maxSec = isExtra ? 1800 : isPremium ? 180 : 30
+        if (duration > maxSec) {
+            const maxText = isExtra ? '30 minutes' : isPremium ? '3 minutes' : '30 seconds'
+            setPostError(`Selected video is ${Math.round(duration)}s long. Your tier allows up to ${maxText}.`)
+            return
+        }
+
         setImageUploading(true)
         const reader = new FileReader()
         reader.onloadend = () => { setNewPost(prev => ({ ...prev, video: reader.result })); setImageUploading(false) }
@@ -263,15 +297,34 @@ function CommunityFeed() {
     const handleCreatePost = async () => {
         if (!newPost.title.trim() || !newPost.content.trim()) { setPostError('Title and content are required'); return }
         const subs = user?.badgeSubscriptions || []
-        const active = subs.filter(s => new Date(s.expiresAt) > new Date())
-        const tiers = [
-            { id: 'badge_extra_premium', limit: 100000 }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
-        ]
-        const highest = tiers.find(t => active.some(s => s.id === t.id))
-        const maxChars = highest ? highest.limit : 250
-        if (newPost.content.length > maxChars) {
-            setPostError(`Character limit exceeded (${maxChars}). Upgrade your badge to write more.`)
-            return
+        const now = new Date()
+        const active = subs.filter(s => new Date(s.expiresAt) > now)
+        const isExtra = active.some(s => s.id === 'badge_extra_premium' || s.badgeId === 'badge_extra_premium')
+        const isPremium = active.some(s => s.id === 'badge_premium' || s.badgeId === 'badge_premium')
+        const isBasic = active.some(s => s.id === 'badge_basic' || s.badgeId === 'badge_basic')
+
+        const wordCount = newPost.content.trim().split(/\s+/).length
+        const charCount = newPost.content.length
+
+        if (!isExtra && !isPremium && !isBasic) {
+            if (charCount > 250) {
+                setPostError('Free accounts can write up to 250 characters. Upgrade to Basic (₦2,000/mo) to post up to 500 words.')
+                return
+            }
+            if (newPost.video) {
+                setPostError('Free accounts can only post pictures. Upgrade to Basic to post up to 30s video.')
+                return
+            }
+        } else if (isBasic && !isPremium && !isExtra) {
+            if (wordCount > 500 && charCount > 2500) {
+                setPostError('Basic tier limit is 500 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
+                return
+            }
+        } else if (isPremium && !isExtra) {
+            if (wordCount > 1000 && charCount > 5000) {
+                setPostError('Premium tier limit is 1,000 words. Upgrade to Extra Premium for unlimited writing.')
+                return
+            }
         }
         setPostLoading(true); setPostError('')
         try {
@@ -586,18 +639,27 @@ function CommunityFeed() {
                                 rows={5} className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm mb-1 bg-white text-dark focus:outline-none focus:border-primary transition resize-none" />
                             {(() => {
                                 const subs = user?.badgeSubscriptions || []
-                                const active = subs.filter(s => new Date(s.expiresAt) > new Date())
-                                const tiers = [
-                                    { id: 'badge_extra_premium', limit: 100000 }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
-                                ]
-                                const highest = tiers.find(t => active.some(s => s.id === t.id))
-                                const maxChars = highest ? highest.limit : 250
-                                const len = newPost.content.length
-                                const over = len > maxChars
+                                const now = new Date()
+                                const active = subs.filter(s => new Date(s.expiresAt) > now)
+                                const isExtra = active.some(s => s.id === 'badge_extra_premium' || s.badgeId === 'badge_extra_premium')
+                                const isPremium = active.some(s => s.id === 'badge_premium' || s.badgeId === 'badge_premium')
+                                const isBasic = active.some(s => s.id === 'badge_basic' || s.badgeId === 'badge_basic')
+
+                                const wordCount = newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0
+                                const charCount = newPost.content.length
+                                const tierName = isExtra ? 'Extra Premium' : isPremium ? 'Premium' : isBasic ? 'Basic' : 'Free'
+
+                                const over = (!isExtra && !isPremium && !isBasic && charCount > 250) ||
+                                             (isBasic && !isPremium && !isExtra && (wordCount > 500 || charCount > 2500)) ||
+                                             (isPremium && !isExtra && (wordCount > 1000 || charCount > 5000))
+
                                 return (
-                                    <p className={`text-xs text-right mb-2 ${over ? 'text-red-500' : 'text-gray-400'}`}>
-                                        {len}/{maxChars} {highest ? '' : '(free: 250)'}
-                                    </p>
+                                    <div className="flex justify-between items-center text-xs mb-2 px-1">
+                                        <span className="font-semibold text-primary">{tierName} tier</span>
+                                        <span className={over ? 'text-red-500 font-bold' : 'text-gray-400'}>
+                                            {!isExtra && !isPremium && !isBasic ? `${charCount}/250 chars` : isBasic ? `${wordCount}/500 words` : isPremium ? `${wordCount}/1,000 words` : 'Unlimited words'}
+                                        </span>
+                                    </div>
                                 )
                             })()}
                             <div className="flex flex-wrap gap-2 mb-3 p-2.5 bg-gray-50 rounded-xl border border-gray-100">
@@ -624,16 +686,9 @@ function CommunityFeed() {
                                 <button type="button" onClick={handleImagePick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
                                     {newPost.image ? <><FiCheck size={14} className="inline mr-1" /> Image</> : '📷 Image'}
                                 </button>
-                                {(() => {
-                                    const subs = user?.badgeSubscriptions || []
-                                    const active = subs.filter(s => new Date(s.expiresAt) > new Date())
-                                    if (!active.some(s => s.id === 'badge_extra_premium')) return null
-                                    return (
-                                        <button type="button" onClick={handleVideoPick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
-                                            {newPost.video ? <><FiCheck size={14} className="inline mr-1" /> Video</> : '🎬 Video'}
-                                        </button>
-                                    )
-                                })()}
+                                <button type="button" onClick={handleVideoPick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
+                                    {newPost.video ? <><FiCheck size={14} className="inline mr-1" /> Video</> : '🎬 Video'}
+                                </button>
                                 {imageUploading && <span className="text-xs text-gray-400 self-center">Uploading...</span>}
                             </div>
                             {newPost.image && (

@@ -8,7 +8,7 @@ import { GiCrown } from 'react-icons/gi'
 
 const COLORS = {
   badge_basic: { bg: '#F1F5F9', border: '#94A3B8', text: '#475569', name: 'Basic' },
-  badge_premium: { bg: '#FEF3C7', border: '#F59E0B', text: '#92400E', name: 'Premium' },
+  badge_premium: { bg: '#ECFDF5', border: '#008751', text: '#008751', name: 'Premium (Scholar Verified)' },
   badge_extra_premium: { bg: '#F3E8FF', border: '#8B5CF6', text: '#5B21B6', name: 'Extra Premium' },
 }
 
@@ -385,8 +385,8 @@ export default function ShopPage() {
   const activeSubs = user?.badgeSubscriptions?.filter(s => new Date(s.expiresAt) > new Date()) || []
 
   const getBadgeIcon = (iconStr) => {
-    if (iconStr === '⭐') return <FiStar className="text-yellow-500 mx-auto" size={36} />
-    if (iconStr === '💎') return <BsCoin className="text-blue-500 mx-auto" size={36} />
+    if (iconStr === '⭐') return <FiStar className="text-gray-500 mx-auto" size={36} />
+    if (iconStr === '💎') return <div className="w-10 h-10 rounded-full bg-[#008751] text-white flex items-center justify-center mx-auto text-lg font-bold shadow-md">✓</div>
     if (iconStr === '👑') return <GiCrown className="text-purple-500 mx-auto" size={40} />
     return <FiAward className="text-primary mx-auto" size={36} />
   }

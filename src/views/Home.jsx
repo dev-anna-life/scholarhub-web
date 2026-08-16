@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiUsers, FiInbox, FiHome, FiCheck, FiGift } from "react-icons/fi"
+import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
 import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, savePost, getSavedPosts } from '../api/auth'
 import SOSButton from '../components/SOSButton'
@@ -22,7 +22,47 @@ function Home() {
     const [showCreatePost, setShowCreatePost] = useState(false)
     const [newPost, setNewPost] = useState({ title: '', content: '', category: 'University', community: '' })
     const [postImage, setPostImage] = useState(null)
+    const [postVideo, setPostVideo] = useState(null)
     const [postImageFile, setPostImageFile] = useState(null)
+
+    const getUserTier = (u) => {
+        const subs = u?.badgeSubscriptions || []
+        const now = new Date()
+        const active = subs.filter(s => new Date(s.expiresAt) > now)
+        if (active.some(s => s.badgeId === 'badge_extra_premium' || s.id === 'badge_extra_premium')) return 'extra_premium'
+        if (active.some(s => s.badgeId === 'badge_premium' || s.id === 'badge_premium')) return 'premium'
+        if (active.some(s => s.badgeId === 'badge_basic' || s.id === 'badge_basic')) return 'basic'
+        return 'free'
+    }
+
+    const getVideoDuration = (file) => {
+        return new Promise((resolve) => {
+            const video = document.createElement('video')
+            video.preload = 'metadata'
+            video.onloadedmetadata = () => {
+                window.URL.revokeObjectURL(video.src)
+                resolve(video.duration)
+            }
+            video.onerror = () => resolve(0)
+            video.src = URL.createObjectURL(file)
+        })
+    }
+
+    const renderAuthorBadge = (author) => {
+        const subs = author?.badgeSubscriptions || []
+        const now = new Date()
+        const active = subs.filter(s => new Date(s.expiresAt) > now)
+        const isVerified = author?.isVerified || active.some(s => s.badgeId === 'badge_premium' || s.badgeId === 'badge_extra_premium' || s.id === 'badge_premium' || s.id === 'badge_extra_premium')
+
+        if (isVerified) {
+            return (
+                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#008751] text-white text-[9px] font-extrabold ml-1 flex-shrink-0" title="Scholar Verified">
+                    ✓
+                </span>
+            )
+        }
+        return null
+    }
     const [userCommunities, setUserCommunities] = useState([])
     const [selectedCommunityIds, setSelectedCommunityIds] = useState([])
     const [activeCommentPost, setActiveCommentPost] = useState(null)
@@ -210,6 +250,9 @@ function Home() {
                 authorId: post.author?.id || post.author?._id || '',
                 author: post.author?.name || 'Student',
                 authorAvatar: post.author?.avatar || '',
+                authorData: post.author,
+                badgeSubscriptions: post.author?.badgeSubscriptions || [],
+                isVerified: post.author?.isVerified || false,
                 avatar: post.author?.avatar ? post.author.avatar : (post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH'),
                 school: post.author?.school || '',
                 level: post.author?.level || '',
@@ -218,6 +261,7 @@ function Home() {
                 title: post.title,
                 content: post.content,
                 image: post.image || '',
+                video: post.video || '',
                 likes: post.likesCount ?? post.likes?.length ?? 0,
                 liked: post.liked || post.likes?.includes(userId) || false,
                 commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
@@ -343,11 +387,57 @@ function Home() {
         }
     }
 
+    const handleVideoSelect = async (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        setPostError('')
+        const tier = getUserTier(user)
+        if (tier === 'free') {
+            setPostError('Free accounts can only post pictures. Upgrade to Basic (₦2,000/mo) to post up to 30s video.')
+            return
+        }
+        const duration = await getVideoDuration(file)
+        const maxSec = tier === 'basic' ? 30 : tier === 'premium' ? 180 : 1800
+        if (duration > maxSec) {
+            const maxText = tier === 'basic' ? '30 seconds' : tier === 'premium' ? '3 minutes' : '30 minutes'
+            setPostError(`Selected video is ${Math.round(duration)}s long. Your ${tier === 'basic' ? 'Basic' : 'Premium'} tier allows up to ${maxText}.`)
+            return
+        }
+        const reader = new FileReader()
+        reader.onloadend = () => setPostVideo(reader.result)
+        reader.readAsDataURL(file)
+    }
+
     const handleCreatePost = async () => {
         if (!newPost.title.trim() || !newPost.content.trim()) {
             setPostError('Title and content are required')
             return
         }
+        const tier = getUserTier(user)
+        const wordCount = newPost.content.trim().split(/\s+/).length
+        const charCount = newPost.content.length
+
+        if (tier === 'free') {
+            if (charCount > 250) {
+                setPostError('Free accounts can write up to 250 characters. Upgrade to Basic (₦2,000/mo) to post up to 500 words.')
+                return
+            }
+            if (postVideo) {
+                setPostError('Free accounts can only post pictures. Upgrade to Basic to post videos.')
+                return
+            }
+        } else if (tier === 'basic') {
+            if (wordCount > 500 && charCount > 2500) {
+                setPostError('Basic tier limit is 500 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
+                return
+            }
+        } else if (tier === 'premium') {
+            if (wordCount > 1000 && charCount > 5000) {
+                setPostError('Premium tier limit is 1,000 words. Upgrade to Extra Premium for unlimited writing.')
+                return
+            }
+        }
+
         const validComIds = selectedCommunityIds.filter(id => id && typeof id === 'string' && id !== 'undefined')
         const finalCommunityIds = validComIds.length > 0 ? validComIds : userCommunities.map(c => c.id || c._id).filter(Boolean)
 
@@ -359,12 +449,14 @@ function Home() {
                 content: newPost.content.trim(),
                 category: newPost.category || 'Sciences',
                 communityIds: finalCommunityIds,
-                image: postImage || ''
+                image: postImage || '',
+                video: postVideo || ''
             }
             await createPost(postData)
             setPostSuccess(true)
             setNewPost({ title: '', content: '', category: 'Sciences', community: '' })
             setPostImage(null)
+            setPostVideo(null)
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false); fetchPosts(1) }, 1500)
         } catch (err) {
             setPostError(err.response?.data?.message || err.message || 'Something went wrong')
@@ -703,8 +795,9 @@ function Home() {
                                             <div className="flex-1 min-w-0">
                                                 <p
                                                     onClick={() => post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`)}
-                                                    className={`font-semibold text-dark text-xs md:text-sm leading-tight truncate ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:text-primary transition' : ''}`}>
-                                                    {post.author.split(' ').slice(0, 2).join(' ')}
+                                                    className={`font-semibold text-dark text-xs md:text-sm leading-tight truncate flex items-center ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:text-primary transition' : ''}`}>
+                                                    <span>{post.author.split(' ').slice(0, 2).join(' ')}</span>
+                                                    {renderAuthorBadge(post)}
                                                 </p>
                                                 <div className="flex items-center gap-1.5 mt-0.5">
                                                     {post.school && (
@@ -738,20 +831,23 @@ function Home() {
                                                 {post.content.length > 90 && (
                                                     <button
                                                         onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            toggleExpandPost(post.id)
-                                                        }}
-                                                        className="text-primary text-xs font-semibold hover:underline cursor-pointer mt-1 inline-block"
-                                                    >
-                                                        {expandedPosts.has(post.id) ? 'Show less' : 'Read more...'}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )}
-                                        {post.image && (
-                                            <img src={post.image} alt="" className="w-full max-h-[520px] object-contain rounded-xl mb-3 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-slate-800/50"
-                                                onError={e => { e.target.style.display = 'none' }} />
-                                        )}
+                                                             e.stopPropagation()
+                                                             toggleExpandPost(post.id)
+                                                         }}
+                                                         className="text-primary text-xs font-semibold hover:underline cursor-pointer mt-1 inline-block"
+                                                     >
+                                                         {expandedPosts.has(post.id) ? 'Show less' : 'Read more...'}
+                                                     </button>
+                                                 )}
+                                             </div>
+                                         )}
+                                         {post.image && (
+                                             <img src={post.image} alt="" className="w-full max-h-[520px] object-contain rounded-xl mb-3 bg-black/5 dark:bg-white/5 border border-gray-100 dark:border-slate-800/50"
+                                                 onError={e => { e.target.style.display = 'none' }} />
+                                         )}
+                                         {post.video && (
+                                             <video src={post.video} controls onClick={e => e.stopPropagation()} className="w-full rounded-xl mb-3 max-h-72" />
+                                         )}
 
                                         <div className="flex items-center gap-4 pt-2 border-t border-gray-50">
                                             <button onClick={() => toggleLike(post.id, post.isReal)}
@@ -897,6 +993,18 @@ function Home() {
                                 <textarea placeholder="Share your thoughts, study tips, campus updates..."
                                             value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition min-h-[120px] resize-none text-dark" />
+                                <div className="flex justify-between items-center text-[11px] text-gray-400 px-1">
+                                    <span className="capitalize font-semibold text-primary">{getUserTier(user).replace('_', ' ')} tier</span>
+                                    <span className={
+                                        (getUserTier(user) === 'free' && newPost.content.length > 250) ||
+                                        (getUserTier(user) === 'basic' && newPost.content.trim().split(/\s+/).length > 500 && newPost.content.length > 2500) ||
+                                        (getUserTier(user) === 'premium' && newPost.content.trim().split(/\s+/).length > 1000 && newPost.content.length > 5000)
+                                            ? 'text-red-500 font-bold'
+                                            : ''
+                                    }>
+                                        {getUserTier(user) === 'free' ? `${newPost.content.length}/250 chars` : getUserTier(user) === 'basic' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/500 words` : getUserTier(user) === 'premium' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/1,000 words` : 'Unlimited words'}
+                                    </span>
+                                </div>
                                 <select value={newPost.category} onChange={e => setNewPost({ ...newPost, category: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark">
                                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -922,7 +1030,7 @@ function Home() {
                                         </div>
                                     </div>
                                 )}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 flex-wrap">
                                     <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition text-xs text-gray-600 font-medium">
                                         <FiImage size={14} /> Add Image
                                         <input type="file" accept="image/*" hidden onChange={e => {
@@ -934,10 +1042,23 @@ function Home() {
                                             }
                                         }} />
                                     </label>
+                                    <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition text-xs text-gray-600 font-medium">
+                                        <FiVideo size={14} /> Add Video
+                                        <input type="file" accept="video/*" hidden onChange={handleVideoSelect} />
+                                    </label>
                                     {postImage && (
                                         <div className="relative">
                                             <img src={postImage} alt="" className="h-10 w-10 object-cover rounded-lg" />
                                             <button onClick={() => setPostImage(null)}
+                                                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">&times;</button>
+                                        </div>
+                                    )}
+                                    {postVideo && (
+                                        <div className="relative">
+                                            <div className="h-10 px-2.5 bg-primary/10 text-primary rounded-lg text-xs font-semibold flex items-center gap-1">
+                                                <FiVideo size={13} /> Video attached
+                                            </div>
+                                            <button onClick={() => setPostVideo(null)}
                                                 className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">&times;</button>
                                         </div>
                                     )}
