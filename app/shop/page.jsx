@@ -96,13 +96,8 @@ export default function ShopPage() {
   const handlePaystackCheckout = (item) => {
     const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_7b0863fcf6dd94b90a504fa302a7478700a8574f'
     
-    // Fallback if script hasn't loaded yet
     if (typeof window === 'undefined' || !window.PaystackPop) {
-      const script = document.createElement('script')
-      script.src = 'https://js.paystack.co/v1/inline.js'
-      script.onload = () => handlePaystackCheckout(item)
-      document.head.appendChild(script)
-      setMsg({ type: 'error', text: 'Loading Paystack gateway... please click again in a moment.' })
+      alert('Paystack is loading. Please wait a moment and try again.')
       return
     }
 
@@ -113,33 +108,41 @@ export default function ShopPage() {
     setProcessingPayment(true)
     setMsg(null)
 
+    const onPaymentSuccess = function (response) {
+      const ref = response?.reference || response?.trxref || reference
+      verifyPaystackPayment(ref, item.id, checkoutRecipient)
+        .then(function (res) {
+          return getMe().then(function (u) {
+            setUser(u.data)
+            setMsg({ type: 'success', text: res.data?.message || 'Payment completed successfully!' })
+            setSelectedPackage(null)
+          })
+        })
+        .catch(function (err) {
+          setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
+        })
+        .finally(function () {
+          setProcessingPayment(false)
+        })
+    }
+
+    const onPaymentClose = function () {
+      setProcessingPayment(false)
+    }
+
     try {
-      if (typeof window.PaystackPop?.setup === 'function') {
+      if (typeof window.PaystackPop.setup === 'function') {
         const handler = window.PaystackPop.setup({
           key: paystackKey,
           email: email,
-          amount: Math.round(priceNGN * 100), // in Kobo
+          amount: Math.round(priceNGN * 100),
           currency: 'NGN',
           ref: reference,
-          callback: async function (response) {
-            try {
-              const res = await verifyPaystackPayment(response.reference || response.trxref || reference, item.id, checkoutRecipient)
-              const u = await getMe()
-              setUser(u.data)
-              setMsg({ type: 'success', text: res.data?.message || 'Payment completed successfully!' })
-              setSelectedPackage(null)
-            } catch (err) {
-              setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
-            } finally {
-              setProcessingPayment(false)
-            }
-          },
-          onClose: function () {
-            setProcessingPayment(false)
-          }
+          callback: onPaymentSuccess,
+          onClose: onPaymentClose,
         })
         handler.openIframe()
-      } else if (typeof window.PaystackPop === 'function') {
+      } else {
         const paystack = new window.PaystackPop()
         paystack.newTransaction({
           key: paystackKey,
@@ -147,25 +150,9 @@ export default function ShopPage() {
           amount: Math.round(priceNGN * 100),
           currency: 'NGN',
           reference: reference,
-          onSuccess: async function (transaction) {
-            try {
-              const res = await verifyPaystackPayment(transaction.reference || reference, item.id, checkoutRecipient)
-              const u = await getMe()
-              setUser(u.data)
-              setMsg({ type: 'success', text: res.data?.message || 'Payment completed successfully!' })
-              setSelectedPackage(null)
-            } catch (err) {
-              setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
-            } finally {
-              setProcessingPayment(false)
-            }
-          },
-          onCancel: function () {
-            setProcessingPayment(false)
-          }
+          onSuccess: onPaymentSuccess,
+          onCancel: onPaymentClose,
         })
-      } else {
-        throw new Error('Paystack checkout popup could not be initialized')
       }
     } catch (e) {
       console.error('Paystack initialization error:', e)
@@ -181,8 +168,32 @@ export default function ShopPage() {
       return
     }
     const priceUSD = item.priceUSD || (item.priceNGN ? item.priceNGN / 1000 : item.price / 1000)
+    const email = (user?.email && user.email.includes('@')) ? user.email.trim() : 'student@scholarhub.com'
     setProcessingPayment(true)
     setMsg(null)
+
+    const onFlwSuccess = function (data) {
+      const txId = data?.transaction_id || data?.tx_ref
+      verifyFlutterwavePayment(txId, item.id, checkoutRecipient)
+        .then(function (res) {
+          return getMe().then(function (u) {
+            setUser(u.data)
+            setMsg({ type: 'success', text: res.data?.message || 'Payment completed successfully!' })
+            setSelectedPackage(null)
+          })
+        })
+        .catch(function (err) {
+          setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
+        })
+        .finally(function () {
+          setProcessingPayment(false)
+        })
+    }
+
+    const onFlwClose = function () {
+      setProcessingPayment(false)
+    }
+
     try {
       window.FlutterwaveCheckout({
         public_key: flwKey,
@@ -191,7 +202,7 @@ export default function ShopPage() {
         currency: 'USD',
         payment_options: 'card, banktransfer, ussd, mobilemoney',
         customer: {
-          email: user?.email || 'customer@scholarhub.com',
+          email: email,
           name: user?.name || 'ScholarHub Student',
         },
         customizations: {
@@ -199,26 +210,12 @@ export default function ShopPage() {
           description: 'Payment for ' + item.name,
           logo: 'https://scholarhub-web.vercel.app/favicon.ico',
         },
-        callback: async function (data) {
-          try {
-            const res = await verifyFlutterwavePayment(data.transaction_id || data.tx_ref, item.id, checkoutRecipient)
-            const u = await getMe()
-            setUser(u.data)
-            setMsg({ type: 'success', text: res.data.message })
-            setSelectedPackage(null)
-          } catch (err) {
-            setMsg({ type: 'error', text: err.response?.data?.message || 'Payment verification failed' })
-          } finally {
-            setProcessingPayment(false)
-          }
-        },
-        onclose: function () {
-          setProcessingPayment(false)
-        }
+        callback: onFlwSuccess,
+        onclose: onFlwClose,
       })
     } catch (e) {
       setProcessingPayment(false)
-      setMsg({ type: 'error', text: 'Failed to initialize Flutterwave checkout' })
+      setMsg({ type: 'error', text: e.message || 'Failed to initialize Flutterwave checkout' })
     }
   }
 
