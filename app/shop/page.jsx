@@ -379,24 +379,35 @@ export default function ShopPage() {
     }
   }
 
-  const handleRedeem = async () => {
+  const handleRedeemAirtime = async () => {
     if (!phone || phone.length < 10) { setMsg({ type: 'error', text: 'Enter a valid phone number' }); return }
+    if (!airtimeItemId) { setMsg({ type: 'error', text: 'Select an airtime amount' }); return }
     setRedeeming(true); setMsg(null)
     try {
-      let res
-      if (redeemTab === 'airtime') {
-        if (!airtimeItemId) { setMsg({ type: 'error', text: 'Select an airtime amount' }); setRedeeming(false); return }
-        res = await redeemAirtime(airtimeItemId, network, phone)
-      } else {
-        if (!dataPlanId) { setMsg({ type: 'error', text: 'Select a data plan' }); setRedeeming(false); return }
-        res = await redeemData(dataPlanId, network, phone)
-      }
+      const res = await redeemAirtime(airtimeItemId, network, phone)
       const u = await getMe()
       setUser(u.data)
-      setMsg({ type: 'success', text: res.data.message || 'Redeemed successfully!' })
+      setMsg({ type: 'success', text: res.data?.message || 'Redeemed airtime successfully!' })
       setPhone('')
     } catch (e) {
-      setMsg({ type: 'error', text: e.response?.data?.message || 'Redemption failed' })
+      setMsg({ type: 'error', text: e.response?.data?.message || 'Airtime redemption failed' })
+    } finally {
+      setRedeeming(false)
+    }
+  }
+
+  const handleRedeemData = async () => {
+    if (!phone || phone.length < 10) { setMsg({ type: 'error', text: 'Enter a valid phone number' }); return }
+    if (!dataPlanId) { setMsg({ type: 'error', text: 'Select a data plan' }); return }
+    setRedeeming(true); setMsg(null)
+    try {
+      const res = await redeemData(dataPlanId, network, phone)
+      const u = await getMe()
+      setUser(u.data)
+      setMsg({ type: 'success', text: res.data?.message || 'Redeemed data successfully!' })
+      setPhone('')
+    } catch (e) {
+      setMsg({ type: 'error', text: e.response?.data?.message || 'Data redemption failed' })
     } finally {
       setRedeeming(false)
     }
@@ -404,7 +415,13 @@ export default function ShopPage() {
 
   if (loading) return <div className="flex items-center justify-center min-h-screen bg-light md:pl-56 pt-14 md:pt-0"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
 
-  const activeSubs = user?.badgeSubscriptions?.filter(s => new Date(s.expiresAt) > new Date()) || []
+  const activeSubs = (user?.badgeSubscriptions || []).filter(s => {
+    try {
+      return s?.expiresAt && new Date(s.expiresAt) > new Date()
+    } catch (e) {
+      return false
+    }
+  })
 
   const getBadgeIcon = (iconStr) => {
     if (iconStr === '⭐') return <FiStar className="text-gray-500 mx-auto" size={36} />
@@ -449,9 +466,9 @@ export default function ShopPage() {
         {tab === 'badges' && items?.badges && (
           <div className="grid gap-4 md:grid-cols-3">
             {items.badges.map(item => {
-              const c = COLORS[item.id]
-              const owned = activeSubs.some(s => s.id === item.id)
-              const sub = activeSubs.find(s => s.id === item.id)
+              const c = COLORS[item.id] || { bg: '#F1F5F9', border: item.color || '#008751', text: item.color || '#111827', name: item.name || 'Badge' }
+              const owned = activeSubs.some(s => s.id === item.id || s.badgeId === item.id)
+              const sub = activeSubs.find(s => s.id === item.id || s.badgeId === item.id)
               return (
                 <div key={item.id} className="bg-white dark:bg-dark rounded-xl shadow-sm border border-gray-100 dark:border-slate-850 overflow-hidden">
                   <div className="p-6 text-center" style={{ backgroundColor: c.bg }}>
