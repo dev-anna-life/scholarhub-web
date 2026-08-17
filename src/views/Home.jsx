@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
-import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, savePost, getSavedPosts } from '../api/auth'
+import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, savePost, getSavedPosts, getMe } from '../api/auth'
 import SOSButton from '../components/SOSButton'
 import CommentDrawer from '../components/CommentDrawer'
 import PostGiftModal from '../components/PostGiftModal'
@@ -84,7 +84,7 @@ function Home() {
     const audioCtxRef = useRef(null)
     const loaderRef = useRef(null)
 
-    const [user, setUser] = useState({})
+    const [user, setUser] = useState(() => (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}))
     const [activeTab, setActiveTab] = useState('for_you')
     const [categoryTabs, setCategoryTabs] = useState([])
     const [activeCommunity, setActiveCommunity] = useState(null)
@@ -282,6 +282,12 @@ function Home() {
     }, [searchQuery, activeTab, categoryTabs, activeCommunity])
 
     useEffect(() => {
+        getMe().then(res => {
+            if (res.data) {
+                setUser(res.data)
+                localStorage.setItem('user', JSON.stringify(res.data))
+            }
+        }).catch(() => {})
         fetchPosts(1)
         const interval = setInterval(fetchNotificationsOnly, 3000)
         return () => clearInterval(interval)

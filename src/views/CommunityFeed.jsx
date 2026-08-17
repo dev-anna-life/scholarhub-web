@@ -75,20 +75,18 @@ function CommunityFeed() {
     const [selectedVisibility, setSelectedVisibility] = useState({ department: false, faculty: false, school: false, general: true })
 
     useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('user') || '{}')
-        if (stored.level) {
+        const stored = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {}
+        if (stored.id || stored._id) {
             setUser(stored)
-            setUserLoading(false)
             setJoined(!!(stored.school && (stored.level?.toLowerCase() === level)))
-        } else {
-            getMe().then(res => {
-                const u = res.data
-                setUser(u)
-                localStorage.setItem('user', JSON.stringify(u))
-                setUserLoading(false)
-                setJoined(!!(u.school && (u.level?.toLowerCase() === level)))
-            }).catch(() => { setUserLoading(false) })
         }
+        getMe().then(res => {
+            const u = res.data
+            setUser(u)
+            localStorage.setItem('user', JSON.stringify(u))
+            setUserLoading(false)
+            setJoined(!!(u.school && (u.level?.toLowerCase() === level)))
+        }).catch(() => { setUserLoading(false) })
     }, [level])
 
     const rawLevel = user?.level
