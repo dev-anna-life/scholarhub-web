@@ -838,21 +838,13 @@ function Home() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
-                                                {post.citationStatus === 'verified' ? (
+                                                {post.citationStatus === 'verified' && (
                                                     <span
                                                         title={post.citationSummary || 'Verified by AI: Factually accurate academic content'}
                                                         className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full text-[10px] cursor-help shadow-xs"
                                                     >
                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                         AI Cited
-                                                    </span>
-                                                ) : (
-                                                    <span
-                                                        title={post.citationSummary || 'Community Discussion'}
-                                                        className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-medium px-2 py-0.5 rounded-full text-[10px] cursor-help"
-                                                    >
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                                        Discussion
                                                     </span>
                                                 )}
                                                 {post.trending && (
@@ -1089,18 +1081,39 @@ function Home() {
                                     )}
                                     {postImage && (
                                         <div className="relative inline-flex items-center">
-                                            <img src={postImage} alt="" className="h-11 w-11 object-cover rounded-xl border border-gray-200 dark:border-zinc-700" />
-                                            <button type="button" onClick={() => setPostImage(null)}
-                                                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center cursor-pointer shadow-md font-bold">&times;</button>
+                                            <img src={postImage} alt="" className="h-12 w-12 object-cover rounded-xl border border-gray-200 dark:border-zinc-700 shadow-xs" />
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                    setPostImage(null)
+                                                    setPostError('')
+                                                }}
+                                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-600 active:scale-90 text-white rounded-full text-xs flex items-center justify-center cursor-pointer shadow-md font-bold transition"
+                                                title="Remove image"
+                                            >
+                                                ✕
+                                            </button>
                                         </div>
                                     )}
                                     {postVideo && (
-                                        <div className="relative inline-flex items-center">
-                                            <div className="h-10 px-3 pr-8 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-bold flex items-center gap-1.5">
-                                                <FiVideo size={14} /> Video attached
-                                            </div>
-                                            <button type="button" onClick={() => setPostVideo(null)}
-                                                className="absolute right-2 top-2.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center cursor-pointer shadow-md font-bold">&times;</button>
+                                        <div className="inline-flex items-center gap-2 px-3 py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 rounded-xl text-xs font-bold shadow-xs">
+                                            <FiVideo size={15} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                            <span>Video attached</span>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                    setPostVideo(null)
+                                                    setPostError('')
+                                                }}
+                                                className="w-5 h-5 ml-1 bg-red-500 hover:bg-red-600 active:scale-90 text-white rounded-full text-xs flex items-center justify-center cursor-pointer shadow-xs font-bold transition flex-shrink-0"
+                                                title="Remove video"
+                                            >
+                                                ✕
+                                            </button>
                                         </div>
                                     )}
                                 </div>

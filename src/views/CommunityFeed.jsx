@@ -121,6 +121,11 @@ function CommunityFeed() {
     const handleImageChange = (e) => {
         const file = e.target.files[0]
         if (!file) return
+        setPostError('')
+        if (file.size > 4.2 * 1024 * 1024) {
+            setPostError(`Image file size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 4MB upload limit. Please select a smaller photo.`)
+            return
+        }
         setImageUploading(true)
         const reader = new FileReader()
         reader.onloadend = () => { setNewPost(prev => ({ ...prev, image: reader.result })); setImageUploading(false) }
@@ -156,11 +161,16 @@ function CommunityFeed() {
             return
         }
 
+        if (file.size > 4.2 * 1024 * 1024) {
+            setPostError(`Video file size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 4MB upload limit. Please select a compressed video clip.`)
+            return
+        }
+
         const duration = await getVideoDuration(file)
         const maxSec = isExtra ? 1800 : isPremium ? 180 : 30
         if (duration > maxSec) {
             const maxText = isExtra ? '30 minutes' : isPremium ? '3 minutes' : '30 seconds'
-            setPostError(`Selected video is ${Math.round(duration)}s long. Your tier allows up to ${maxText}.`)
+            setPostError(`Selected video is ${Math.round(duration)}s long. Your tier allows up to ${maxText}. Upgrade to post longer videos.`)
             return
         }
 
@@ -173,52 +183,59 @@ function CommunityFeed() {
     const handleImagePick = () => imageInputRef.current?.click()
     const handleVideoPick = () => videoInputRef.current?.click()
 
-    useEffect(() => {
-        if (!joined) { setPosts([]); return }
-        const fetchPosts = async () => {
-            setLoading(true)
-            try {
-                const res = await getCommunityFeed()
-                const cascadeData = res.data || []
-                const allPosts = cascadeData.flatMap(section => section.posts || [])
-                const realPosts = allPosts.map(post => ({
-                    id: post._id,
-                    authorId: post.author?._id || '',
-                    author: post.author?.name || 'Student',
-                    avatar: post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH',
-                    school: post.author?.school || '',
-                    category: post.category,
-                    title: post.title,
-                    content: post.content,
-                    image: post.image,
-                    video: post.video,
-                    likes: post.likes?.length || 0,
-                    liked: post.liked || false,
-                    commentCount: post.commentsData?.length || 0,
-                    time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
-                    trending: post.trending || false,
-                    saved: false,
-                    isReal: true,
-                    visibility: post.communities ? 'multi' : post.author?.department || '',
-                }))
-                setPosts(realPosts)
-                const authorSet = new Set(realPosts.filter(p => p.authorId).map(p => p.authorId))
-                setMemberCount(authorSet.size)
-                const authorMap = {}
-                allPosts.forEach(p => {
-                    const id = p.author?._id
-                    if (!id) return
-                    if (!authorMap[id]) authorMap[id] = { name: p.author?.name || 'Student', coins: p.author?.coins || 0, avatar: p.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH' }
-                })
-                setTopContributors(Object.values(authorMap).sort((a, b) => b.coins - a.coins).slice(0, 3))
-            } catch (err) {
-                console.error(err)
-                setPosts([])
-            } finally {
-                setLoading(false)
-            }
+    const fetchCommunityData = async () => {
+        if (!user) return
+        setLoading(true)
+        try {
+            const res = await getCommunityFeed()
+            const cascadeData = res.data || []
+            const allPosts = cascadeData.flatMap(section => section.posts || [])
+            const realPosts = allPosts.map(post => ({
+                id: post._id,
+                authorId: post.author?._id || '',
+                author: post.author?.name || 'Student',
+                avatar: post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH',
+                school: post.author?.school || '',
+                category: post.category,
+                title: post.title,
+                content: post.content,
+                image: post.image,
+                video: post.video,
+                citationStatus: post.citationStatus || null,
+                citationSummary: post.citationSummary || '',
+                likes: post.likes?.length || 0,
+                liked: post.liked || false,
+                commentCount: post.commentsData?.length || 0,
+                time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
+                trending: post.trending || false,
+                saved: false,
+                isReal: true,
+                visibility: post.communities ? 'multi' : post.author?.department || '',
+            }))
+            setPosts(realPosts)
+            const authorSet = new Set(realPosts.filter(p => p.authorId).map(p => p.authorId))
+            setMemberCount(authorSet.size)
+            const authorMap = {}
+            allPosts.forEach(p => {
+                const id = p.author?._id
+                if (!id) return
+                if (!authorMap[id]) authorMap[id] = { name: p.author?.name || 'Student', coins: p.author?.coins || 0, avatar: p.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH' }
+            })
+            setTopContributors(Object.values(authorMap).sort((a, b) => b.coins - a.coins).slice(0, 3))
+        } catch (err) {
+            console.error(err)
+            setPosts([])
+        } finally {
+            setLoading(false)
         }
-        fetchPosts()
+    }
+
+    useEffect(() => {
+        if (!joined) {
+            setPosts([])
+            return
+        }
+        fetchCommunityData()
     }, [level, joined])
 
     if (userLoading) {
@@ -461,7 +478,16 @@ function CommunityFeed() {
                                                 </div>
                                                 <p className="text-xs text-gray-400">{post.time}</p>
                                             </div>
-                                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                                            <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
+                                                {post.citationStatus === 'verified' && (
+                                                    <span
+                                                        title={post.citationSummary || 'Verified by AI: Factually accurate academic content'}
+                                                        className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full text-[10px] cursor-help shadow-xs"
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                        AI Cited
+                                                    </span>
+                                                )}
                                                 {post.trending && (
                                                     <span className="bg-accent/10 text-accent text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:block">Trending</span>
                                                 )}
