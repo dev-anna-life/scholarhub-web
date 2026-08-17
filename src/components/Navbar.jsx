@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { MdLeaderboard } from "react-icons/md"
 import { HiUserGroup } from "react-icons/hi"
-import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiGlobe, FiLock, FiFileText, FiLogOut } from "react-icons/fi"
+import { FiHome, FiUser, FiSettings, FiMenu, FiX, FiBell, FiSearch, FiGlobe, FiLock, FiFileText, FiLogOut, FiZap } from "react-icons/fi"
 import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
 import Image from "next/image"
@@ -17,6 +17,7 @@ const mainLinks = [
   { label: 'Leaderboard', icon: MdLeaderboard, path: '/leaderboard' },
   { label: 'Chat', icon: FiMessageSquare, path: '/chat', hasRedBadge: true },
   { label: 'Profile', icon: FiUser, path: '/profile' },
+  { label: 'Upgrade', icon: FiZap, path: '/upgrade' },
 ]
 
 const moreLinks = [

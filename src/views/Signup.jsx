@@ -10,6 +10,7 @@ import { googleAuth } from "../api/auth";
 import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
 import { getCountryFromState, getSchoolLogo } from '../data/schools'
+import { getClientGeo } from '../utils/geo'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -402,6 +403,22 @@ function Signup() {
     name: '', email: '', phone: '', password: '', username: '',
     level: '', school: '', country: 'Nigeria', state: '', course: '', track: '', faculty: '', department: '', interests: [],
   })
+
+  useEffect(() => {
+    getClientGeo().then(geo => {
+      if (geo && geo.countryName) {
+        const found = countryList.find(c =>
+          c.name.toLowerCase() === geo.countryName.toLowerCase() ||
+          c.code === geo.dialCode ||
+          (geo.countryCode && c.name.toLowerCase().includes(geo.countryName.toLowerCase()))
+        )
+        if (found) {
+          setSelectedCountry(found)
+          setForm(prev => ({ ...prev, country: found.name }))
+        }
+      }
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (form.course) {

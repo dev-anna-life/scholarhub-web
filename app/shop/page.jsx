@@ -16,8 +16,7 @@ export default function ShopPage() {
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [items, setItems] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState('badges')
+  const [tab, setTab] = useState('buy_coins')
   const [buying, setBuying] = useState(null)
   const [msg, setMsg] = useState(null)
 
@@ -486,10 +485,28 @@ export default function ShopPage() {
           </div>
         )}
 
+        {/* Upgrade Banner */}
+        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-primary/5 to-transparent border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+              <FiAward />
+            </div>
+            <div>
+              <h4 className="font-bold text-dark dark:text-white text-sm">Looking for Verified Badges & Higher Post Limits?</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Explore Basic, Premium (Scholar Verified), and VIP tiers on our new Upgrade page.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push('/upgrade')}
+            className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl text-xs font-bold transition flex-shrink-0 cursor-pointer shadow-xs"
+          >
+            Go to Upgrade
+          </button>
+        </div>
+
         <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-slate-800 overflow-x-auto whitespace-nowrap pb-1 scrollbar-none">
-          {['badges', 'buy_coins', 'send', 'cash', 'redeem'].map(t => {
-            const label = t === 'badges' ? <><FiAward className="inline mr-1.5" /> Badges</>
-              : t === 'buy_coins' ? <><FiCreditCard className="inline mr-1.5" /> Buy Coins</>
+          {['buy_coins', 'send', 'cash', 'redeem'].map(t => {
+            const label = t === 'buy_coins' ? <><FiCreditCard className="inline mr-1.5" /> Buy Coins</>
               : t === 'send' ? <><FiSend className="inline mr-1.5" /> Send Coins</>
               : t === 'cash' ? <><BsCashStack className="inline mr-1.5" /> Convert to Cash</>
               : <><FiSmartphone className="inline mr-1.5" /> Redeem</>
@@ -501,54 +518,7 @@ export default function ShopPage() {
           })}
         </div>
 
-        {tab === 'badges' && items?.badges && (
-          <div className="grid gap-4 md:grid-cols-3">
-            {items.badges.map(item => {
-              const c = COLORS[item.id] || { bg: '#F1F5F9', border: item.color || '#008751', text: '#111827', name: item.name || 'Badge' }
-              const owned = activeSubs.some(s => s.id === item.id || s.badgeId === item.id)
-              const sub = activeSubs.find(s => s.id === item.id || s.badgeId === item.id)
-              return (
-                <div key={item.id} className="bg-white dark:bg-dark rounded-xl shadow-sm border border-gray-100 dark:border-slate-850 overflow-hidden">
-                  <div className="p-6 text-center" style={{ backgroundColor: c.bg }}>
-                    <div className="mb-2">{getBadgeIcon(item.icon)}</div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">{item.name}</h3>
-                    <div className="mt-2">
-                      <span className="text-2xl font-extrabold text-gray-900 dark:text-white bg-white/40 dark:bg-black/35 px-2.5 py-0.5 rounded-lg border border-black/5 dark:border-white/5">
-                        ₦{item.price.toLocaleString()}
-                      </span>
-                      <span className="text-gray-600 dark:text-gray-300 font-semibold text-xs"> /mo</span>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">or ${(item.price / 1000).toFixed(2)} USD • {item.price.toLocaleString()} coins</p>
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">{item.description}</p>
-                    {owned && sub && (
-                      <p className="text-xs text-green-600 dark:text-green-400 font-bold mt-1.5 bg-green-50 dark:bg-green-950/20 py-1 px-2 rounded-lg inline-block">
-                        Active until {new Date(sub.expiresAt).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                  <div className="p-4 space-y-2 bg-white dark:bg-dark">
-                    {item.features.map((f, i) => (
-                      <div key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
-                        <span className="text-green-500 mt-0.5">✓</span>
-                        <span>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="px-4 pb-4 bg-white dark:bg-dark">
-                    <button
-                      onClick={() => setSelectedPackage({ ...item, priceNGN: item.price, priceUSD: item.price / 1000, type: 'badge' })}
-                      disabled={buying === item.id || owned}
-                      className={`w-full py-2.5 rounded-lg font-bold text-sm transition shadow-sm ${owned ? 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 cursor-not-allowed' : 'text-white hover:opacity-90 active:scale-[0.99]'}`}
-                      style={!owned ? { backgroundColor: c.border } : {}}
-                    >
-                      {owned ? '✓ Active Subscription' : `Subscribe (₦${item.price.toLocaleString()})`}
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
+
 
         {tab === 'buy_coins' && (
           <div className="space-y-6 animate-fadeIn">
