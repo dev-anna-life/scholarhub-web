@@ -680,24 +680,28 @@ function CommunityFeed() {
                             <div className="flex gap-2 mb-3">
                                 <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                                 <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
-                                <button type="button" onClick={handleImagePick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
-                                    {newPost.image ? <><FiCheck size={14} className="inline mr-1" /> Image</> : '📷 Image'}
-                                </button>
-                                <button type="button" onClick={handleVideoPick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition">
-                                    {newPost.video ? <><FiCheck size={14} className="inline mr-1" /> Video</> : '🎬 Video'}
-                                </button>
+                                {!newPost.image && !newPost.video && (
+                                    <>
+                                        <button type="button" onClick={handleImagePick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition cursor-pointer">
+                                            📷 Add Image
+                                        </button>
+                                        <button type="button" onClick={handleVideoPick} className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs text-gray-500 hover:border-primary hover:text-primary transition cursor-pointer">
+                                            🎬 Add Video
+                                        </button>
+                                    </>
+                                )}
                                 {imageUploading && <span className="text-xs text-gray-400 self-center">Uploading...</span>}
                             </div>
                             {newPost.image && (
-                                <div className="relative mb-3">
-                                    <img src={newPost.image} alt="" className="w-full rounded-xl max-h-40 object-cover" />
-                                    <button onClick={() => setNewPost({ ...newPost, image: null })} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow text-xs font-bold text-red-500">&times;</button>
+                                <div className="relative mb-3 inline-block">
+                                    <img src={newPost.image} alt="" className="w-full rounded-xl max-h-40 object-cover border border-gray-200 dark:border-zinc-700" />
+                                    <button onClick={() => setNewPost({ ...newPost, image: null })} className="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow text-xs font-bold cursor-pointer">&times;</button>
                                 </div>
                             )}
                             {newPost.video && (
-                                <div className="relative mb-3">
-                                    <video src={newPost.video} controls className="w-full rounded-xl max-h-40" />
-                                    <button onClick={() => setNewPost({ ...newPost, video: null })} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow text-xs font-bold text-red-500">&times;</button>
+                                <div className="relative mb-3 inline-block w-full">
+                                    <video src={newPost.video} controls className="w-full rounded-xl max-h-40 bg-black" />
+                                    <button onClick={() => setNewPost({ ...newPost, video: null })} className="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow text-xs font-bold cursor-pointer">&times;</button>
                                 </div>
                             )}
                             {postError && <p className="text-red-500 text-sm mb-3">{postError}</p>}

@@ -1036,35 +1036,39 @@ function Home() {
                                     </div>
                                 )}
                                 <div className="flex items-center gap-3 flex-wrap">
-                                    <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition text-xs text-gray-600 font-medium">
-                                        <FiImage size={14} /> Add Image
-                                        <input type="file" accept="image/*" hidden onChange={e => {
-                                            const file = e.target.files[0]
-                                            if (file) {
-                                                const reader = new FileReader()
-                                                reader.onloadend = () => setPostImage(reader.result)
-                                                reader.readAsDataURL(file)
-                                            }
-                                        }} />
-                                    </label>
-                                    <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition text-xs text-gray-600 font-medium">
-                                        <FiVideo size={14} /> Add Video
-                                        <input type="file" accept="video/*" hidden onChange={handleVideoSelect} />
-                                    </label>
+                                    {!postImage && !postVideo && (
+                                        <>
+                                            <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition text-xs text-gray-600 dark:text-gray-300 font-medium">
+                                                <FiImage size={14} /> Add Image
+                                                <input type="file" accept="image/*" hidden onChange={e => {
+                                                    const file = e.target.files[0]
+                                                    if (file) {
+                                                        const reader = new FileReader()
+                                                        reader.onloadend = () => setPostImage(reader.result)
+                                                        reader.readAsDataURL(file)
+                                                    }
+                                                }} />
+                                            </label>
+                                            <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition text-xs text-gray-600 dark:text-gray-300 font-medium">
+                                                <FiVideo size={14} /> Add Video
+                                                <input type="file" accept="video/*" hidden onChange={handleVideoSelect} />
+                                            </label>
+                                        </>
+                                    )}
                                     {postImage && (
-                                        <div className="relative">
-                                            <img src={postImage} alt="" className="h-10 w-10 object-cover rounded-lg" />
-                                            <button onClick={() => setPostImage(null)}
-                                                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">&times;</button>
+                                        <div className="relative inline-flex items-center">
+                                            <img src={postImage} alt="" className="h-11 w-11 object-cover rounded-xl border border-gray-200 dark:border-zinc-700" />
+                                            <button type="button" onClick={() => setPostImage(null)}
+                                                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center cursor-pointer shadow-md font-bold">&times;</button>
                                         </div>
                                     )}
                                     {postVideo && (
-                                        <div className="relative">
-                                            <div className="h-10 px-2.5 bg-primary/10 text-primary rounded-lg text-xs font-semibold flex items-center gap-1">
-                                                <FiVideo size={13} /> Video attached
+                                        <div className="relative inline-flex items-center">
+                                            <div className="h-10 px-3 pr-8 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                                                <FiVideo size={14} /> Video attached
                                             </div>
-                                            <button onClick={() => setPostVideo(null)}
-                                                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">&times;</button>
+                                            <button type="button" onClick={() => setPostVideo(null)}
+                                                className="absolute right-2 top-2.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center cursor-pointer shadow-md font-bold">&times;</button>
                                         </div>
                                     )}
                                 </div>
