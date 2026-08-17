@@ -20,7 +20,7 @@ function Home() {
     const [totalPages, setTotalPages] = useState(1)
     const [loadingMore, setLoadingMore] = useState(false)
     const [showCreatePost, setShowCreatePost] = useState(false)
-    const [newPost, setNewPost] = useState({ title: '', content: '', category: 'University', community: '' })
+    const [newPost, setNewPost] = useState({ title: '', content: '', category: 'Sciences', citationSource: '', community: '' })
     const [postImage, setPostImage] = useState(null)
     const [postVideo, setPostVideo] = useState(null)
     const [postImageFile, setPostImageFile] = useState(null)
@@ -267,7 +267,8 @@ function Home() {
                 commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
                 time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
                 trending: post.trending || false,
-                citationStatus: post.citationStatus || 'discussion',
+                citationSource: post.citationSource || '',
+                citationStatus: post.citationStatus || 'unverified',
                 citationSummary: post.citationSummary || '',
                 saved: savedIds.has(post.id || post._id),
                 isReal: true
@@ -476,13 +477,14 @@ function Home() {
                 title: newPost.title.trim(),
                 content: newPost.content.trim(),
                 category: newPost.category || 'Sciences',
+                citationSource: (newPost.citationSource || '').trim(),
                 communityIds: finalCommunityIds,
                 image: postImage || '',
                 video: postVideo || ''
             }
             await createPost(postData)
             setPostSuccess(true)
-            setNewPost({ title: '', content: '', category: 'Sciences', community: '' })
+            setNewPost({ title: '', content: '', category: 'Sciences', citationSource: '', community: '' })
             setPostImage(null)
             setPostVideo(null)
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false); fetchPosts(1) }, 1500)
@@ -838,13 +840,21 @@ function Home() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
-                                                {post.citationStatus === 'verified' && (
+                                                {post.citationStatus === 'verified' ? (
                                                     <span
-                                                        title={post.citationSummary || 'Verified by AI: Factually accurate academic content'}
+                                                        title={post.citationSummary || (post.citationSource ? `Verified from: ${post.citationSource}` : 'Verified Academic Source')}
                                                         className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full text-[10px] cursor-help shadow-xs"
                                                     >
                                                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                        AI Cited
+                                                        🟢 Verified Source
+                                                    </span>
+                                                ) : (
+                                                    <span
+                                                        title={post.citationSummary || 'No verified source found in database (Unverified)'}
+                                                        className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-medium px-2 py-0.5 rounded-full text-[10px] cursor-help"
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                        🟡 Unverified Source
                                                     </span>
                                                 )}
                                                 {post.trending && (
@@ -860,6 +870,12 @@ function Home() {
                                             className="font-bold text-dark text-sm md:text-base mb-1 leading-snug cursor-pointer hover:text-primary transition">
                                             {post.title}
                                         </h3>
+                                        {post.citationSource && (
+                                            <p className="text-[11px] text-gray-500 dark:text-gray-400 italic mb-1.5 flex items-center gap-1">
+                                                <span className="font-semibold not-italic text-gray-700 dark:text-gray-300">📖 Citation:</span>
+                                                <span>{post.citationSource}</span>
+                                            </p>
+                                        )}
                                         {post.content && (
                                             <div className="mb-3">
                                                 <p className={`text-gray-600 dark:text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${expandedPosts.has(post.id) ? '' : 'line-clamp-2'}`}>
@@ -1040,6 +1056,14 @@ function Home() {
                                     }>
                                         {(getUserTier(user) === 'free' || getUserTier(user) === 'basic') ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/80 words` : getUserTier(user) === 'premium' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/1,000 words` : 'Unlimited words'}
                                     </span>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                                        Citation / Source of Information <span className="text-gray-400 font-normal">(e.g. SURCON, NUC Curriculum, Google Scholar, Textbook)</span>
+                                    </label>
+                                    <input type="text" placeholder="e.g. SURCON Curriculum, NUC Benchmark, Google..."
+                                        value={newPost.citationSource || ''} onChange={e => setNewPost({ ...newPost, citationSource: e.target.value })}
+                                        className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark placeholder-gray-400" />
                                 </div>
                                 <select value={newPost.category} onChange={e => setNewPost({ ...newPost, category: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark">
