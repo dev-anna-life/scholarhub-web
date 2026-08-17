@@ -425,6 +425,10 @@ function UserProfile() {
                         </div>
 
                         <div className="flex items-center gap-2 flex-wrap mb-4">
+                            <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 shadow-xs">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                Scholar Score: {profileUser.scholarScore ?? 0} pts
+                            </span>
                             {profileUser.level && (
                                 <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
                                     <FiAward size={11} /> {profileUser.level}
@@ -568,6 +572,7 @@ function UserProfile() {
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                         className="grid grid-cols-2 gap-3">
                         {[
+                            { label: 'Scholar Score', value: `${profileUser.scholarScore ?? 0} pts`, icon: FiAward, color: 'text-emerald-600' },
                             { label: 'Streak', value: `${profileUser.streak || 0}/7`, icon: MdLocalFireDepartment, color: 'text-orange-500' },
                             { label: 'Followers', value: followersCount, icon: FiUserCheck, color: 'text-primary' },
                             { label: 'Following', value: followingCount, icon: FiUserPlus, color: 'text-purple-500' },

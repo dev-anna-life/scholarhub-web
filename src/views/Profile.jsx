@@ -93,10 +93,10 @@ function Profile() {
   const currentStreak = user.streak || 0
 
   const stats = [
+    { label: 'Scholar Score', value: `${user.scholarScore ?? 0} pts`, icon: FiAward, color: 'text-emerald-600' },
     { label: 'Coins', value: user.coins ?? 50, icon: BsCoin, color: 'text-accent' },
     { label: 'Posts', value: myPostCount, icon: FiBookOpen, color: 'text-primary' },
     { label: 'Streak', value: `${currentStreak}/7`, icon: MdLocalFireDepartment, color: 'text-orange-500' },
-    { label: 'Rank', value: '#-', icon: GiTrophy, color: 'text-purple-500' },
   ]
 
 
@@ -232,6 +232,10 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
               </div>
             </div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                Scholar Score: {user.scholarScore ?? 0} pts
+              </span>
               <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
                 <FiAward size={11} /> {user.level || 'Student'}
               </span>
