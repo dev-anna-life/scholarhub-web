@@ -360,20 +360,11 @@ function UserProfile() {
                         <div className="flex items-center gap-2.5 mb-0.5 flex-wrap">
                             <h2 className="text-xl font-extrabold text-dark flex items-center gap-1.5">
                                 <span>{profileUser.name}</span>
-                                {(() => {
-                                    const subs = profileUser.badgeSubscriptions || []
-                                    const now = new Date()
-                                    const active = subs.filter(s => new Date(s.expiresAt) > now)
-                                    const isVerified = profileUser.isVerified || active.some(s => s.badgeId === 'badge_premium' || s.badgeId === 'badge_extra_premium' || s.id === 'badge_premium' || s.id === 'badge_extra_premium')
-                                    if (isVerified) {
-                                        return (
-                                            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs" title="Scholar Verified">
-                                                ✓
-                                            </span>
-                                        )
-                                    }
-                                    return null
-                                })()}
+                                {profileUser.isVerified && (
+                                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs" title="Scholar Verified">
+                                        ✓
+                                    </span>
+                                )}
                             </h2>
                             {profileUser?.isOnline && (
                                 <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
@@ -434,9 +425,6 @@ function UserProfile() {
                                     <FiAward size={11} /> {profileUser.level}
                                 </span>
                             )}
-                            <span className="bg-accent/10 text-accent text-xs font-semibold px-3 py-1 rounded-full border border-accent/20 flex items-center gap-1">
-                                <FiStar size={11} /> {profileUser.badge || 'Beginner'}
-                            </span>
                             {profileUser.school && (
                                 <span className="bg-gray-100 text-gray-600 text-xs font-semibold px-3 py-1 rounded-full">
                                     {getSchoolAbbr(profileUser.school)}

@@ -49,12 +49,7 @@ function Home() {
     }
 
     const renderAuthorBadge = (author) => {
-        const subs = author?.badgeSubscriptions || []
-        const now = new Date()
-        const active = subs.filter(s => new Date(s.expiresAt) > now)
-        const isVerified = author?.isVerified || active.some(s => s.badgeId === 'badge_premium' || s.badgeId === 'badge_extra_premium' || s.id === 'badge_premium' || s.id === 'badge_extra_premium')
-
-        if (isVerified) {
+        if (author?.isVerified) {
             return (
                 <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#008751] text-white text-[9px] font-extrabold ml-1 flex-shrink-0" title="Scholar Verified">
                     ✓

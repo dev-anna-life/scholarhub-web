@@ -187,20 +187,11 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
               <div>
                 <h2 className="text-xl font-extrabold text-dark flex items-center gap-1.5">
                   <span>{user.name || 'Student'}</span>
-                  {(() => {
-                    const subs = user.badgeSubscriptions || []
-                    const now = new Date()
-                    const active = subs.filter(s => new Date(s.expiresAt) > now)
-                    const isVerified = user.isVerified || active.some(s => s.badgeId === 'badge_premium' || s.badgeId === 'badge_extra_premium' || s.id === 'badge_premium' || s.id === 'badge_extra_premium')
-                    if (isVerified) {
-                      return (
-                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs" title="Scholar Verified">
-                          ✓
-                        </span>
-                      )
-                    }
-                    return null
-                  })()}
+                  {user.isVerified && (
+                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs" title="Scholar Verified">
+                      ✓
+                    </span>
+                  )}
                 </h2>
                 <p className="text-sm font-semibold text-primary mb-0.5">
                   @{user.username || user.name?.toLowerCase().replace(/\s+/g, '')}
@@ -244,25 +235,6 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                   <FiBookOpen size={11} /> {user.course}
                 </span>
               ) : null}
-              <span className={`text-xs font-semibold px-3 py-1 rounded-full border flex items-center gap-1 ${
-                (() => {
-                  const subs = user.badgeSubscriptions || []
-                  const active = subs.filter(s => new Date(s.expiresAt) > new Date())
-                  const highest = active.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))[0]
-                  if (highest?.id === 'badge_extra_premium' || highest?.badgeId === 'badge_extra_premium') return 'bg-purple-100 text-purple-700 border-purple-300'
-                  if (highest?.id === 'badge_premium' || highest?.badgeId === 'badge_premium') return 'bg-emerald-50 text-[#008751] border-emerald-300 font-bold'
-                  if (highest?.id === 'badge_basic' || highest?.badgeId === 'badge_basic') return 'bg-slate-100 text-slate-700 border-slate-300'
-                  return 'bg-gray-100 text-gray-600 border-gray-200'
-                })()
-              }`}>
-                <FiStar size={11} /> {(() => {
-                  const subs = user.badgeSubscriptions || []
-                  const active = subs.filter(s => new Date(s.expiresAt) > new Date())
-                  const names = { badge_basic: 'Basic', badge_premium: 'Premium (Verified)', badge_extra_premium: 'Extra Premium (VIP)' }
-                  const highest = active.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))[0]
-                  return highest ? names[highest.id] || names[highest.badgeId] || 'Active Badge' : user.badge || 'Free Scholar'
-                })()}
-              </span>
             </div>
             {user.interests?.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
