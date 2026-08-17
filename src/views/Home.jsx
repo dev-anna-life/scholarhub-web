@@ -267,6 +267,8 @@ function Home() {
                 commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
                 time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
                 trending: post.trending || false,
+                citationStatus: post.citationStatus || 'discussion',
+                citationSummary: post.citationSummary || '',
                 saved: savedIds.has(post.id || post._id),
                 isReal: true
             }))
@@ -402,15 +404,35 @@ function Home() {
             setPostError('Free accounts can only post pictures. Upgrade to Basic (₦2,000/mo) to post up to 30s video.')
             return
         }
+
+        // Check file size (max ~4.2MB to fit Vercel payload limit)
+        if (file.size > 4.2 * 1024 * 1024) {
+            setPostError(`Video file size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 4MB upload limit. Please select a compressed video clip.`)
+            return
+        }
+
         const duration = await getVideoDuration(file)
         const maxSec = tier === 'basic' ? 30 : tier === 'premium' ? 180 : 1800
         if (duration > maxSec) {
             const maxText = tier === 'basic' ? '30 seconds' : tier === 'premium' ? '3 minutes' : '30 minutes'
-            setPostError(`Selected video is ${Math.round(duration)}s long. Your ${tier === 'basic' ? 'Basic' : 'Premium'} tier allows up to ${maxText}.`)
+            setPostError(`Selected video is ${Math.round(duration)}s long. Your ${tier === 'basic' ? 'Basic' : 'Premium'} tier allows up to ${maxText}. Upgrade to post longer videos.`)
             return
         }
         const reader = new FileReader()
         reader.onloadend = () => setPostVideo(reader.result)
+        reader.readAsDataURL(file)
+    }
+
+    const handleImageSelect = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        setPostError('')
+        if (file.size > 4.2 * 1024 * 1024) {
+            setPostError(`Image file size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 4MB upload limit. Please select a smaller photo.`)
+            return
+        }
+        const reader = new FileReader()
+        reader.onloadend = () => setPostImage(reader.result)
         reader.readAsDataURL(file)
     }
 
@@ -815,11 +837,28 @@ function Home() {
                                                     <p className="text-xs text-gray-400">{post.time}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-1 flex-shrink-0">
-                                                {post.trending && (
-                                                    <span className="bg-accent/10 text-accent font-semibold px-1.5 py-0.5 rounded-full hidden sm:block" style={{ fontSize: '10px' }}>Trending</span>
+                                            <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
+                                                {post.citationStatus === 'verified' ? (
+                                                    <span
+                                                        title={post.citationSummary || 'Verified by AI: Factually accurate academic content'}
+                                                        className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full text-[10px] cursor-help shadow-xs"
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                        AI Cited
+                                                    </span>
+                                                ) : (
+                                                    <span
+                                                        title={post.citationSummary || 'Community Discussion'}
+                                                        className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-medium px-2 py-0.5 rounded-full text-[10px] cursor-help"
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                        Discussion
+                                                    </span>
                                                 )}
-                                                <span className="bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded-full" style={{ fontSize: '10px' }}>
+                                                {post.trending && (
+                                                    <span className="bg-accent/10 text-accent font-semibold px-1.5 py-0.5 rounded-full hidden sm:block text-[10px]">Trending</span>
+                                                )}
+                                                <span className="bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded-full text-[10px]">
                                                     {post.category}
                                                 </span>
                                             </div>
@@ -1040,14 +1079,7 @@ function Home() {
                                         <>
                                             <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition text-xs text-gray-600 dark:text-gray-300 font-medium">
                                                 <FiImage size={14} /> Add Image
-                                                <input type="file" accept="image/*" hidden onChange={e => {
-                                                    const file = e.target.files[0]
-                                                    if (file) {
-                                                        const reader = new FileReader()
-                                                        reader.onloadend = () => setPostImage(reader.result)
-                                                        reader.readAsDataURL(file)
-                                                    }
-                                                }} />
+                                                <input type="file" accept="image/*" hidden onChange={handleImageSelect} />
                                             </label>
                                             <label className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition text-xs text-gray-600 dark:text-gray-300 font-medium">
                                                 <FiVideo size={14} /> Add Video
