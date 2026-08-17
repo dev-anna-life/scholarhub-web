@@ -16,6 +16,7 @@ export default function ShopPage() {
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [items, setItems] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('buy_coins')
   const [buying, setBuying] = useState(null)
   const [msg, setMsg] = useState(null)
