@@ -621,33 +621,33 @@ export default function ShopPage() {
             {redeemTab === 'airtime' ? (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">Select Amount</label>
-                  <select value={airtimeItemId} onChange={e => setAirtimeItemId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-dark">
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Select Amount</label>
+                  <select value={airtimeItemId} onChange={e => setAirtimeItemId(e.target.value)} className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary focus:outline-none">
                     {(items?.airtime || []).map(a => <option key={a.id} value={a.id}>{a.name} — {a.price} coins</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">Phone Number</label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="08012345678" className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Phone Number</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="08012345678" className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" />
                 </div>
-                <button onClick={handleRedeemAirtime} disabled={redeeming || !phone} className="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm disabled:opacity-50">
+                <button onClick={handleRedeemAirtime} disabled={redeeming || !phone} className="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm disabled:opacity-50 hover:opacity-90 transition cursor-pointer">
                   {redeeming ? 'Processing...' : 'Redeem Airtime'}
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">Select Data Plan</label>
-                  <select value={dataPlanId} onChange={e => setDataPlanId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-dark">
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Select Data Plan</label>
+                  <select value={dataPlanId} onChange={e => setDataPlanId(e.target.value)} className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-primary focus:outline-none">
                     <option value="">Choose plan...</option>
                     {(items?.data || []).map(d => <option key={d.id} value={d.id}>{d.name} — {d.price} coins</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">Phone Number</label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="08012345678" className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Phone Number</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="08012345678" className="w-full px-3 py-2 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" />
                 </div>
-                <button onClick={handleRedeemData} disabled={redeeming || !dataPlanId || !phone} className="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm disabled:opacity-50">
+                <button onClick={handleRedeemData} disabled={redeeming || !dataPlanId || !phone} className="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm disabled:opacity-50 hover:opacity-90 transition cursor-pointer">
                   {redeeming ? 'Processing...' : 'Redeem Data'}
                 </button>
               </div>

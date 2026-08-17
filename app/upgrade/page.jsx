@@ -381,64 +381,6 @@ export default function UpgradePage() {
             )
           })}
         </div>
-
-        {/* Feature Comparison Matrix */}
-        <div className="mt-16 bg-white dark:bg-[#18181b] border border-gray-100 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-xs">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-dark dark:text-white text-center mb-6">
-            Compare Plan Features
-          </h2>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 dark:border-zinc-800 text-gray-400 font-bold uppercase tracking-wider">
-                  <th className="py-3 px-3">Feature</th>
-                  <th className="py-3 px-3 text-center">Free</th>
-                  <th className="py-3 px-3 text-center">Basic</th>
-                  <th className="py-3 px-3 text-center text-[#008751]">Premium</th>
-                  <th className="py-3 px-3 text-center text-purple-600">Extra Premium</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-zinc-800 text-gray-700 dark:text-gray-300">
-                <tr>
-                  <td className="py-3.5 px-3 font-semibold flex items-center gap-1.5"><FiFileText /> Post Word Limit</td>
-                  <td className="py-3.5 px-3 text-center text-gray-400">0 - 80 words</td>
-                  <td className="py-3.5 px-3 text-center font-bold">0 - 80 words</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-[#008751]">1,000 words</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-purple-600">Unlimited</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-semibold flex items-center gap-1.5"><FiVideo /> Video Upload Length</td>
-                  <td className="py-3.5 px-3 text-center text-gray-400">—</td>
-                  <td className="py-3.5 px-3 text-center font-bold">Up to 30s</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-[#008751]">Up to 3 mins</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-purple-600">Up to 30 mins (HD)</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-semibold flex items-center gap-1.5"><FiShield /> Profile Badge</td>
-                  <td className="py-3.5 px-3 text-center text-gray-400">—</td>
-                  <td className="py-3.5 px-3 text-center">Basic Badge</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-[#008751]">Scholar Verified Checkmark</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-purple-600">VIP Crown Badge</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-semibold flex items-center gap-1.5"><FiCpu /> AI Study Bot Prompts</td>
-                  <td className="py-3.5 px-3 text-center text-gray-400">20 / day</td>
-                  <td className="py-3.5 px-3 text-center">20 / day</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-[#008751]">50 / day</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-purple-600">Unlimited</td>
-                </tr>
-                <tr>
-                  <td className="py-3.5 px-3 font-semibold flex items-center gap-1.5"><FiTrendingUp /> Feed Distribution</td>
-                  <td className="py-3.5 px-3 text-center text-gray-400">Standard</td>
-                  <td className="py-3.5 px-3 text-center">Standard</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-[#008751]">Priority Boost</td>
-                  <td className="py-3.5 px-3 text-center font-bold text-purple-600">VIP Max Boost</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
 
       {/* Payment Gateway Modal */}
