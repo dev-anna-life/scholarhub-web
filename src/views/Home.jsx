@@ -477,8 +477,31 @@ function Home() {
                 image: postImage || '',
                 video: postVideo || ''
             }
-            await createPost(postData)
+            const res = await createPost(postData)
             setPostSuccess(true)
+            const created = res.data?.post || res.data
+            if (created && (created.id || created._id)) {
+                const formattedPost = {
+                    id: created.id || created._id,
+                    title: created.title || postData.title,
+                    content: created.content || postData.content,
+                    category: created.category || postData.category,
+                    image: created.image || postImage,
+                    video: created.video || postVideo,
+                    author: created.author || user,
+                    likesCount: 0,
+                    commentCount: 0,
+                    liked: false,
+                    time: 'Just now',
+                    trending: false,
+                    citationSource: created.citationSource || postData.citationSource,
+                    citationStatus: created.citationStatus || 'unverified',
+                    citationSummary: created.citationSummary || '',
+                    saved: false,
+                    isReal: true
+                }
+                setPosts(prev => [formattedPost, ...prev.filter(p => p.id !== formattedPost.id)])
+            }
             setNewPost({ title: '', content: '', category: 'Sciences', citationSource: '', community: '' })
             setPostImage(null)
             setPostVideo(null)
