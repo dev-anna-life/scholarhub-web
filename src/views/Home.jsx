@@ -1041,8 +1041,7 @@ function Home() {
                                 <textarea placeholder="Share your thoughts, study tips, campus updates..."
                                             value={newPost.content} onChange={e => setNewPost({ ...newPost, content: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition min-h-[120px] resize-none text-dark" />
-                                <div className="flex justify-between items-center text-[11px] text-gray-400 px-1">
-                                    <span className="capitalize font-semibold text-primary">{getUserTier(user).replace('_', ' ')} tier</span>
+                                <div className="flex justify-end items-center text-[11px] text-gray-400 px-1">
                                     <span className={
                                         ((getUserTier(user) === 'free' || getUserTier(user) === 'basic') && (newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0) > 80) ||
                                         (getUserTier(user) === 'premium' && newPost.content.trim().split(/\s+/).length > 1000 && newPost.content.length > 5000)
