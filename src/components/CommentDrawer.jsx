@@ -37,6 +37,7 @@ export default function CommentDrawer({
   const [likedComments, setLikedComments] = useState({})
   const [isMobile, setIsMobile] = useState(false)
   const listRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -65,6 +66,18 @@ export default function CommentDrawer({
 
   const toggleLikeComment = (cId) => {
     setLikedComments(prev => ({ ...prev, [cId]: !prev[cId] }))
+  }
+
+  const handleMentionClick = () => {
+    setCommentText(prev => {
+      const trimmed = prev.trimEnd()
+      return trimmed ? `${trimmed} @` : '@'
+    })
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }, 50)
   }
 
   const handleSendComment = async () => {
@@ -390,6 +403,7 @@ export default function CommentDrawer({
               {/* Input container with @ and gift icons */}
               <div className="flex-1 min-w-0 flex items-center gap-1.5 sm:gap-2 bg-white/10 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 border border-white/10">
                 <input
+                  ref={inputRef}
                   type="text"
                   placeholder={replyTo ? `Reply to ${replyTo.authorName}...` : 'Add comment...'}
                   value={commentText}
@@ -397,7 +411,14 @@ export default function CommentDrawer({
                   onKeyDown={e => e.key === 'Enter' && handleSendComment()}
                   className="flex-1 min-w-0 bg-transparent text-xs sm:text-sm text-white placeholder-white/40 focus:outline-none"
                 />
-                <button type="button" className="text-white/40 hover:text-white text-xs font-bold transition flex-shrink-0 px-0.5">@</button>
+                <button
+                  type="button"
+                  onClick={handleMentionClick}
+                  className="text-white/40 hover:text-white text-xs font-bold transition flex-shrink-0 px-0.5 cursor-pointer"
+                  title="Mention someone"
+                >
+                  @
+                </button>
                 <button
                   type="button"
                   onClick={() => {
