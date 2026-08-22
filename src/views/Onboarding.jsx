@@ -7,6 +7,8 @@ import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
 import { FiBookOpen, FiCheck, FiArrowRight, FiSearch, FiAward } from "react-icons/fi"
 import { getCountryFromState, getSchoolLogo } from '../data/schools'
+import SchoolLogo from '../components/SchoolLogo'
+import SchoolBadge from '../components/SchoolBadge'
 
 const levels = ['Secondary', 'University']
 
@@ -252,15 +254,8 @@ export default function Onboarding() {
                             ) : schoolSuggestions.map(s => (
                               <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
                                 className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
-                                <div className="w-5 h-5 rounded overflow-hidden flex-shrink-0 relative">
-                                  <img src={getSchoolLogo(s.name).png} alt="" className="w-full h-full object-contain"
-                                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
-                                  <span className="hidden absolute inset-0 items-center justify-center text-white text-xs font-bold"
-                                    style={{ backgroundColor: s.color || '#008751' }}>
-                                    {s.name.charAt(0)}
-                                  </span>
-                                </div>
-                                {s.name}
+                                <SchoolLogo school={s.name} size={20} />
+                                <span className="truncate font-medium">{s.name}</span>
                               </button>
                             ))}
                           </div>
@@ -363,15 +358,8 @@ export default function Onboarding() {
                             ) : schoolSuggestions.map(s => (
                               <button key={s.name} onClick={() => { setSchool(s.name); setSchoolQuery(s.name); setShowDropdown(false) }}
                                 className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2 ${school === s.name ? 'bg-[#008751]/10 text-[#008751] font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
-                                <div className="w-5 h-5 rounded overflow-hidden flex-shrink-0 relative">
-                                  <img src={getSchoolLogo(s.name).png} alt="" className="w-full h-full object-contain"
-                                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
-                                  <span className="hidden absolute inset-0 items-center justify-center text-white text-xs font-bold"
-                                    style={{ backgroundColor: s.color || '#008751' }}>
-                                    {s.name.charAt(0)}
-                                  </span>
-                                </div>
-                                {s.name}
+                                <SchoolLogo school={s.name} size={20} />
+                                <span className="truncate font-medium">{s.name}</span>
                               </button>
                             ))}
                           </div>

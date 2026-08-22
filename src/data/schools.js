@@ -221,7 +221,16 @@ function findLogoKey(name) {
   return null
 }
 
+import { getSchoolLogoUrl } from '../utils/school'
+
 export function getSchoolLogo(name) {
+  if (!name) return { png: null, svg: null, slug: '', fromWiki: false }
+  
+  const known = getSchoolLogoUrl(name)
+  if (known) {
+    return { png: known, svg: known, slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-'), fromWiki: true }
+  }
+
   const key = findLogoKey(name)
   if (key) {
     const wiki = universityLogos[key]
@@ -229,14 +238,7 @@ export function getSchoolLogo(name) {
     return { png: fixed, svg: fixed, slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-'), fromWiki: true }
   }
 
-  const slug = name.toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-  const png = `/images/schools/${slug}.png`
-  const svg = `/images/schools/${slug}.svg`
-  return { png, svg, slug, fromWiki: false }
+  return { png: null, svg: null, slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-'), fromWiki: false }
 }
 
 export function getAllSchoolsForLevel(level) {

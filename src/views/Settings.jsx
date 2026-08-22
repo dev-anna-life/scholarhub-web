@@ -8,6 +8,8 @@ import Link from "next/link"
 import { getMe, updateProfile, updateSchool, changePassword as changePasswordAPI } from "../api/auth"
 import { courses } from '../data/courses'
 import { getAllSchoolsForLevel, matchSchool } from '../data/schools'
+import SchoolLogo from '../components/SchoolLogo'
+import SchoolBadge from '../components/SchoolBadge'
 
 function Settings() {
   const router = useRouter()
@@ -660,15 +662,17 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                                     setSchoolQuery(s.name)
                                     setShowSchoolDropdown(false)
                                   }}
-                                  className={`w-full text-left px-3 py-2 text-sm transition-all flex items-center gap-2 ${schoolForm.school === s.name ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
-                                  <div className="w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                                    style={{ backgroundColor: s.color }}>
-                                    {s.name.charAt(0)}
-                                  </div>
-                                  {s.name}
+                                  className={`w-full text-left px-3 py-2.5 text-sm transition-all flex items-center gap-2.5 ${schoolForm.school === s.name ? 'bg-primary/10 text-primary font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
+                                  <SchoolLogo school={s.name} size={20} />
+                                  <span className="truncate font-medium">{s.name}</span>
                                 </button>
                               ))
                             })()}
+                          </div>
+                        )}
+                        {schoolForm.school && (
+                          <div className="mt-2">
+                            <SchoolBadge school={schoolForm.school} state={schoolForm.state} level={schoolForm.level} size="md" />
                           </div>
                         )}
                       </div>

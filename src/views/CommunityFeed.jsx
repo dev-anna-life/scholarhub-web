@@ -8,6 +8,7 @@ import { createPost, getPosts, likePost, getComments, addComment, getMe, getMyCo
 import CommentDrawer from "../components/CommentDrawer"
 import PostGiftModal from "../components/PostGiftModal"
 import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
+import SchoolLogo from '../components/SchoolLogo'
 
 const communityData = {
     secondary: {
@@ -471,10 +472,8 @@ function CommunityFeed() {
                                                     {post.author}
                                                 </p>
                                                 {post.school && (
-                                                    <img src={getSchoolLogo(post.school).png} alt=""
-                                                        className="w-3.5 h-3.5 object-contain rounded flex-shrink-0"
-                                                        onError={e => e.target.style.display = 'none'} />
-                                                )}
+                                                     <SchoolLogo school={post.school} size={15} />
+                                                 )}
                                                 </div>
                                                 <p className="text-xs text-gray-400">{post.time}</p>
                                             </div>

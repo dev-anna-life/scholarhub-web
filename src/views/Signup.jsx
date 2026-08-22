@@ -10,6 +10,8 @@ import { googleAuth } from "../api/auth";
 import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
 import { getCountryFromState, getSchoolLogo } from '../data/schools'
+import SchoolLogo from '../components/SchoolLogo'
+import SchoolBadge from '../components/SchoolBadge'
 import { getClientGeo } from '../utils/geo'
 
 const fadeUp = {
@@ -333,21 +335,19 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
         {showDropdown && suggestions.length > 0 && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden max-h-60 overflow-y-auto">
-            {suggestions.map((school, i) => (
-              <button key={i} type="button" onClick={() => handleSelect(school)} onMouseEnter={() => setActiveIndex(i)}
-                className={`w-full text-left px-3 py-2.5 text-sm transition-colors flex items-center gap-2 ${activeIndex === i ? 'bg-primary/10 text-primary' : 'text-dark hover:bg-primary/5'}`}>
-                <div className="w-6 h-6 rounded-md overflow-hidden flex-shrink-0 relative">
-                  <img src={getSchoolLogo(school.name || school).png} alt=""
-                    className="w-full h-full object-contain"
-                    onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
-                  <span className="hidden absolute inset-0 items-center justify-center text-primary text-xs font-bold bg-primary/10"
-                    style={{ backgroundColor: (school.color || '#008751') + '20', color: school.color || '#008751' }}>
-                    {(school.name || school).charAt(0)}
-                  </span>
-                </div>
-                <span className="truncate">{school.name || school}</span>
-              </button>
-            ))}
+            {suggestions.map((school, i) => {
+              const sName = school.name || school
+              return (
+                <button key={i} type="button" onClick={() => handleSelect(school)} onMouseEnter={() => setActiveIndex(i)}
+                  className={`w-full text-left px-3 py-2.5 text-sm transition-colors flex items-center gap-2.5 ${activeIndex === i ? 'bg-primary/10 text-primary' : 'text-dark hover:bg-primary/5'}`}>
+                  <SchoolLogo school={sName} size={24} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-xs sm:text-sm">{sName}</p>
+                    {school.location && <p className="text-[10px] text-gray-400 truncate">{school.location}</p>}
+                  </div>
+                </button>
+              )
+            })}
           </motion.div>
         )}
         {showNotFound && (
@@ -378,7 +378,11 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
         )}
       </AnimatePresence>
       {requestSent && <p className="text-green-600 text-xs mt-1"><FiCheck size={10} className="inline mr-0.5" />Request submitted!</p>}
-      {selected && <p className="text-primary text-xs mt-1"><FiCheck size={10} className="inline mr-0.5" />Selected</p>}
+      {selected && value && (
+        <div className="mt-2.5">
+          <SchoolBadge school={value} state={state} level={currentLevel} size="md" />
+        </div>
+      )}
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   )

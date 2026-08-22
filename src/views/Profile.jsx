@@ -9,6 +9,8 @@ import { GiTrophy } from "react-icons/gi"
 import { useRouter } from "next/navigation"
 import { getMe, getUserPosts, deletePost, getUserById, followUser, updateProfile } from "../api/auth"
 import { getSchoolLogo } from "../data/schools"
+import SchoolBadge from "../components/SchoolBadge"
+import SchoolLogo from "../components/SchoolLogo"
 
 function Profile() {
   const router = useRouter()
@@ -182,35 +184,33 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
               </button>
             </div>
           </div>
-          <div className="pt-10 px-6 pb-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-extrabold text-dark flex items-center gap-1.5">
-                  <span>{user.name || 'Student'}</span>
+          <div className="pt-10 px-4 sm:px-6 pb-6">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl font-extrabold text-dark flex items-center gap-1.5 flex-wrap">
+                  <span className="truncate">{user.name || 'Student'}</span>
                   {user.isVerified && (
-                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs" title="Scholar Verified">
+                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs flex-shrink-0" title="Scholar Verified">
                       ✓
                     </span>
                   )}
                 </h2>
-                <p className="text-sm font-semibold text-primary mb-0.5">
+                <p className="text-sm font-semibold text-primary mb-0.5 truncate">
                   @{user.username || user.name?.toLowerCase().replace(/\s+/g, '')}
                 </p>
-                <p className="text-sm text-gray-400">{user.email}</p>
-                <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5">
-                  {user.school && (
-                    <img src={getSchoolLogo(user.school).png} alt=""
-                      className="w-4 h-4 object-contain rounded"
-                      onError={e => e.target.style.display = 'none'} />
-                  )}
-                  {user.school && user.state ? `${user.school} • ${user.state}` : user.school || user.state || ''}
-                </p>
+                <p className="text-xs sm:text-sm text-gray-400 truncate">{user.email}</p>
               </div>
               <button onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-500 rounded-xl text-xs font-medium hover:bg-red-100 transition">
+                className="flex items-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-xs font-semibold transition flex-shrink-0 cursor-pointer">
                 <FiLogOut size={13} /> Logout
               </button>
             </div>
+
+            {user.school && (
+              <div className="mb-3">
+                <SchoolBadge school={user.school} state={user.state} level={user.level} size="md" />
+              </div>
+            )}
             <div className="flex items-center gap-4 mb-4 mt-2">
               <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
                 <p className="font-extrabold text-dark text-lg">{followersCount}</p>

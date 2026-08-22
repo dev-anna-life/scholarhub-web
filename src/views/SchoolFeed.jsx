@@ -7,6 +7,7 @@ import { FiArrowLeft, FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiPlus, Fi
 import { createPost, getPosts, likePost, getComments, addComment, getMe } from '../api/auth'
 import CommentDrawer from '../components/CommentDrawer'
 import PostGiftModal from '../components/PostGiftModal'
+import SchoolLogo from '../components/SchoolLogo'
 
 function SchoolFeed() {
     const params = useParams() || {}
@@ -218,8 +219,8 @@ function SchoolFeed() {
                     </button>
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                         <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-3">
-                                <FiMapPin size={22} className="text-white flex-shrink-0" />
+                            <div className="flex items-center gap-3 mb-3">
+                                <SchoolLogo school={decodedSchool} size={36} className="bg-white/90 shadow-md" />
                                 <h1 className="text-xl md:text-3xl font-extrabold text-white leading-tight">{decodedSchool}</h1>
                             </div>
                             <p className="text-white/80 text-sm max-w-lg mb-3 leading-relaxed">

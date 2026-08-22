@@ -9,6 +9,8 @@ import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
 import { getUserById, followUser, getPosts, deletePost, sendCoins } from "../api/auth"
 import { getSchoolLogo } from "../data/schools"
+import SchoolBadge from "../components/SchoolBadge"
+import SchoolLogo from "../components/SchoolLogo"
 
 const knownAbbreviations = {
     'university of lagos': 'UNILAG', 'obafemi awolowo university': 'OAU',
@@ -377,16 +379,11 @@ function UserProfile() {
                             <span className="text-gray-300 font-normal">•</span>
                             <span className="text-gray-400 font-normal">Tag for gifting coins</span>
                         </p>
-                        <p className="text-xs text-gray-400 mb-3 flex items-center gap-1.5">
-                            {profileUser.school && (
-                                <img src={getSchoolLogo(profileUser.school).png} alt=""
-                                    className="w-4 h-4 object-contain rounded"
-                                    onError={e => e.target.style.display = 'none'} />
-                            )}
-                            {profileUser.school && profileUser.state
-                                ? `${profileUser.school} • ${profileUser.state}`
-                                : profileUser.school || profileUser.state || 'ScholarHub Member'}
-                        </p>
+                        {profileUser.school && (
+                            <div className="mb-3">
+                                <SchoolBadge school={profileUser.school} state={profileUser.state} level={profileUser.level} size="md" />
+                            </div>
+                        )}
 
                         {(() => {
                             const mutuals = myFollowing.filter(myF => profileFollowers.some(pFol => pFol.id === myF.id))

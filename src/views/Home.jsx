@@ -8,6 +8,8 @@ import SOSButton from '../components/SOSButton'
 import CommentDrawer from '../components/CommentDrawer'
 import PostGiftModal from '../components/PostGiftModal'
 import { getSchoolAbbr, stringToColor } from '../utils/school'
+import SchoolLogo from '../components/SchoolLogo'
+import SchoolBadge from '../components/SchoolBadge'
 import axios from 'axios'
 
 function Home() {
@@ -855,6 +857,9 @@ function Home() {
                                                     {renderAuthorBadge(post)}
                                                 </p>
                                                 <div className="flex items-center gap-1.5 mt-0.5">
+                                                    {post.school && (
+                                                        <SchoolLogo school={post.school} size={15} />
+                                                    )}
                                                     {post.school && (
                                                         <span className="text-white font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
                                                             style={{ backgroundColor: stringToColor(post.school), fontSize: '9px' }}>
