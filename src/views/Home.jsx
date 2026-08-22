@@ -1097,7 +1097,7 @@ function Home() {
                                     <div className="space-y-1.5">
                                         <p className="text-xs font-semibold text-gray-500">Post to communities:</p>
                                         <div className="flex flex-wrap gap-2">
-                                            {userCommunities.map(c => {
+                                            {Array.from(new Map(userCommunities.map(c => [c.name?.trim(), c])).values()).map(c => {
                                                 const cid = c.id || c._id
                                                 if (!cid) return null
                                                 const isSelected = selectedCommunityIds.includes(cid)
