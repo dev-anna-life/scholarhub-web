@@ -295,15 +295,15 @@ function UserProfile() {
                 </button>
 
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-5">
-                    <div className="h-24 bg-gradient-to-r from-dark to-primary relative" />
+                    className="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-6 shadow-xs">
+                    <div className="h-28 sm:h-32 bg-gradient-to-r from-emerald-800 via-dark to-primary relative" />
 
-                    <div className="px-5 pb-5">
-                        <div className="flex items-end justify-between -mt-8 mb-4">
-                            <div className="relative">
+                    <div className="px-4 sm:px-6 pb-6 text-center -mt-14 sm:-mt-16">
+                        <div className="flex flex-col items-center">
+                            <div className="relative mb-3 inline-block">
                                 <div
                                     onClick={() => (profileUser?.avatar ? setShowImageModal(profileUser.avatar) : null)}
-                                    className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg flex-shrink-0 overflow-hidden cursor-pointer relative group"
+                                    className="w-24 h-24 sm:w-28 sm:h-28 bg-primary rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-extrabold border-4 border-white shadow-xl overflow-hidden cursor-pointer relative group"
                                     title="Click to view profile picture"
                                 >
                                     {profileUser?.avatar ? (
@@ -313,54 +313,11 @@ function UserProfile() {
                                     )}
                                 </div>
                                 {profileUser?.isOnline && (
-                                    <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+                                    <span className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-3 border-white animate-pulse" />
                                 )}
                             </div>
 
-                            {!isOwnProfile && (
-                                <div className="flex gap-2 mt-10">
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={handleFollow}
-                                        disabled={followLoading}
-                                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition ${
-                                            following
-                                                ? 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500'
-                                                : 'bg-primary text-white hover:opacity-90'
-                                        }`}>
-                                        {following ? <FiUserCheck size={13} /> : <FiUserPlus size={13} />}
-                                        {followLoading ? '...' : following ? 'Following' : followedBy ? 'Follow Back' : 'Follow'}
-                                    </motion.button>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => router.push(`/chat?user=${userId}`)}
-                                        className="flex items-center gap-1.5 px-4 py-2 bg-primary/10 text-primary rounded-xl text-xs font-semibold hover:bg-primary/20 transition">
-                                        <FiMessageSquare size={13} /> Message
-                                    </motion.button>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => { setSendUsername(''); setSendAmount(''); setSendMsg(null); setShowSendCoins(true) }}
-                                        className="flex items-center gap-1.5 px-4 py-2 bg-accent/10 text-accent rounded-xl text-xs font-semibold hover:bg-accent/20 transition">
-                                        <BsCoin size={13} /> Send Coins
-                                    </motion.button>
-                                </div>
-                            )}
-                            {followError && <p className="text-red-500 text-xs mt-2">{followError}</p>}
-
-                            {isOwnProfile && (
-                                <button
-                                    onClick={() => router.push('/profile')}
-                                    className="mt-10 px-4 py-2 border border-gray-200 rounded-xl text-xs font-medium text-dark hover:border-primary transition">
-                                    Edit Profile
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="flex items-center gap-2.5 mb-0.5 flex-wrap">
-                            <h2 className="text-xl font-extrabold text-dark flex items-center gap-1.5">
+                            <h2 className="text-xl sm:text-2xl font-extrabold text-dark flex items-center justify-center gap-1.5 flex-wrap">
                                 <span>{profileUser.name}</span>
                                 {profileUser.isVerified && (
                                     <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs" title="Scholar Verified">
@@ -368,82 +325,121 @@ function UserProfile() {
                                     </span>
                                 )}
                             </h2>
-                            {profileUser?.isOnline && (
-                                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Active now
-                                </span>
-                            )}
-                        </div>
-                        <p className="text-xs font-semibold text-primary mb-1.5 flex items-center gap-1.5">
-                            <span>@{profileUser.username || profileUser.name?.toLowerCase().replace(/\s+/g, '')}</span>
-                            <span className="text-gray-300 font-normal">•</span>
-                            <span className="text-gray-400 font-normal">Tag for gifting coins</span>
-                        </p>
-                        {profileUser.school && (
-                            <div className="mb-3">
-                                <SchoolBadge school={profileUser.school} state={profileUser.state} level={profileUser.level} size="md" />
-                            </div>
-                        )}
+                            <p className="text-xs sm:text-sm font-semibold text-primary mt-0.5 mb-2">
+                                @{profileUser.username || profileUser.name?.toLowerCase().replace(/\s+/g, '')}
+                            </p>
 
-                        {(() => {
-                            const mutuals = myFollowing.filter(myF => profileFollowers.some(pFol => pFol.id === myF.id))
-                            if (mutuals.length === 0) return null
-                            return (
-                                <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                                    <span className="font-semibold text-primary">Mutuals:</span>
-                                    <span>
-                                        Followed by {mutuals[0].name}
-                                        {mutuals.length > 1 ? ` and ${mutuals.length - 1} other${mutuals.length > 2 ? 's' : ''}` : ''}
-                                    </span>
-                                </p>
-                            )
-                        })()}
-
-                        <div className="flex items-center gap-4 sm:gap-6 mb-4">
-                            <div className="text-center">
-                                <p className="font-extrabold text-dark text-lg">{followingCount}</p>
-                                <p className="text-xs text-gray-400">Following</p>
-                            </div>
-                            <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
-                            <div className="text-center">
-                                <p className="font-extrabold text-dark text-lg">{followersCount}</p>
-                                <p className="text-xs text-gray-400">Followers</p>
-                            </div>
-                            <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
-                            <div className="text-center">
-                                <p className="font-extrabold text-dark text-lg">
-                                    {userPosts.reduce((sum, p) => sum + (Array.isArray(p.likes) ? p.likes.length : (typeof p.likes === 'number' ? p.likes : (typeof p.likesCount === 'number' ? p.likesCount : 0))), 0)}
-                                </p>
-                                <p className="text-xs text-gray-400">Likes</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 flex-wrap mb-4">
-                            <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 shadow-xs">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                                Scholar Score: {profileUser.scholarScore ?? 0} pts
-                            </span>
-                            {profileUser.level && (
-                                <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
-                                    <FiAward size={11} /> {profileUser.level}
-                                </span>
-                            )}
                             {profileUser.school && (
-                                <span className="bg-gray-100 text-gray-600 text-xs font-semibold px-3 py-1 rounded-full">
-                                    {getSchoolAbbr(profileUser.school)}
+                                <div className="mb-3 max-w-sm mx-auto">
+                                    <SchoolBadge school={profileUser.school} state={profileUser.state} level={profileUser.level} size="md" />
+                                </div>
+                            )}
+
+                            {(() => {
+                                const mutuals = myFollowing.filter(myF => profileFollowers.some(pFol => pFol.id === myF.id))
+                                if (mutuals.length === 0) return null
+                                return (
+                                    <p className="text-xs text-gray-500 mb-3 flex items-center justify-center gap-1">
+                                        <span className="font-semibold text-primary">Mutuals:</span>
+                                        <span>
+                                            Followed by {mutuals[0].name}
+                                            {mutuals.length > 1 ? ` and ${mutuals.length - 1} other${mutuals.length > 2 ? 's' : ''}` : ''}
+                                        </span>
+                                    </p>
+                                )
+                            })()}
+
+                            <div className="flex items-center justify-center gap-6 sm:gap-8 my-3 py-2 border-y border-gray-100 dark:border-zinc-800/80 w-full max-w-md mx-auto">
+                                <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
+                                    <p className="font-extrabold text-dark text-lg sm:text-xl">{followingCount}</p>
+                                    <p className="text-xs font-medium text-gray-400">Following</p>
+                                </div>
+                                <div className="w-px h-8 bg-gray-200 dark:bg-zinc-800" />
+                                <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
+                                    <p className="font-extrabold text-dark text-lg sm:text-xl">{followersCount}</p>
+                                    <p className="text-xs font-medium text-gray-400">Followers</p>
+                                </div>
+                                <div className="w-px h-8 bg-gray-200 dark:bg-zinc-800" />
+                                <div className="text-center">
+                                    <p className="font-extrabold text-dark text-lg sm:text-xl">
+                                        {userPosts.reduce((sum, p) => sum + (Array.isArray(p.likes) ? p.likes.length : (typeof p.likes === 'number' ? p.likes : (typeof p.likesCount === 'number' ? p.likesCount : 0))), 0)}
+                                    </p>
+                                    <p className="text-xs font-medium text-gray-400">Likes</p>
+                                </div>
+                            </div>
+
+                            {!isOwnProfile ? (
+                                <div className="grid grid-cols-3 gap-2 w-full max-w-md mx-auto my-3">
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={handleFollow}
+                                        disabled={followLoading}
+                                        className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold transition shadow-xs ${
+                                            following
+                                                ? 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-red-50 hover:text-red-600'
+                                                : 'bg-primary text-white hover:opacity-90'
+                                        }`}>
+                                        {following ? <FiUserCheck size={14} /> : <FiUserPlus size={14} />}
+                                        <span className="truncate">{followLoading ? '...' : following ? 'Following' : followedBy ? 'Follow Back' : 'Follow'}</span>
+                                    </motion.button>
+
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => router.push(`/chat?user=${userId}`)}
+                                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-bold transition">
+                                        <FiMessageSquare size={14} />
+                                        <span className="truncate">Message</span>
+                                    </motion.button>
+
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => { setSendUsername(''); setSendAmount(''); setSendMsg(null); setShowSendCoins(true) }}
+                                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold transition">
+                                        <BsCoin size={14} />
+                                        <span className="truncate">Gift Coins</span>
+                                    </motion.button>
+                                </div>
+                            ) : (
+                                <div className="w-full max-w-md mx-auto my-3">
+                                    <button
+                                        onClick={() => router.push('/profile')}
+                                        className="w-full py-2.5 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-dark hover:border-primary transition">
+                                        Edit Profile
+                                    </button>
+                                </div>
+                            )}
+                            {followError && <p className="text-red-500 text-xs mt-1">{followError}</p>}
+
+                            <div className="flex items-center justify-center gap-2 flex-wrap mt-2">
+                                <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 shadow-xs">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    Scholar Score: {profileUser.scholarScore ?? 0} pts
                                 </span>
+                                {profileUser.level && (
+                                    <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
+                                        <FiAward size={11} /> {profileUser.level}
+                                    </span>
+                                )}
+                                {profileUser.course && (
+                                    <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
+                                        <FiBookOpen size={11} /> {profileUser.course}
+                                    </span>
+                                )}
+                            </div>
+
+                            {profileUser.interests?.length > 0 && (
+                                <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+                                    {profileUser.interests.map(interest => (
+                                        <span key={interest} className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full font-medium">
+                                            {interest}
+                                        </span>
+                                    ))}
+                                </div>
                             )}
                         </div>
-
-                        {profileUser.interests?.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5">
-                                {profileUser.interests.map(interest => (
-                                    <span key={interest} className="bg-gray-100 text-gray-500 text-xs px-2.5 py-1 rounded-full">
-                                        {interest}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
                     </div>
                 </motion.div>
 
@@ -601,13 +597,17 @@ function UserProfile() {
                                         onClick={() => router.push(`/post/${post._id}`)}
                                         className="bg-white rounded-2xl p-4 md:p-5 border border-gray-100 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                                post.status === 'approved' ? 'bg-primary/10 text-primary' :
-                                                post.status === 'rejected' ? 'bg-red-50 text-red-500' :
-                                                'bg-yellow-50 text-yellow-600'}`}>
-                                                {post.status === 'approved' ? <><FiCheck size={14} className="inline mr-1" /> Approved</> :
-                                                 post.status === 'rejected' ? <><FiX size={14} className="inline mr-1" /> Rejected</> : <><FiClock size={14} className="inline mr-1" /> Pending</>}
-                                            </span>
+                                            {post.status && post.status !== 'approved' ? (
+                                                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                                                    post.status === 'rejected' ? 'bg-red-50 text-red-500' :
+                                                    'bg-yellow-50 text-yellow-600'}`}>
+                                                    {post.status === 'rejected' ? <><FiX size={14} className="inline mr-1" /> Rejected</> : <><FiClock size={14} className="inline mr-1" /> Pending</>}
+                                                </span>
+                                            ) : (
+                                                <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full">
+                                                    {post.category || 'Academic'}
+                                                </span>
+                                            )}
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-gray-400">
                                                     {new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}

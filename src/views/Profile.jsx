@@ -160,96 +160,107 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
         <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-6">
-          <div className="h-24 bg-gradient-to-r from-dark to-primary relative">
-            <div className="absolute -bottom-8 left-6 flex items-center gap-2">
-              <div
-                onClick={() => (user.avatar ? setShowImageModal(user.avatar) : avatarInputRef.current?.click())}
-                className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-lg overflow-hidden relative cursor-pointer group"
-                title="Click to view photo"
-              >
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  user.name?.charAt(0)?.toUpperCase() || 'S'
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => avatarInputRef.current?.click()}
-                className="mt-6 p-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-xs font-semibold flex items-center gap-1 transition"
-                title="Change photo"
-              >
-                <FiCamera size={14} />
-              </button>
-            </div>
-          </div>
-          <div className="pt-10 px-4 sm:px-6 pb-6">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div className="min-w-0 flex-1">
-                <h2 className="text-xl font-extrabold text-dark flex items-center gap-1.5 flex-wrap">
-                  <span className="truncate">{user.name || 'Student'}</span>
-                  {user.isVerified && (
-                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs flex-shrink-0" title="Scholar Verified">
-                      ✓
-                    </span>
-                  )}
-                </h2>
-                <p className="text-sm font-semibold text-primary mb-0.5 truncate">
-                  @{user.username || user.name?.toLowerCase().replace(/\s+/g, '')}
-                </p>
-                <p className="text-xs sm:text-sm text-gray-400 truncate">{user.email}</p>
-              </div>
-              <button onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-xs font-semibold transition flex-shrink-0 cursor-pointer">
-                <FiLogOut size={13} /> Logout
-              </button>
-            </div>
+          className="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-6 shadow-xs">
+          <div className="h-28 sm:h-32 bg-gradient-to-r from-emerald-800 via-dark to-primary relative" />
 
-            {user.school && (
-              <div className="mb-3">
-                <SchoolBadge school={user.school} state={user.state} level={user.level} size="md" />
+          <div className="px-4 sm:px-6 pb-6 text-center -mt-14 sm:-mt-16">
+            <div className="flex flex-col items-center">
+              <div className="relative mb-3 inline-block">
+                <div
+                  onClick={() => (user.avatar ? setShowImageModal(user.avatar) : avatarInputRef.current?.click())}
+                  className="w-24 h-24 sm:w-28 sm:h-28 bg-primary rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-extrabold border-4 border-white shadow-xl overflow-hidden cursor-pointer relative group"
+                  title="Click to view photo"
+                >
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    user.name?.charAt(0)?.toUpperCase() || 'S'
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 p-2 bg-primary text-white hover:opacity-90 rounded-full shadow-md transition"
+                  title="Change photo"
+                >
+                  <FiCamera size={14} />
+                </button>
               </div>
-            )}
-            <div className="flex items-center gap-4 sm:gap-6 mb-4 mt-2">
-              <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
-                <p className="font-extrabold text-dark text-lg">{followingCount}</p>
-                <p className="text-xs font-medium text-gray-500">Following</p>
+
+              <h2 className="text-xl sm:text-2xl font-extrabold text-dark flex items-center justify-center gap-1.5 flex-wrap">
+                <span>{user.name || 'Student'}</span>
+                {user.isVerified && (
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs flex-shrink-0" title="Scholar Verified">
+                    ✓
+                  </span>
+                )}
+              </h2>
+              <p className="text-xs sm:text-sm font-semibold text-primary mt-0.5">
+                @{user.username || user.name?.toLowerCase().replace(/\s+/g, '')}
+              </p>
+              <p className="text-xs text-gray-400 mb-2">{user.email}</p>
+
+              {user.school && (
+                <div className="mb-3 max-w-sm mx-auto">
+                  <SchoolBadge school={user.school} state={user.state} level={user.level} size="md" />
+                </div>
+              )}
+
+              <div className="flex items-center justify-center gap-6 sm:gap-8 my-3 py-2 border-y border-gray-100 dark:border-zinc-800/80 w-full max-w-md mx-auto">
+                <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
+                  <p className="font-extrabold text-dark text-lg sm:text-xl">{followingCount}</p>
+                  <p className="text-xs font-medium text-gray-400">Following</p>
+                </div>
+                <div className="w-px h-8 bg-gray-200 dark:bg-zinc-800" />
+                <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
+                  <p className="font-extrabold text-dark text-lg sm:text-xl">{followersCount}</p>
+                  <p className="text-xs font-medium text-gray-400">Followers</p>
+                </div>
+                <div className="w-px h-8 bg-gray-200 dark:bg-zinc-800" />
+                <div className="text-center">
+                  <p className="font-extrabold text-dark text-lg sm:text-xl">
+                    {myPosts.reduce((sum, p) => sum + (Array.isArray(p.likes) ? p.likes.length : (typeof p.likesCount === 'number' ? p.likesCount : (typeof p.likes === 'number' ? p.likes : 0))), 0)}
+                  </p>
+                  <p className="text-xs font-medium text-gray-400">Likes</p>
+                </div>
               </div>
-              <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
-              <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
-                <p className="font-extrabold text-dark text-lg">{followersCount}</p>
-                <p className="text-xs font-medium text-gray-500">Followers</p>
+
+              <div className="grid grid-cols-2 gap-2 w-full max-w-md mx-auto my-3">
+                <button
+                  onClick={() => router.push('/settings')}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 text-dark rounded-xl text-xs font-bold transition">
+                  <FiSettings size={14} /> Edit Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-xs font-bold transition">
+                  <FiLogOut size={14} /> Logout
+                </button>
               </div>
-              <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
-              <div className="text-center">
-                <p className="font-extrabold text-dark text-lg">
-                  {myPosts.reduce((sum, p) => sum + (Array.isArray(p.likes) ? p.likes.length : (typeof p.likesCount === 'number' ? p.likesCount : (typeof p.likes === 'number' ? p.likes : 0))), 0)}
-                </p>
-                <p className="text-xs font-medium text-gray-500">Likes</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                Scholar Score: {user.scholarScore ?? 0} pts
-              </span>
-              <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
-                <FiAward size={11} /> {user.level || 'Student'}
-              </span>
-              {user.course ? (
-                <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
-                  <FiBookOpen size={11} /> {user.course}
+
+              <div className="flex items-center justify-center gap-2 flex-wrap mt-2">
+                <span className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-1 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Scholar Score: {user.scholarScore ?? 0} pts
                 </span>
-              ) : null}
-            </div>
-            {user.interests?.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {user.interests.map(interest => (
-                  <span key={interest} className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">{interest}</span>
-                ))}
+                <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
+                  <FiAward size={11} /> {user.level || 'Student'}
+                </span>
+                {user.course ? (
+                  <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20 flex items-center gap-1">
+                    <FiBookOpen size={11} /> {user.course}
+                  </span>
+                ) : null}
               </div>
-            )}
+
+              {user.interests?.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+                  {user.interests.map(interest => (
+                    <span key={interest} className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full font-medium">{interest}</span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
 
@@ -413,13 +424,17 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                     transition={{ delay: i * 0.08 }}
                     className="bg-white rounded-2xl p-5 border border-gray-100 hover:shadow-md transition-all duration-300">
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                        post.status === 'approved' ? 'bg-primary/10 text-primary' :
-                        post.status === 'rejected' ? 'bg-red-50 text-red-500' :
-                        'bg-yellow-50 text-yellow-600'}`}>
-                        {post.status === 'approved' ? <><FiCheck size={14} className="inline mr-1" /> Approved</> :
-                         post.status === 'rejected' ? <><FiX size={14} className="inline mr-1" /> Rejected</> : <><FiClock size={14} className="inline mr-1" /> Pending</>}
-                      </span>
+                      {post.status && post.status !== 'approved' ? (
+                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                          post.status === 'rejected' ? 'bg-red-50 text-red-500' :
+                          'bg-yellow-50 text-yellow-600'}`}>
+                          {post.status === 'rejected' ? <><FiX size={14} className="inline mr-1" /> Rejected</> : <><FiClock size={14} className="inline mr-1" /> Pending</>}
+                        </span>
+                      ) : (
+                        <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 rounded-full">
+                          {post.category || 'Academic'}
+                        </span>
+                      )}
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-400">
                           {new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}

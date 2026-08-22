@@ -460,8 +460,8 @@ function Home() {
                 return
             }
         } else if (tier === 'basic') {
-            if (wordCount > 80) {
-                setPostError('Basic tier limit is 80 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
+            if (wordCount > 500) {
+                setPostError('Basic tier limit is 500 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
                 return
             }
         } else if (tier === 'premium') {
@@ -1072,12 +1072,19 @@ function Home() {
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition min-h-[120px] resize-none text-dark" />
                                 <div className="flex justify-end items-center text-[11px] text-gray-400 px-1">
                                     <span className={
-                                        ((getUserTier(user) === 'free' || getUserTier(user) === 'basic') && (newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0) > 80) ||
+                                        (getUserTier(user) === 'free' && (newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0) > 80) ||
+                                        (getUserTier(user) === 'basic' && (newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0) > 500) ||
                                         (getUserTier(user) === 'premium' && newPost.content.trim().split(/\s+/).length > 1000 && newPost.content.length > 5000)
                                             ? 'text-red-500 font-bold'
                                             : ''
                                     }>
-                                        {(getUserTier(user) === 'free' || getUserTier(user) === 'basic') ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/80 words` : getUserTier(user) === 'premium' ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/1,000 words` : 'Unlimited words'}
+                                        {getUserTier(user) === 'free'
+                                            ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/80 words (Free)`
+                                            : getUserTier(user) === 'basic'
+                                            ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/500 words (Basic)`
+                                            : getUserTier(user) === 'premium'
+                                            ? `${newPost.content.trim() ? newPost.content.trim().split(/\s+/).length : 0}/1,000 words (Premium)`
+                                            : 'Unlimited words (VIP)'}
                                     </span>
                                 </div>
                                 <div>

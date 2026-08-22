@@ -21,7 +21,7 @@ const TIERS = [
     badgeBg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
     buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white',
     features: [
-      'Write 0 - 80 words per post',
+      'Write up to 500 words per post',
       'Upload up to 30s video clips',
       'Basic Badge on profile and posts',
       '20 AI Study Bot questions daily',
