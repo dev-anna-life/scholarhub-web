@@ -10,6 +10,7 @@ import { courses } from '../data/courses'
 import { getAllSchoolsForLevel, matchSchool } from '../data/schools'
 import SchoolLogo from '../components/SchoolLogo'
 import SchoolBadge from '../components/SchoolBadge'
+import { playNotificationSound } from '../utils/sound'
 
 function Settings() {
   const router = useRouter()
@@ -41,9 +42,15 @@ function Settings() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const [soundEnabled, setSoundEnabled] = useState(true)
+
   useEffect(() => {
     const stored = localStorage.getItem('darkMode')
     if (stored === 'true') setDarkMode(true)
+    const storedSound = localStorage.getItem('scholarhub_sound_enabled')
+    if (storedSound !== null) {
+      setSoundEnabled(storedSound !== 'false')
+    }
   }, [])
 
   useEffect(() => {
@@ -783,6 +790,22 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                           <p className="text-xs text-gray-400 mt-0.5">Get real-time push notifications</p>
                         </div>
                         <Toggle enabled={pushNotifs} onChange={setPushNotifs} />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-dark">Notification Sounds</p>
+                          <p className="text-xs text-gray-400 mt-0.5">Play a sound when you receive messages or notifications</p>
+                        </div>
+                        <Toggle
+                          enabled={soundEnabled}
+                          onChange={(val) => {
+                            setSoundEnabled(val)
+                            localStorage.setItem('scholarhub_sound_enabled', val)
+                            if (val) playNotificationSound('notification')
+                            showSuccess(val ? 'Notification sounds enabled' : 'Notification sounds muted')
+                          }}
+                        />
                       </div>
 
                       <div className="flex items-center justify-between">

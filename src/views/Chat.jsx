@@ -6,6 +6,7 @@ import { FiSend, FiSearch, FiArrowLeft, FiX, FiMessageCircle, FiCheck } from "re
 import { getConversations, getMessages, sendMessage, markMessagesAsRead, searchUsers, getUserById, followUser } from "../api/auth"
 import { useSearchParams } from "next/navigation"
 import { getSchoolAbbr, stringToColor } from "../utils/school"
+import { playNotificationSound } from "../utils/sound"
 import SchoolLogo from "../components/SchoolLogo"
 
 function Avatar({ name, school, size = 'md' }) {
@@ -77,6 +78,16 @@ function Chat() {
 
                 if (msgRes?.data && Array.isArray(msgRes.data)) {
                     setMessages(prev => {
+                        const prevRealCount = prev.filter(m => !m.temp).length
+                        const newRealCount = msgRes.data.length
+                        if (newRealCount > prevRealCount && prevRealCount > 0) {
+                            const lastMessage = msgRes.data[msgRes.data.length - 1]
+                            const senderId = (lastMessage.senderId || lastMessage.sender?._id || lastMessage.sender?.id || lastMessage.sender)?.toString()
+                            const myId = (user.id || user._id)?.toString()
+                            if (senderId && myId && senderId !== myId) {
+                                playNotificationSound('message')
+                            }
+                        }
                         const tempMsgs = prev.filter(m => m.temp)
                         const fetchedIds = new Set(msgRes.data.map(m => (m.id || m._id)?.toString()))
                         const uniqueTemp = tempMsgs.filter(m => !fetchedIds.has(m._id?.toString()))

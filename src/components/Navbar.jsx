@@ -10,6 +10,7 @@ import { BsRobot, BsShop, BsCoin } from "react-icons/bs"
 import { FiMessageSquare } from "react-icons/fi"
 import Image from "next/image"
 import { getMe, getNotifications, markNotificationsRead, followUser } from "../api/auth"
+import { playNotificationSound } from "../utils/sound"
 
 const mainLinks = [
   { label: 'Home', icon: FiHome, path: '/feed' },
@@ -63,19 +64,49 @@ function Navbar() {
   }, [])
 
   useEffect(() => {
-    const fetchNotifs = async () => {
+    let initialRun = true
+    const fetchNotifs = async (triggerSoundIfUnread = false) => {
       try {
         const res = await getNotifications()
         const list = res.data?.notifications || res.data || []
         const newUnread = list.filter(n => !n.read).length
         setNotifications(list)
         setUnreadCount(newUnread)
+
+        if (initialRun) {
+          initialRun = false
+          if (newUnread > 0) {
+            playNotificationSound('notification')
+          }
+        } else if (newUnread > prevUnreadRef.current || (triggerSoundIfUnread && newUnread > 0)) {
+          playNotificationSound('notification')
+        }
+
         prevUnreadRef.current = newUnread
       } catch (_) {}
     }
+
     fetchNotifs()
-    const interval = setInterval(fetchNotifs, 15000)
-    return () => clearInterval(interval)
+    const interval = setInterval(() => fetchNotifs(false), 15000)
+
+    const handleOnline = () => {
+      fetchNotifs(true)
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchNotifs(true)
+      }
+    }
+
+    window.addEventListener('online', handleOnline)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('online', handleOnline)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   useEffect(() => {
