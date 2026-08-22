@@ -330,8 +330,11 @@ function UserProfile() {
                             </p>
 
                             {profileUser.school && (
-                                <div className="mb-3 max-w-sm mx-auto">
-                                    <SchoolBadge school={profileUser.school} state={profileUser.state} level={profileUser.level} size="md" />
+                                <div className="inline-flex items-center gap-2 bg-gray-50 dark:bg-zinc-800/80 border border-gray-200/80 dark:border-zinc-700/60 rounded-full px-3 py-1 max-w-[260px] sm:max-w-xs mx-auto mb-2 shadow-xs">
+                                    <SchoolLogo school={profileUser.school} size={18} />
+                                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">
+                                        {profileUser.school}
+                                    </span>
                                 </div>
                             )}
 
@@ -339,7 +342,7 @@ function UserProfile() {
                                 const mutuals = myFollowing.filter(myF => profileFollowers.some(pFol => pFol.id === myF.id))
                                 if (mutuals.length === 0) return null
                                 return (
-                                    <p className="text-xs text-gray-500 mb-3 flex items-center justify-center gap-1">
+                                    <p className="text-xs text-gray-500 mb-2 flex items-center justify-center gap-1">
                                         <span className="font-semibold text-primary">Mutuals:</span>
                                         <span>
                                             Followed by {mutuals[0].name}
@@ -349,7 +352,7 @@ function UserProfile() {
                                 )
                             })()}
 
-                            <div className="flex items-center justify-center gap-6 sm:gap-8 my-3 py-2 border-y border-gray-100 dark:border-zinc-800/80 w-full max-w-md mx-auto">
+                            <div className="flex items-center justify-center gap-6 sm:gap-8 my-2.5 py-2 border-y border-gray-100 dark:border-zinc-800/80 w-full max-w-sm mx-auto">
                                 <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
                                     <p className="font-extrabold text-dark text-lg sm:text-xl">{followingCount}</p>
                                     <p className="text-xs font-medium text-gray-400">Following</p>
@@ -369,13 +372,13 @@ function UserProfile() {
                             </div>
 
                             {!isOwnProfile ? (
-                                <div className="grid grid-cols-3 gap-2 w-full max-w-md mx-auto my-3">
+                                <div className="grid grid-cols-3 gap-2 w-full max-w-sm mx-auto my-2.5">
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                         onClick={handleFollow}
                                         disabled={followLoading}
-                                        className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold transition shadow-xs ${
+                                        className={`flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl text-xs font-bold transition shadow-xs ${
                                             following
                                                 ? 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-red-50 hover:text-red-600'
                                                 : 'bg-primary text-white hover:opacity-90'
@@ -388,22 +391,22 @@ function UserProfile() {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                         onClick={() => router.push(`/chat?user=${userId}`)}
-                                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-bold transition">
+                                        className="flex items-center justify-center gap-1 py-2.5 px-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-bold transition">
                                         <FiMessageSquare size={14} />
-                                        <span className="truncate">Message</span>
+                                        <span>Chat</span>
                                     </motion.button>
 
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                         onClick={() => { setSendUsername(''); setSendAmount(''); setSendMsg(null); setShowSendCoins(true) }}
-                                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold transition">
+                                        className="flex items-center justify-center gap-1 py-2.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold transition">
                                         <BsCoin size={14} />
-                                        <span className="truncate">Gift Coins</span>
+                                        <span>Gift</span>
                                     </motion.button>
                                 </div>
                             ) : (
-                                <div className="w-full max-w-md mx-auto my-3">
+                                <div className="w-full max-w-sm mx-auto my-2.5">
                                     <button
                                         onClick={() => router.push('/profile')}
                                         className="w-full py-2.5 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-dark hover:border-primary transition">

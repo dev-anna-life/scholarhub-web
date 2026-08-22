@@ -201,12 +201,15 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
               <p className="text-xs text-gray-400 mb-2">{user.email}</p>
 
               {user.school && (
-                <div className="mb-3 max-w-sm mx-auto">
-                  <SchoolBadge school={user.school} state={user.state} level={user.level} size="md" />
+                <div className="inline-flex items-center gap-2 bg-gray-50 dark:bg-zinc-800/80 border border-gray-200/80 dark:border-zinc-700/60 rounded-full px-3 py-1 max-w-[260px] sm:max-w-xs mx-auto mb-2 shadow-xs">
+                  <SchoolLogo school={user.school} size={18} />
+                  <span className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">
+                    {user.school}
+                  </span>
                 </div>
               )}
 
-              <div className="flex items-center justify-center gap-6 sm:gap-8 my-3 py-2 border-y border-gray-100 dark:border-zinc-800/80 w-full max-w-md mx-auto">
+              <div className="flex items-center justify-center gap-6 sm:gap-8 my-2.5 py-2 border-y border-gray-100 dark:border-zinc-800/80 w-full max-w-sm mx-auto">
                 <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
                   <p className="font-extrabold text-dark text-lg sm:text-xl">{followingCount}</p>
                   <p className="text-xs font-medium text-gray-400">Following</p>
@@ -225,7 +228,7 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 w-full max-w-md mx-auto my-3">
+              <div className="grid grid-cols-2 gap-2 w-full max-w-sm mx-auto my-2.5">
                 <button
                   onClick={() => router.push('/settings')}
                   className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 text-dark rounded-xl text-xs font-bold transition">
