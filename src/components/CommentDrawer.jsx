@@ -369,17 +369,17 @@ export default function CommentDrawer({
             )}
           </div>
 
-          {/* Sticky TikTok Input Footer Bar */}
-          <div className="p-4 border-t border-white/10 bg-[#121212] flex-shrink-0">
+          {/* Sticky Input Footer Bar */}
+          <div className="w-full max-w-full px-3 sm:px-4 py-2.5 sm:py-3.5 pb-6 sm:pb-4 border-t border-white/10 bg-[#121212] flex-shrink-0 box-border">
             {replyTo && (
               <div className="flex items-center justify-between bg-primary/20 border border-primary/30 px-3 py-1.5 rounded-xl text-xs text-primary font-semibold mb-2">
-                <span>Replying to <strong>@{replyTo.authorName}</strong></span>
-                <button onClick={() => setReplyTo(null)} className="text-white/40 hover:text-white">✕</button>
+                <span className="truncate">Replying to <strong>@{replyTo.authorName}</strong></span>
+                <button onClick={() => setReplyTo(null)} className="text-white/40 hover:text-white ml-2 flex-shrink-0">✕</button>
               </div>
             )}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 sm:gap-2.5 w-full">
               {/* User avatar */}
-              <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 overflow-hidden">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/30 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0 overflow-hidden">
                 {user?.avatar ? (
                   <img src={user.avatar} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -387,17 +387,17 @@ export default function CommentDrawer({
                 )}
               </div>
 
-              {/* Input container with @ and gift icons (Exact TikTok style) */}
-              <div className="flex-1 flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 border border-white/10">
+              {/* Input container with @ and gift icons */}
+              <div className="flex-1 min-w-0 flex items-center gap-1.5 sm:gap-2 bg-white/10 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 border border-white/10">
                 <input
                   type="text"
                   placeholder={replyTo ? `Reply to ${replyTo.authorName}...` : 'Add comment...'}
                   value={commentText}
                   onChange={e => setCommentText(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSendComment()}
-                  className="flex-1 bg-transparent text-sm text-white placeholder-white/40 focus:outline-none"
+                  className="flex-1 min-w-0 bg-transparent text-xs sm:text-sm text-white placeholder-white/40 focus:outline-none"
                 />
-                <button type="button" className="text-white/40 hover:text-white text-xs font-bold transition">@</button>
+                <button type="button" className="text-white/40 hover:text-white text-xs font-bold transition flex-shrink-0 px-0.5">@</button>
                 <button
                   type="button"
                   onClick={() => {
@@ -405,10 +405,10 @@ export default function CommentDrawer({
                     setGiftTargetComment(target)
                     setGiftMsg('')
                   }}
-                  className="text-amber-400/80 hover:text-amber-400 transition flex-shrink-0 cursor-pointer"
+                  className="text-amber-400/90 hover:text-amber-400 transition flex-shrink-0 cursor-pointer p-0.5"
                   title="Send a gift reaction"
                 >
-                  <FiGift size={16} />
+                  <FiGift size={15} />
                 </button>
               </div>
 
@@ -416,9 +416,9 @@ export default function CommentDrawer({
               <button
                 onClick={handleSendComment}
                 disabled={commenting || !commentText.trim()}
-                className="w-9 h-9 bg-primary rounded-full flex items-center justify-center hover:opacity-90 transition disabled:opacity-30 flex-shrink-0"
+                className="w-8 h-8 sm:w-9 sm:h-9 bg-primary rounded-full flex items-center justify-center hover:opacity-90 transition disabled:opacity-30 flex-shrink-0"
               >
-                <FiSend size={14} className="text-white" />
+                <FiSend size={13} className="text-white" />
               </button>
             </div>
           </div>
