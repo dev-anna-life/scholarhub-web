@@ -148,10 +148,17 @@ export const schoolColors = {
 }
 
 export const knownSchoolLogos = {
-  // UNN
+  // UNN (Lion Emblem)
   'university of nigeria nsukka': '/images/schools/university-of-nigeria-nsukka.png',
   'university of nigeria': '/images/schools/university-of-nigeria-nsukka.png',
   'unn': '/images/schools/university-of-nigeria-nsukka.png',
+
+  // ESUT (Cogwheel & Torch)
+  'enugu state university of science and technology, enugu': '/images/schools/enugu-state-university-of-science-and-technology.png',
+  'enugu state university of science and technology': '/images/schools/enugu-state-university-of-science-and-technology.png',
+  'enugu state university of technology (esut)': '/images/schools/enugu-state-university-of-science-and-technology.png',
+  'enugu state university of technology': '/images/schools/enugu-state-university-of-science-and-technology.png',
+  'esut': '/images/schools/enugu-state-university-of-science-and-technology.png',
 
   // UNILAG
   'university of lagos': '/images/schools/university-of-lagos.png',
@@ -179,6 +186,18 @@ export const knownSchoolLogos = {
   'federal university of technology owerri': '/images/schools/federal-university-of-technology-owerri.png',
   'futo': '/images/schools/federal-university-of-technology-owerri.png',
 
+  // FUTA
+  'federal university of technology akure': '/images/schools/federal-university-of-technology-akure.png',
+  'futa': '/images/schools/federal-university-of-technology-akure.png',
+
+  // FUTMINNA
+  'federal university of technology minna': '/images/schools/federal-university-of-technology-minna.png',
+  'futminna': '/images/schools/federal-university-of-technology-minna.png',
+
+  // FUNAAB
+  'federal university of agriculture abeokuta': '/images/schools/federal-university-of-agriculture-abeokuta.png',
+  'funaab': '/images/schools/federal-university-of-agriculture-abeokuta.png',
+
   // LASU
   'lagos state university': '/images/schools/lagos-state-university.png',
   'lasu': '/images/schools/lagos-state-university.png',
@@ -190,6 +209,130 @@ export const knownSchoolLogos = {
   // UNIBEN
   'university of benin': '/images/schools/university-of-benin.png',
   'uniben': '/images/schools/university-of-benin.png',
+
+  // UNIPORT
+  'university of port harcourt': '/images/schools/university-of-port-harcourt.png',
+  'uniport': '/images/schools/university-of-port-harcourt.png',
+
+  // UNILORIN
+  'university of ilorin': '/images/schools/university-of-ilorin.png',
+  'unilorin': '/images/schools/university-of-ilorin.png',
+
+  // BABCOCK
+  'babcock university': '/images/schools/babcock-university.png',
+  'bu': '/images/schools/babcock-university.png',
+
+  // BUK
+  'bayero university kano': '/images/schools/bayero-university-kano.png',
+  'buk': '/images/schools/bayero-university-kano.png',
+
+  // UNICAL
+  'university of calabar': '/images/schools/university-of-calabar.png',
+  'unical': '/images/schools/university-of-calabar.png',
+
+  // UNIJOS
+  'university of jos': '/images/schools/university-of-jos.png',
+  'unijos': '/images/schools/university-of-jos.png',
+
+  // UNIUYO
+  'university of uyo': '/images/schools/university-of-uyo.png',
+  'uniuyo': '/images/schools/university-of-uyo.png',
+
+  // UNIMAID
+  'university of maiduguri': '/images/schools/university-of-maiduguri.png',
+  'unimaid': '/images/schools/university-of-maiduguri.png',
+
+  // UNIABUJA
+  'university of abuja': '/images/schools/university-of-abuja.png',
+  'uniabuja': '/images/schools/university-of-abuja.png',
+
+  // EKSU
+  'ekiti state university': '/images/schools/ekiti-state-university.png',
+  'eksu': '/images/schools/ekiti-state-university.png',
+
+  // OOU
+  'olabisi onabanjo university': '/images/schools/olabisi-onabanjo-university.png',
+  'oou': '/images/schools/olabisi-onabanjo-university.png',
+
+  // AAUA
+  'adekunle ajasin university': '/images/schools/adekunle-ajasin-university.png',
+  'aaua': '/images/schools/adekunle-ajasin-university.png',
+
+  // AAU
+  'ambrose alli university': '/images/schools/ambrose-alli-university.png',
+  'aau': '/images/schools/ambrose-alli-university.png',
+
+  // DELSU
+  'delta state university': '/images/schools/delta-state-university.png',
+  'delsu': '/images/schools/delta-state-university.png',
+
+  // IMSU
+  'imo state university': '/images/schools/imo-state-university.png',
+  'imsu': '/images/schools/imo-state-university.png',
+
+  // ABSU
+  'abia state university': '/images/schools/abia-state-university.png',
+  'absu': '/images/schools/abia-state-university.png',
+
+  // BSU
+  'benue state university': '/images/schools/benue-state-university.png',
+  'bsu': '/images/schools/benue-state-university.png',
+
+  // KSU
+  'kogi state university': '/images/schools/kogi-state-university.png',
+  'ksu': '/images/schools/kogi-state-university.png',
+
+  // KASU
+  'kaduna state university': '/images/schools/kaduna-state-university.png',
+  'kasu': '/images/schools/kaduna-state-university.png',
+
+  // NSUK
+  'nasarawa state university': '/images/schools/nasarawa-state-university.png',
+  'nsuk': '/images/schools/nasarawa-state-university.png',
+
+  // RSU
+  'rivers state university': '/images/schools/rivers-state-university.png',
+  'rsu': '/images/schools/rivers-state-university.png',
+
+  // UNIOSUN
+  'osun state university': '/images/schools/osun-state-university.png',
+  'uniosun': '/images/schools/osun-state-university.png',
+
+  // KWASU
+  'kwara state university': '/images/schools/kwara-state-university.png',
+  'kwasu': '/images/schools/kwara-state-university.png',
+
+  // EBSU
+  'ebonyi state university': '/images/schools/ebonyi-state-university.png',
+  'ebsu': '/images/schools/ebonyi-state-university.png',
+
+  // NOUN
+  'national open university of nigeria': '/images/schools/national-open-university-of-nigeria.png',
+  'noun': '/images/schools/national-open-university-of-nigeria.png',
+
+  // AUN
+  'american university of nigeria': '/images/schools/american-university-of-nigeria.png',
+  'aun': '/images/schools/american-university-of-nigeria.png',
+
+  // BAZE
+  'baze university': '/images/schools/baze-university.png',
+  'baze': '/images/schools/baze-university.png',
+
+  // LCU
+  'lead city university': '/images/schools/lead-city-university.png',
+  'lcu': '/images/schools/lead-city-university.png',
+
+  // BOWEN
+  'bowen university': '/images/schools/bowen-university.png',
+  'bowen': '/images/schools/bowen-university.png',
+
+  // ABUAD
+  'afe babalola university': '/images/schools/afe-babalola-university.png',
+  'abuad': '/images/schools/afe-babalola-university.png',
+
+  // FUOYE
+  'federal university oye-ekiti': '/images/schools/federal-university-oye-ekiti.png',
+  'fuoye': '/images/schools/federal-university-oye-ekiti.png',
 
   // AFRICAN UNIVERSITIES
   'university of nairobi': '/images/schools/university-of-nairobi.png',
