@@ -374,7 +374,16 @@ export function getSchoolAbbr(school) {
   if (!school) return '?'
   const lower = school.toLowerCase().trim()
   if (knownAbbreviations[lower]) return knownAbbreviations[lower]
-  return school.split(' ').filter(w => w.length > 2).map(w => w[0].toUpperCase()).join('').slice(0, 6) || school.slice(0, 4).toUpperCase()
+  for (const [key, abbr] of Object.entries(knownAbbreviations)) {
+    if (lower.includes(key) || key.includes(lower)) return abbr
+  }
+  const stopWords = new Set(['and', 'the', 'for', 'of', 'in', 'at', '&'])
+  return school
+    .split(/[\s,()]+/)
+    .filter(w => w.length > 0 && !stopWords.has(w.toLowerCase()))
+    .map(w => w[0].toUpperCase())
+    .join('')
+    .slice(0, 6) || school.slice(0, 4).toUpperCase()
 }
 
 export function stringToColor(school) {

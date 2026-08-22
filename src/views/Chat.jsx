@@ -5,41 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { FiSend, FiSearch, FiArrowLeft, FiX, FiMessageCircle, FiCheck } from "react-icons/fi"
 import { getConversations, getMessages, sendMessage, markMessagesAsRead, searchUsers, getUserById, followUser } from "../api/auth"
 import { useSearchParams } from "next/navigation"
-
-const knownAbbreviations = {
-    'university of lagos': 'UNILAG', 'unilag': 'UNILAG',
-    'obafemi awolowo university': 'OAU', 'oau ile-ife': 'OAU',
-    'ahmadu bello university': 'ABU', 'covenant university': 'CU',
-    'enugu state university of technology (esut)': 'ESUT',
-    'enugu state university of technology': 'ESUT', 'esut': 'ESUT',
-    'university of ghana': 'UG', 'university of nairobi': 'UON',
-    'makerere university': 'MAK',
-}
-
-const schoolColors = {
-    'university of lagos': '#003366', 'unilag': '#003366',
-    'oau ile-ife': '#006400', 'obafemi awolowo university': '#006400',
-    'covenant university': '#722F37',
-    'enugu state university of technology (esut)': '#006400',
-    'enugu state university of technology': '#006400',
-}
-
-function getSchoolAbbr(school) {
-    if (!school) return '?'
-    const lower = school.toLowerCase().trim()
-    if (knownAbbreviations[lower]) return knownAbbreviations[lower]
-    return school.split(' ').filter(w => w.length > 2).map(w => w[0].toUpperCase()).join('').slice(0, 6) || school.slice(0, 4).toUpperCase()
-}
-
-function stringToColor(school) {
-    if (!school) return '#008751'
-    const lower = school.toLowerCase().trim()
-    if (schoolColors[lower]) return schoolColors[lower]
-    let hash = 0
-    for (let i = 0; i < lower.length; i++) hash = lower.charCodeAt(i) + ((hash << 5) - hash)
-    const colors = ['#008751', '#FF9F1C', '#1F2A1F', '#e63946', '#457b9d', '#6a4c93', '#f4a261', '#2a9d8f']
-    return colors[Math.abs(hash) % colors.length]
-}
+import { getSchoolAbbr, stringToColor } from "../utils/school"
+import SchoolLogo from "../components/SchoolLogo"
 
 function Avatar({ name, school, size = 'md' }) {
     const sizes = { sm: 'w-8 h-8 text-xs', md: 'w-10 h-10 text-sm', lg: 'w-12 h-12 text-base' }
@@ -354,9 +321,9 @@ function Chat() {
                                                     <p className="text-sm font-semibold text-dark truncate">{u.name}</p>
                                                     <div className="flex items-center gap-1.5">
                                                         {u.school && (
-                                                            <span className="text-white font-bold rounded-full px-1.5 py-0.5"
-                                                                style={{ backgroundColor: stringToColor(u.school), fontSize: '9px' }}>
-                                                                {getSchoolAbbr(u.school)}
+                                                            <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 font-bold rounded-full px-1.5 py-0.5 text-[10px]">
+                                                                <SchoolLogo school={u.school} size={13} showBorder={false} />
+                                                                <span>{getSchoolAbbr(u.school)}</span>
                                                             </span>
                                                         )}
                                                         <span className="text-xs text-gray-400">{u.level}</span>
@@ -438,9 +405,9 @@ function Chat() {
                                             {lastMsg?.text || (conv.user?.isOnline ? 'Active now' : '')}
                                         </p>
                                         {conv.user.school && (
-                                            <span className="text-white font-bold rounded-full px-2 py-0.5 ml-2 flex-shrink-0"
-                                                style={{ backgroundColor: stringToColor(conv.user.school), fontSize: '11px' }}>
-                                                {getSchoolAbbr(conv.user.school)}
+                                            <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 font-bold rounded-full px-1.5 py-0.5 ml-2 flex-shrink-0 text-[10px]">
+                                                <SchoolLogo school={conv.user.school} size={14} showBorder={false} />
+                                                <span>{getSchoolAbbr(conv.user.school)}</span>
                                             </span>
                                         )}
                                     </div>
@@ -482,9 +449,9 @@ function Chat() {
                             </div>
                             <div className="flex items-center gap-2 mt-0.5">
                                 {activeChat.school && (
-                                    <span className="text-white font-bold rounded-full px-2 py-0.5"
-                                        style={{ backgroundColor: stringToColor(activeChat.school), fontSize: '11px' }}>
-                                        {getSchoolAbbr(activeChat.school)}
+                                    <span className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 font-bold rounded-full px-2 py-0.5 text-[11px]">
+                                        <SchoolLogo school={activeChat.school} size={14} showBorder={false} />
+                                        <span>{getSchoolAbbr(activeChat.school)}</span>
                                     </span>
                                 )}
                                 <span className="text-xs text-gray-400">@{activeChatDetails?.username || activeChat?.username || 'scholar'}</span>
@@ -521,8 +488,9 @@ function Chat() {
                                     <span>{activeChatDetails?.followersCount ?? 0} followers</span>
                                 </div>
                                 {activeChat?.school && (
-                                    <span className="mt-2 text-white font-bold rounded-full px-2.5 py-0.5" style={{ backgroundColor: stringToColor(activeChat.school), fontSize: '10px' }}>
-                                        {getSchoolAbbr(activeChat.school)}
+                                    <span className="mt-2 inline-flex items-center gap-1.5 bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-zinc-700 font-bold rounded-full px-2.5 py-1 text-xs shadow-xs">
+                                        <SchoolLogo school={activeChat.school} size={16} showBorder={false} />
+                                        <span>{getSchoolAbbr(activeChat.school)}</span>
                                     </span>
                                 )}
                                 <button
