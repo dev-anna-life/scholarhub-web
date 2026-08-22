@@ -35,7 +35,15 @@ export default function CommentDrawer({
   const [giftMsg, setGiftMsg] = useState('')
   const [showRepliesMap, setShowRepliesMap] = useState({})
   const [likedComments, setLikedComments] = useState({})
+  const [isMobile, setIsMobile] = useState(false)
   const listRef = useRef(null)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     if (!isOpen) {
@@ -166,10 +174,16 @@ export default function CommentDrawer({
     }
   })
 
+  const drawerVariants = {
+    hidden: isMobile ? { y: '100%', opacity: 0 } : { x: '100%', opacity: 1 },
+    visible: { y: 0, x: 0, opacity: 1 },
+    exit: isMobile ? { y: '100%', opacity: 0 } : { x: '100%', opacity: 1 }
+  }
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[999]">
-        {/* Dark Backdrop — Clicking closes drawer */}
+        {/* Dark Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -178,17 +192,23 @@ export default function CommentDrawer({
           className="absolute inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
         />
 
-        {/* TikTok Side Panel (Desktop right sidebar / Mobile bottom sheet) */}
+        {/* Comment Panel: Mobile bottom sheet / Desktop side drawer */}
         <motion.div
-          initial={{ x: '100%' }}
-          animate={{ x: 0 }}
-          exit={{ x: '100%' }}
+          variants={drawerVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           onClick={e => e.stopPropagation()}
-          className="fixed right-0 top-0 bottom-0 w-full sm:w-[400px] md:w-[420px] h-full bg-[#121212] text-white z-[1000] border-l border-white/10 flex flex-col shadow-2xl overflow-hidden"
+          className="fixed z-[1000] bg-[#121212] text-white flex flex-col shadow-2xl overflow-hidden
+                     bottom-0 left-0 right-0 w-full h-[78vh] max-h-[85vh] rounded-t-3xl border-t border-white/10
+                     md:bottom-0 md:top-0 md:right-0 md:left-auto md:w-[420px] md:h-full md:max-h-full md:rounded-none md:border-t-0 md:border-l md:border-white/10"
         >
-          {/* Header (Exact TikTok layout: "Comments 765" and ✕) */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 flex-shrink-0 bg-[#121212]">
+          {/* Mobile Handle Bar */}
+          <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto mt-2.5 mb-1 md:hidden flex-shrink-0 cursor-pointer" onClick={onClose} />
+
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-3 md:py-4 border-b border-white/10 flex-shrink-0 bg-[#121212]">
             <h3 className="text-base font-bold text-white tracking-wide">
               Comments <span className="text-white/60 font-medium text-sm ml-1">{comments.length}</span>
             </h3>
@@ -403,7 +423,7 @@ export default function CommentDrawer({
             </div>
           </div>
 
-          {/* Gift Reaction Panel — Slides up smoothly over the drawer */}
+          {/* Gift Reaction Panel: Slides up smoothly over the drawer */}
           <AnimatePresence>
             {giftTargetComment && (
               <motion.div
