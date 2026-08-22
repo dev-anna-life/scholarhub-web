@@ -860,12 +860,6 @@ function Home() {
                                                     {post.school && (
                                                         <SchoolLogo school={post.school} size={15} />
                                                     )}
-                                                    {post.school && (
-                                                        <span className="text-white font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                                                            style={{ backgroundColor: stringToColor(post.school), fontSize: '9px' }}>
-                                                            {getSchoolAbbr(post.school)}
-                                                        </span>
-                                                    )}
                                                     <p className="text-xs text-gray-400">{post.time}</p>
                                                 </div>
                                             </div>

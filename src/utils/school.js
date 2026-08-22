@@ -148,86 +148,73 @@ export const schoolColors = {
 }
 
 export const knownSchoolLogos = {
-  'university of nigeria nsukka': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/University_of_Nigeria_logo.png/180px-University_of_Nigeria_logo.png',
-  'university of nigeria': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/University_of_Nigeria_logo.png/180px-University_of_Nigeria_logo.png',
-  'unn': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/University_of_Nigeria_logo.png/180px-University_of_Nigeria_logo.png',
+  // UNN
+  'university of nigeria nsukka': '/images/schools/university-of-nigeria-nsukka.png',
+  'university of nigeria': '/images/schools/university-of-nigeria-nsukka.png',
+  'unn': '/images/schools/university-of-nigeria-nsukka.png',
 
-  'university of lagos': 'https://upload.wikimedia.org/wikipedia/en/thumb/5/52/Unilag_logo.png/180px-Unilag_logo.png',
-  'unilag': 'https://upload.wikimedia.org/wikipedia/en/thumb/5/52/Unilag_logo.png/180px-Unilag_logo.png',
+  // UNILAG
+  'university of lagos': '/images/schools/university-of-lagos.png',
+  'unilag': '/images/schools/university-of-lagos.png',
 
-  'university of ibadan': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/University_of_Ibadan_logo.png/180px-University_of_Ibadan_logo.png',
-  'ui': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/University_of_Ibadan_logo.png/180px-University_of_Ibadan_logo.png',
+  // UI
+  'university of ibadan': '/images/schools/university-of-ibadan.png',
+  'ui': '/images/schools/university-of-ibadan.png',
 
-  'obafemi awolowo university': 'https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Obafemi_Awolowo_University_logo.png/180px-Obafemi_Awolowo_University_logo.png',
-  'oau ile-ife': 'https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Obafemi_Awolowo_University_logo.png/180px-Obafemi_Awolowo_University_logo.png',
-  'oau': 'https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Obafemi_Awolowo_University_logo.png/180px-Obafemi_Awolowo_University_logo.png',
+  // OAU
+  'obafemi awolowo university': '/images/schools/obafemi-awolowo-university.png',
+  'oau ile-ife': '/images/schools/obafemi-awolowo-university.png',
+  'oau': '/images/schools/obafemi-awolowo-university.png',
 
-  'ahmadu bello university': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/ABU_Zaria_logo.jpg/180px-ABU_Zaria_logo.jpg',
-  'abu zaria': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/ABU_Zaria_logo.jpg/180px-ABU_Zaria_logo.jpg',
-  'abu': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/ABU_Zaria_logo.jpg/180px-ABU_Zaria_logo.jpg',
+  // ABU
+  'ahmadu bello university': '/images/schools/ahmadu-bello-university.png',
+  'abu zaria': '/images/schools/ahmadu-bello-university.png',
+  'abu': '/images/schools/ahmadu-bello-university.png',
 
-  'covenant university': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Covenant_University_logo.png/180px-Covenant_University_logo.png',
-  'cu': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Covenant_University_logo.png/180px-Covenant_University_logo.png',
+  // COVENANT
+  'covenant university': '/images/schools/covenant-university.png',
+  'cu': '/images/schools/covenant-university.png',
 
-  'federal university of technology owerri': 'https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/Federal_University_of_Technology%2C_Owerri_logo.png/180px-Federal_University_of_Technology%2C_Owerri_logo.png',
-  'futo': 'https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/Federal_University_of_Technology%2C_Owerri_logo.png/180px-Federal_University_of_Technology%2C_Owerri_logo.png',
+  // FUTO
+  'federal university of technology owerri': '/images/schools/federal-university-of-technology-owerri.png',
+  'futo': '/images/schools/federal-university-of-technology-owerri.png',
 
-  'federal university of technology akure': 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ab/Federal_University_of_Technology_Akure_logo.png/180px-Federal_University_of_Technology_Akure_logo.png',
-  'futa': 'https://upload.wikimedia.org/wikipedia/en/thumb/a/ab/Federal_University_of_Technology_Akure_logo.png/180px-Federal_University_of_Technology_Akure_logo.png',
+  // LASU
+  'lagos state university': '/images/schools/lagos-state-university.png',
+  'lasu': '/images/schools/lagos-state-university.png',
 
-  'lagos state university': 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/Lagos_State_University_logo.png/180px-Lagos_State_University_logo.png',
-  'lasu': 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/Lagos_State_University_logo.png/180px-Lagos_State_University_logo.png',
+  // UNIZIK
+  'nnamdi azikiwe university': '/images/schools/nnamdi-azikiwe-university.png',
+  'unizik': '/images/schools/nnamdi-azikiwe-university.png',
 
-  'enugu state university of science and technology, enugu': 'https://upload.wikimedia.org/wikipedia/en/thumb/6/68/Enugu_State_University_of_Science_and_Technology_logo.png/180px-Enugu_State_University_of_Science_and_Technology_logo.png',
-  'enugu state university of science and technology': 'https://upload.wikimedia.org/wikipedia/en/thumb/6/68/Enugu_State_University_of_Science_and_Technology_logo.png/180px-Enugu_State_University_of_Science_and_Technology_logo.png',
-  'enugu state university of technology (esut)': 'https://upload.wikimedia.org/wikipedia/en/thumb/6/68/Enugu_State_University_of_Science_and_Technology_logo.png/180px-Enugu_State_University_of_Science_and_Technology_logo.png',
-  'enugu state university of technology': 'https://upload.wikimedia.org/wikipedia/en/thumb/6/68/Enugu_State_University_of_Science_and_Technology_logo.png/180px-Enugu_State_University_of_Science_and_Technology_logo.png',
-  'esut': 'https://upload.wikimedia.org/wikipedia/en/thumb/6/68/Enugu_State_University_of_Science_and_Technology_logo.png/180px-Enugu_State_University_of_Science_and_Technology_logo.png',
+  // UNIBEN
+  'university of benin': '/images/schools/university-of-benin.png',
+  'uniben': '/images/schools/university-of-benin.png',
 
-  'nnamdi azikiwe university': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/UNIZIK_Logo.png/180px-UNIZIK_Logo.png',
-  'unizik': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/UNIZIK_Logo.png/180px-UNIZIK_Logo.png',
+  // AFRICAN UNIVERSITIES
+  'university of nairobi': '/images/schools/university-of-nairobi.png',
+  'uon': '/images/schools/university-of-nairobi.png',
+  'university of ghana': '/images/schools/university-of-ghana.png',
+  'ug': '/images/schools/university-of-ghana.png',
+  'makerere university': '/images/schools/makerere-university.png',
+  'mak': '/images/schools/makerere-university.png',
+  'kwame nkrumah university of science and technology': '/images/schools/kwame-nkrumah-university-of-science-and-technology.png',
+  'knust': '/images/schools/kwame-nkrumah-university-of-science-and-technology.png',
+  'university of cape town': '/images/schools/university-of-cape-town.png',
+  'uct': '/images/schools/university-of-cape-town.png',
+  'university of the witwatersrand': '/images/schools/university-of-the-witwatersrand.png',
+  'wits': '/images/schools/university-of-the-witwatersrand.png',
+  'stellenbosch university': '/images/schools/stellenbosch-university.png',
+  'addis ababa university': '/images/schools/addis-ababa-university.png',
 
-  'university of benin': 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/University_of_Benin_%28Nigeria%29_logo.png/180px-University_of_Benin_%28Nigeria%29_logo.png',
-  'uniben': 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d7/University_of_Benin_%28Nigeria%29_logo.png/180px-University_of_Benin_%28Nigeria%29_logo.png',
-
-  'university of port harcourt': 'https://upload.wikimedia.org/wikipedia/en/thumb/a/af/University_of_Port_Harcourt_logo.png/180px-University_of_Port_Harcourt_logo.png',
-  'uniport': 'https://upload.wikimedia.org/wikipedia/en/thumb/a/af/University_of_Port_Harcourt_logo.png/180px-University_of_Port_Harcourt_logo.png',
-
-  'university of ilorin': 'https://upload.wikimedia.org/wikipedia/en/thumb/8/81/University_of_Ilorin_logo.png/180px-University_of_Ilorin_logo.png',
-  'unilorin': 'https://upload.wikimedia.org/wikipedia/en/thumb/8/81/University_of_Ilorin_logo.png/180px-University_of_Ilorin_logo.png',
-
-  'babcock university': 'https://upload.wikimedia.org/wikipedia/en/thumb/5/52/Babcock_University_Logo.png/180px-Babcock_University_Logo.png',
-
-  'bayero university kano': 'https://upload.wikimedia.org/wikipedia/en/thumb/4/44/Bayero_University_Kano_logo.png/180px-Bayero_University_Kano_logo.png',
-  'buk': 'https://upload.wikimedia.org/wikipedia/en/thumb/4/44/Bayero_University_Kano_logo.png/180px-Bayero_University_Kano_logo.png',
-
-  'university of calabar': 'https://upload.wikimedia.org/wikipedia/en/thumb/0/05/University_of_Calabar_logo.png/180px-University_of_Calabar_logo.png',
-  'unical': 'https://upload.wikimedia.org/wikipedia/en/thumb/0/05/University_of_Calabar_logo.png/180px-University_of_Calabar_logo.png',
-
-  'university of jos': 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b3/University_of_Jos_logo.png/180px-University_of_Jos_logo.png',
-  'unijos': 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b3/University_of_Jos_logo.png/180px-University_of_Jos_logo.png',
-
-  'university of uyo': 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/University_of_Uyo_logo.png/180px-University_of_Uyo_logo.png',
-  'uniuyo': 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/University_of_Uyo_logo.png/180px-University_of_Uyo_logo.png',
-
-  'university of abuja': 'https://upload.wikimedia.org/wikipedia/en/thumb/2/23/University_of_Abuja_logo.png/180px-University_of_Abuja_logo.png',
-  'uniabuja': 'https://upload.wikimedia.org/wikipedia/en/thumb/2/23/University_of_Abuja_logo.png/180px-University_of_Abuja_logo.png',
-
-  'federal university of agriculture abeokuta': 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b8/FUNAAB_Logo.png/180px-FUNAAB_Logo.png',
-  'funaab': 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b8/FUNAAB_Logo.png/180px-FUNAAB_Logo.png',
-
-  'national open university of nigeria': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/National_Open_University_of_Nigeria_Logo.png/180px-National_Open_University_of_Nigeria_Logo.png',
-  'noun': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/National_Open_University_of_Nigeria_Logo.png/180px-National_Open_University_of_Nigeria_Logo.png',
-
-  'american university of nigeria': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/American_University_of_Nigeria_-_gate.jpg/180px-American_University_of_Nigeria_-_gate.jpg',
-  'aun': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/American_University_of_Nigeria_-_gate.jpg/180px-American_University_of_Nigeria_-_gate.jpg',
-
-  'university of ghana': 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c2/University_of_Ghana_Coat_of_arms.png/180px-University_of_Ghana_Coat_of_arms.png',
-  'kwame nkrumah university of science and technology': 'https://upload.wikimedia.org/wikipedia/en/thumb/8/87/KNUST_Logo.png/180px-KNUST_Logo.png',
-  'makerere university': 'https://upload.wikimedia.org/wikipedia/en/thumb/7/7b/Makerere_University_Logo.png/180px-Makerere_University_Logo.png',
-  'university of nairobi': 'https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/University_of_Nairobi_logo.png/180px-University_of_Nairobi_logo.png',
-  'university of cape town': 'https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/University_of_Cape_Town_logo.svg/180px-University_of_Cape_Town_logo.svg.png',
-  'university of the witwatersrand': 'https://upload.wikimedia.org/wikipedia/en/thumb/2/23/Wits_University_Logo.svg/180px-Wits_University_Logo.svg.png',
+  // SECONDARY SCHOOLS
+  'kings college lagos': '/images/schools/kings-college-lagos.png',
+  "king's college, lagos": '/images/schools/kings-college-lagos.png',
+  "queens college lagos": '/images/schools/queens-college-lagos.png',
+  "queen's college": '/images/schools/queens-college-lagos.png',
+  'loyola jesuit college': '/images/schools/loyola-jesuit-college-abuja.png',
+  'federal government college, ilorin': '/images/schools/federal-government-college-ilorin.png',
+  'government secondary school, enugu': '/images/schools/government-secondary-school-enugu.png',
 }
 
 export function getSchoolLogoUrl(school) {
