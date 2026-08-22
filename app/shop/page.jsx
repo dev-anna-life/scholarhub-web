@@ -743,18 +743,6 @@ export default function ShopPage() {
                       </span>
                     </button>
                   )}
-
-                  <div className="pt-1.5 text-center">
-                    <button
-                      type="button"
-                      onClick={() => setShowAllGateways(!showAllGateways)}
-                      className="text-[11px] text-gray-500 hover:text-primary transition underline cursor-pointer"
-                    >
-                      {isNigerian
-                        ? (showAllGateways ? 'Hide Global Payment (Flutterwave)' : '🌍 Outside Nigeria? Pay in USD via Flutterwave')
-                        : (showAllGateways ? 'Hide Nigerian Payment (Paystack)' : '🇳🇬 Have a Nigerian account? Pay in ₦ via Paystack')}
-                    </button>
-                  </div>
                 </div>
               )
             })()}
