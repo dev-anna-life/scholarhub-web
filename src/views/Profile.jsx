@@ -303,15 +303,25 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
           </p>
         </motion.div>
 
-        <div className="flex gap-2 mb-5">
+        <div className="grid grid-cols-3 gap-2 mb-5">
           {[
             { id: 'posts', label: 'My Posts', icon: FiBookOpen },
-            { id: 'followers', label: `Followers (${followersCount})`, icon: FiUserCheck },
-            { id: 'following', label: `Following (${followingCount})`, icon: FiUserPlus },
+            { id: 'followers', label: 'Followers', count: followersCount, icon: FiUserCheck },
+            { id: 'following', label: 'Following', count: followingCount, icon: FiUserPlus },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === tab.id ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-500 hover:border-primary'}`}>
-              <tab.icon size={14} /> {tab.label}
+              className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 px-1 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === tab.id
+                  ? 'bg-primary text-white shadow-xs'
+                  : 'bg-white border border-gray-200 dark:border-zinc-800 text-gray-500 hover:border-primary'
+              }`}>
+              <tab.icon size={14} className="flex-shrink-0" />
+              <span className="truncate">{tab.label}</span>
+              {tab.count !== undefined && (
+                <span className={`text-[10px] sm:text-xs px-1.5 py-0.2 rounded-full ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                  {tab.count}
+                </span>
+              )}
             </button>
           ))}
         </div>

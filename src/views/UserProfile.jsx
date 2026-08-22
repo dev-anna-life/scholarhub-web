@@ -443,20 +443,26 @@ function UserProfile() {
                     </div>
                 </motion.div>
 
-                <div className="flex gap-2 mb-5">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mb-5">
                     {[
                         { id: 'posts', label: 'Posts', icon: FiBookOpen },
-                        { id: 'followers', label: `Followers (${followersCount})`, icon: FiUserCheck },
-                        { id: 'following', label: `Following (${followingCount})`, icon: FiUserPlus },
+                        { id: 'followers', label: `Followers`, count: followersCount, icon: FiUserCheck },
+                        { id: 'following', label: `Following`, count: followingCount, icon: FiUserPlus },
                         { id: 'stats', label: 'Stats', icon: GiTrophy },
                     ].map(tab => (
                         <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-2 px-1 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                                 activeTab === tab.id
-                                    ? 'bg-primary text-white'
+                                    ? 'bg-primary text-white shadow-xs'
                                     : 'bg-white border border-gray-200 text-gray-500 hover:border-primary'
                             }`}>
-                            <tab.icon size={14} /> {tab.label}
+                            <tab.icon size={14} className="flex-shrink-0" />
+                            <span className="truncate">{tab.label}</span>
+                            {tab.count !== undefined && (
+                                <span className={`text-[10px] sm:text-xs px-1.5 py-0.2 rounded-full ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                    {tab.count}
+                                </span>
+                            )}
                         </button>
                     ))}
                 </div>
