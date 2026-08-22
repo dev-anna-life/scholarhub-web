@@ -211,15 +211,22 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                 <SchoolBadge school={user.school} state={user.state} level={user.level} size="md" />
               </div>
             )}
-            <div className="flex items-center gap-4 mb-4 mt-2">
+            <div className="flex items-center gap-4 sm:gap-6 mb-4 mt-2">
+              <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
+                <p className="font-extrabold text-dark text-lg">{followingCount}</p>
+                <p className="text-xs font-medium text-gray-500">Following</p>
+              </div>
+              <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
               <div className="text-center cursor-pointer" onClick={() => setActiveTab('followers')}>
                 <p className="font-extrabold text-dark text-lg">{followersCount}</p>
                 <p className="text-xs font-medium text-gray-500">Followers</p>
               </div>
-              <div className="w-px h-8 bg-gray-100" />
-              <div className="text-center cursor-pointer" onClick={() => setActiveTab('following')}>
-                <p className="font-extrabold text-dark text-lg">{followingCount}</p>
-                <p className="text-xs font-medium text-gray-500">Following</p>
+              <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
+              <div className="text-center">
+                <p className="font-extrabold text-dark text-lg">
+                  {myPosts.reduce((sum, p) => sum + (Array.isArray(p.likes) ? p.likes.length : (typeof p.likesCount === 'number' ? p.likesCount : (typeof p.likes === 'number' ? p.likes : 0))), 0)}
+                </p>
+                <p className="text-xs font-medium text-gray-500">Likes</p>
               </div>
             </div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">

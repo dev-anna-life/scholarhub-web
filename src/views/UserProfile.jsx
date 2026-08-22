@@ -399,17 +399,23 @@ function UserProfile() {
                             )
                         })()}
 
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="text-center">
-                                <p className="font-extrabold text-dark text-lg">{followersCount}</p>
-                                <p className="text-xs text-gray-400">Followers</p>
-                            </div>
-                            <div className="w-px h-8 bg-gray-100" />
+                        <div className="flex items-center gap-4 sm:gap-6 mb-4">
                             <div className="text-center">
                                 <p className="font-extrabold text-dark text-lg">{followingCount}</p>
                                 <p className="text-xs text-gray-400">Following</p>
                             </div>
-
+                            <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
+                            <div className="text-center">
+                                <p className="font-extrabold text-dark text-lg">{followersCount}</p>
+                                <p className="text-xs text-gray-400">Followers</p>
+                            </div>
+                            <div className="w-px h-8 bg-gray-100 dark:bg-zinc-800" />
+                            <div className="text-center">
+                                <p className="font-extrabold text-dark text-lg">
+                                    {userPosts.reduce((sum, p) => sum + (Array.isArray(p.likes) ? p.likes.length : (typeof p.likes === 'number' ? p.likes : (typeof p.likesCount === 'number' ? p.likesCount : 0))), 0)}
+                                </p>
+                                <p className="text-xs text-gray-400">Likes</p>
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-2 flex-wrap mb-4">
