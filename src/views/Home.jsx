@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
-import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, savePost, getSavedPosts, getMe } from '../api/auth'
+import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, getCommunities, savePost, getSavedPosts, getMe } from '../api/auth'
 import SOSButton from '../components/SOSButton'
 import CommentDrawer from '../components/CommentDrawer'
 import PostGiftModal from '../components/PostGiftModal'
@@ -223,11 +223,18 @@ function Home() {
                 getMyCommunities().catch(() => ({ data: [] })),
                 getSavedPosts().catch(() => ({ data: [] })),
             ])
-            const myComms = Array.isArray(commRes.data?.communities) ? commRes.data.communities : (Array.isArray(commRes.data) ? commRes.data : [])
+            let myComms = Array.isArray(commRes.data?.communities) ? commRes.data.communities : (Array.isArray(commRes.data) ? commRes.data : [])
+            if (myComms.length === 0) {
+                try {
+                    const allComRes = await getCommunities()
+                    const allList = Array.isArray(allComRes.data?.communities) ? allComRes.data.communities : (Array.isArray(allComRes.data) ? allComRes.data : [])
+                    if (allList.length > 0) myComms = allList
+                } catch (_) {}
+            }
             setUserCommunities(myComms)
             const deptCom = myComms.find(c => c.type === 'department' || c.type === 'class')
             const defaultIds = deptCom ? [(deptCom.id || deptCom._id)] : myComms.length > 0 ? [(myComms[0].id || myComms[0]._id)] : []
-            setSelectedCommunityIds(defaultIds.filter(Boolean))
+            setSelectedCommunityIds(prev => prev.length > 0 ? prev : defaultIds.filter(Boolean))
 
             setMyPostCount(myPostsRes.data.length)
             setNotifications(notifRes.data)
