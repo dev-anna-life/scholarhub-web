@@ -174,10 +174,12 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
     setError('')
     try {
       const res = await updateProfile(editForm)
-      setUser(res.data)
-      localStorage.setItem('user', JSON.stringify(res.data))
+      const updatedUser = res.data?.user || res.data
+      setUser(updatedUser)
+      localStorage.setItem('user', JSON.stringify(updatedUser))
       showSuccess('Profile updated')
       setEditMode(false)
+      window.dispatchEvent(new Event('userStateChange'))
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update profile')
     } finally {
@@ -277,7 +279,7 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
   )
 
   return (
-    <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8">
+    <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-36 md:pb-8">
       <div className="max-w-4xl mx-auto px-4 py-8">
 
         {saveSuccess && (

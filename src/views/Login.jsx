@@ -61,7 +61,7 @@ function Login() {
           <p className="text-sm text-gray-400 mt-2">Welcome Back</p>
         </div>
 
-        <div id="google-login-wrapper" className="w-full mb-4 overflow-hidden">
+        <div id="google-login-wrapper" className="w-full mb-4 overflow-hidden flex justify-center">
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
               try {
@@ -69,6 +69,7 @@ function Login() {
                 const res = await googleAuth(credentialResponse.credential)
                 localStorage.setItem('token', res.data.token)
                 localStorage.setItem('user', JSON.stringify(res.data.user))
+                window.dispatchEvent(new Event('userStateChange'))
                 if (res.data.isNewUser) {
                   router.push('/onboarding')
                 } else {
@@ -79,8 +80,8 @@ function Login() {
                 console.error('Google auth error:', err.response?.data || err.message)
               }
             }}
-            onError={() => setError('Google sign-in popup failed. Try again.')}
-            width="400"
+            onError={() => setError('Google sign-in failed. Please try again or use email/password.')}
+            width="350"
             text="continue_with"
             shape="rectangular"
             theme="outline"

@@ -569,7 +569,7 @@ function Signup() {
               <h2 className="text-xl font-bold text-dark mb-1">Create Your Account</h2>
               <p className="text-sm text-gray-400 mb-5">Join thousands of African students on ScholarHub</p>
 
-              <div id="google-login-wrapper" className="w-full mb-4 overflow-hidden">
+              <div id="google-login-wrapper" className="w-full mb-4 overflow-hidden flex justify-center">
                 <GoogleLogin
                   onSuccess={async (credentialResponse) => {
                     try {
@@ -577,6 +577,7 @@ function Signup() {
                       const res = await googleAuth(credentialResponse.credential)
                       localStorage.setItem('token', res.data.token)
                       localStorage.setItem('user', JSON.stringify(res.data.user))
+                      window.dispatchEvent(new Event('userStateChange'))
                       if (res.data.isNewUser) {
                         router.push('/onboarding')
                       } else {
@@ -587,8 +588,8 @@ function Signup() {
                       console.error('Google auth error:', err.response?.data || err.message)
                     }
                   }}
-                  onError={() => setError('Google sign-in popup failed. Try again.')}
-                  width="400" text="continue_with" shape="rectangular" theme="outline" useOneTap={false} />
+                  onError={() => setError('Google sign-in failed. Please try again or use email/password.')}
+                  width="350" text="continue_with" shape="rectangular" theme="outline" useOneTap={false} />
               </div>
 
               <div className="flex items-center gap-3 mb-4">
