@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle, FiCheck, FiX, FiClock, FiUserCheck, FiUserPlus, FiCamera, FiHeart, FiMessageCircle } from "react-icons/fi"
+import { FiAward, FiBookOpen, FiLogOut, FiStar, FiTrash2, FiAlertTriangle, FiCheck, FiX, FiClock, FiUserCheck, FiUserPlus, FiCamera, FiHeart, FiMessageCircle, FiSettings } from "react-icons/fi"
 import { MdLeaderboard, MdLocalFireDepartment } from "react-icons/md"
 import { BsCoin } from "react-icons/bs"
 import { GiTrophy } from "react-icons/gi"
@@ -458,7 +458,7 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                             <span className="text-gray-400">@{user.username || 'scholar'}</span>
                             <span className="text-gray-300">•</span>
                             <span className="text-gray-400 text-[11px]">
-                              {new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
+                              {post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently'}
                             </span>
                           </div>
                         </div>

@@ -627,7 +627,7 @@ function UserProfile() {
                                                         <span className="text-gray-400">@{profileUser.username || 'scholar'}</span>
                                                         <span className="text-gray-300">•</span>
                                                         <span className="text-gray-400 text-[11px]">
-                                                            {new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
+                                                            {post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently'}
                                                         </span>
                                                     </div>
                                                 </div>
