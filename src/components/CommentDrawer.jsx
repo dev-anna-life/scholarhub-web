@@ -178,8 +178,16 @@ export default function CommentDrawer({
 
   if (!isOpen || !post) return null
 
-  const giftAnnouncements = comments.filter(c => c.text?.includes('🎁') || c.content?.includes('🎁') || c.isGift)
-  const rawComments = comments.filter(c => !c.text?.includes('🎁') && !c.content?.includes('🎁') && !c.isGift)
+  const isGiftComment = (c) => {
+    if (!c) return false
+    if (c.isGift) return true
+    if (Array.isArray(c.gifts) && c.gifts.length > 0) return true
+    const txt = (c.text || c.content || '').toLowerCase()
+    return txt.includes('🎁') || txt.includes('awarded') || txt.includes('reaction gift') || txt.includes('gifted')
+  }
+
+  const giftAnnouncements = comments.filter(isGiftComment)
+  const rawComments = comments.filter(c => !isGiftComment(c))
   const topLevel = rawComments.filter(c => !c.parentId)
   const repliesMap = {}
   rawComments.forEach(c => {
@@ -245,7 +253,7 @@ export default function CommentDrawer({
                 </span>
                 <span className="text-[10px] text-amber-200/70 font-semibold">{giftAnnouncements.length} gifts</span>
               </div>
-              {renderCommentGifts(post?.gifts || [])}
+              {renderCommentGifts([...(post?.gifts || []), ...giftAnnouncements.flatMap(g => g.gifts || [])])}
               <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
                 {giftAnnouncements.map((g, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-xs text-amber-100 font-semibold bg-white/5 px-2.5 py-1 rounded-lg">
