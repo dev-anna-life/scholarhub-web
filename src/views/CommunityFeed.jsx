@@ -192,8 +192,8 @@ function CommunityFeed() {
             const cascadeData = res.data || []
             const allPosts = cascadeData.flatMap(section => section.posts || [])
             const realPosts = allPosts.map(post => ({
-                id: post._id,
-                authorId: post.author?._id || '',
+                id: post.id || post._id,
+                authorId: post.author?.id || post.author?._id || '',
                 author: post.author?.name || 'Student',
                 avatar: post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH',
                 school: post.author?.school || '',
@@ -207,7 +207,7 @@ function CommunityFeed() {
                 likes: post.likes?.length || 0,
                 liked: post.liked || false,
                 commentCount: post.commentsData?.length || 0,
-                time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
+                time: post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently',
                 trending: post.trending || false,
                 saved: false,
                 isReal: true,
@@ -218,7 +218,7 @@ function CommunityFeed() {
             setMemberCount(authorSet.size)
             const authorMap = {}
             allPosts.forEach(p => {
-                const id = p.author?._id
+                const id = p.author?.id || p.author?._id
                 if (!id) return
                 if (!authorMap[id]) authorMap[id] = { name: p.author?.name || 'Student', coins: p.author?.coins || 0, avatar: p.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH' }
             })
@@ -232,12 +232,8 @@ function CommunityFeed() {
     }
 
     useEffect(() => {
-        if (!joined) {
-            setPosts([])
-            return
-        }
         fetchCommunityData()
-    }, [level, joined])
+    }, [level])
 
     if (userLoading) {
         return <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
