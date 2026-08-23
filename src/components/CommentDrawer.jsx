@@ -154,21 +154,20 @@ export default function CommentDrawer({
   }
 
   const renderCommentGifts = (gifts = []) => {
-    if (!gifts || gifts.length === 0) return null
+    if (!gifts || !Array.isArray(gifts) || gifts.length === 0) return null
     const counts = {}
-    gifts.forEach(g => counts[g] = (counts[g] || 0) + 1)
+    gifts.forEach(g => { if (g) counts[g] = (counts[g] || 0) + 1 })
 
     return (
-      <div className="flex flex-wrap gap-1 mt-1.5 mb-1">
+      <div className="flex flex-wrap gap-1.5 mt-2 mb-1">
         {Object.entries(counts).map(([giftId, count]) => {
-          const giftObj = REACTION_GIFTS.find(g => g.id === giftId)
-          if (!giftObj) return null
-          const GiftIcon = giftObj.icon
+          const giftObj = REACTION_GIFTS.find(g => g.id === giftId) || { name: 'Gift', icon: FiGift, color: 'text-amber-400 bg-amber-500/20 border-amber-400/40' }
+          const GiftIcon = giftObj.icon || FiGift
           return (
-            <div key={giftId} className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-amber-400" title={`${giftObj.name} reaction`}>
-              <GiftIcon size={9} className="text-amber-400 flex-shrink-0" />
+            <div key={giftId} className={`flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${giftObj.color} shadow-xs`} title={`${giftObj.name} reaction gift`}>
+              <GiftIcon size={11} className="flex-shrink-0 animate-pulse" />
               <span>{giftObj.name}</span>
-              {count > 1 && <span className="text-white/60 ml-0.5">x{count}</span>}
+              {count > 1 && <span className="ml-1 opacity-80 font-bold">x{count}</span>}
             </div>
           )
         })}
