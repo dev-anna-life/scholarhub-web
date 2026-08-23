@@ -178,6 +178,8 @@ export default function PostDetail() {
             </div>
           )}
 
+          {renderCommentGifts(c.gifts)}
+
           <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-gray-500 text-xs mb-4">
             <div className="flex items-center gap-4">
               <button onClick={toggleLike} className={`flex items-center gap-1.5 transition ${liked ? 'text-red-500 font-bold' : 'hover:text-red-500'}`}>
