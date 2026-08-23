@@ -922,11 +922,6 @@ function Home() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
-                                                {post.gifts && post.gifts.length > 0 && (
-                                                    <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-extrabold px-2 py-0.5 rounded-full text-[10px] shadow-xs">
-                                                        🔥 Top Ranking Post
-                                                    </span>
-                                                )}
                                                 {post.citationStatus === 'verified' ? (
                                                     <span
                                                         title={post.citationSummary || (post.citationSource ? `Verified from: ${post.citationSource}` : 'Verified Academic Source')}
