@@ -316,6 +316,7 @@ function Home() {
                 content: post.content,
                 image: post.image || '',
                 video: post.video || '',
+                gifts: Array.isArray(post.gifts) ? post.gifts : [],
                 likes: post.likesCount ?? post.likes?.length ?? 0,
                 liked: post.liked || post.likes?.includes(userId) || false,
                 commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
