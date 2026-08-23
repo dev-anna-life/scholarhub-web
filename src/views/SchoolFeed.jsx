@@ -195,7 +195,7 @@ function SchoolFeed() {
         if (!newPost.title.trim() || !newPost.content.trim()) { setPostError('Title and content are required'); return }
         setPostLoading(true); setPostError('')
         try {
-            await createPost({ ...newPost })
+            await createPost({ ...newPost, category: newPost.category?.trim() || 'Sciences' })
             setPostSuccess(true)
             setNewPost({ title: '', content: '' })
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false) }, 2000)

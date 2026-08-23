@@ -332,8 +332,8 @@ function CommunityFeed() {
                 return
             }
         } else if (isBasic && !isPremium && !isExtra) {
-            if (wordCount > 80) {
-                setPostError('Basic tier limit is 80 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
+            if (wordCount > 500) {
+                setPostError('Basic tier limit is 500 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.')
                 return
             }
         } else if (isPremium && !isExtra) {
@@ -349,9 +349,9 @@ function CommunityFeed() {
             const subVisibilities = visibilities.filter(v => v !== 'general')
             const selectedComs = myCommunities.filter(c => subVisibilities.includes(c.type))
             const communityIds = selectedComs.map(c => c._id)
-            await createPost({ ...newPost, communityIds, level: visibilities.includes('general') ? (level || user.level?.toLowerCase()) : undefined })
+            await createPost({ ...newPost, category: newPost.category?.trim() || 'Sciences', communityIds, level: visibilities.includes('general') ? (level || user.level?.toLowerCase()) : undefined })
             setPostSuccess(true)
-            setNewPost({ title: '', content: '', category: '', image: null, video: null })
+            setNewPost({ title: '', content: '', category: 'Sciences', image: null, video: null })
             setTimeout(() => { setShowCreatePost(false); setPostSuccess(false) }, 2000)
         } catch (err) { setPostError(err.response?.data?.message || 'Something went wrong') }
         finally { setPostLoading(false) }
