@@ -87,12 +87,12 @@ export default function CitationSourceInput({ value, onChange }) {
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#1e1e22] border border-gray-100 dark:border-zinc-700 rounded-2xl shadow-xl z-50 overflow-hidden max-h-80 flex flex-col divide-y divide-gray-100 dark:divide-zinc-800">
+        <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#1e1e22] border border-gray-100 dark:border-zinc-700 rounded-2xl shadow-2xl z-50 overflow-hidden max-h-72 flex flex-col divide-y divide-gray-100 dark:divide-zinc-800">
           
-          {/* Section 1: Primary Top 6 Selection */}
+          {/* Section 1: Top 6 Global Selection Grid */}
           <div className="p-3 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
             <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider mb-2 flex items-center gap-1">
-              <FiGlobe size={11} /> Global Boards & Research Hubs (Top Selection)
+              <FiGlobe size={11} /> Global Boards & Research Hubs
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
               {TOP_CITATIONS.map(item => {
@@ -116,49 +116,22 @@ export default function CitationSourceInput({ value, onChange }) {
             </div>
           </div>
 
-          {/* Section 2: Secondary Repositories (Scrollable Suggestion Menu) */}
-          <div className="p-2 overflow-y-auto max-h-40 scrollbar-thin">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1">
-              International Repositories & Agencies
-            </p>
-            {filteredSecondary.length === 0 ? (
-              <p className="text-xs text-gray-400 px-2 py-1">No secondary matches found</p>
-            ) : (
-              filteredSecondary.map(item => (
-                <button
-                  key={item.tag}
-                  type="button"
-                  onMouseDown={(e) => { e.preventDefault(); handleSelect(item.tag) }}
-                  className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs hover:bg-gray-100 dark:hover:bg-zinc-800 text-left transition"
-                >
-                  <div>
-                    <span className="font-bold text-dark dark:text-white">{item.label}</span>
-                    <span className="text-[10px] text-gray-400 block truncate">{item.desc}</span>
-                  </div>
-                  {query === item.tag && <FiCheck size={13} className="text-primary flex-shrink-0" />}
-                </button>
-              ))
-            )}
-          </div>
-
-          {/* Section 3: Fallback Student Defaults */}
-          <div className="p-2 bg-gray-50/80 dark:bg-zinc-900/50">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1 flex items-center gap-1">
-              <FiBookmark size={10} /> Fallback Student Defaults
-            </p>
-            <div className="flex flex-col gap-1">
-              {FALLBACK_CITATIONS.map(item => (
-                <button
-                  key={item.tag}
-                  type="button"
-                  onMouseDown={(e) => { e.preventDefault(); handleSelect(item.tag) }}
-                  className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold hover:bg-primary/10 hover:text-primary text-dark dark:text-white text-left transition"
-                >
-                  <span>{item.label}</span>
-                  {query === item.tag && <FiCheck size={13} className="text-primary flex-shrink-0" />}
-                </button>
-              ))}
-            </div>
+          {/* Section 2: All Academic Repositories & Curriculum Options */}
+          <div className="p-2 overflow-y-auto max-h-48 scrollbar-thin divide-y divide-gray-50 dark:divide-zinc-800/50">
+            {[...SECONDARY_CITATIONS, ...FALLBACK_CITATIONS].filter(filterItem).map(item => (
+              <button
+                key={item.tag}
+                type="button"
+                onMouseDown={(e) => { e.preventDefault(); handleSelect(item.tag) }}
+                className="w-full flex items-center justify-between px-2.5 py-2 hover:bg-gray-50 dark:hover:bg-zinc-800/80 text-left transition"
+              >
+                <div>
+                  <span className="font-bold text-dark dark:text-white text-xs block">{item.label}</span>
+                  <span className="text-[10px] text-gray-400 block truncate">{item.desc}</span>
+                </div>
+                {query === item.tag && <FiCheck size={13} className="text-primary flex-shrink-0 ml-2" />}
+              </button>
+            ))}
           </div>
 
         </div>
