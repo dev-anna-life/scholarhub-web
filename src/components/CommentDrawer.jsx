@@ -144,6 +144,7 @@ export default function CommentDrawer({
         onRefreshComments(post?.id || post?._id)
       }
 
+      window.dispatchEvent(new CustomEvent('postGifted', { detail: { postId: post?.id || post?._id, giftId: rgItem.id } }))
       window.dispatchEvent(new Event('userStateChange'))
       setTimeout(() => { resetGift() }, 1800)
     } catch (err) {
