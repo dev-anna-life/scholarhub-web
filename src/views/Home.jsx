@@ -10,6 +10,8 @@ import PostGiftModal from '../components/PostGiftModal'
 import { getSchoolAbbr, stringToColor } from '../utils/school'
 import SchoolLogo from '../components/SchoolLogo'
 import SchoolBadge from '../components/SchoolBadge'
+import CitationSourceInput from '../components/CitationSourceInput'
+import { formatCitationSource } from '../data/citationSources'
 import axios from 'axios'
 
 function Home() {
@@ -481,7 +483,7 @@ function Home() {
                 title: newPost.title.trim(),
                 content: newPost.content.trim(),
                 category: newPost.category || 'Sciences',
-                citationSource: (newPost.citationSource || '').trim(),
+                citationSource: formatCitationSource(newPost.citationSource),
                 communityIds: finalCommunityIds,
                 image: postImage || '',
                 video: postVideo || ''
@@ -1087,14 +1089,10 @@ function Home() {
                                             : 'Unlimited words (VIP)'}
                                     </span>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                                        Citation / Source of Information <span className="text-gray-400 font-normal">(e.g. SURCON, NUC Curriculum, Google Scholar, Textbook)</span>
-                                    </label>
-                                    <input type="text" placeholder="e.g. SURCON Curriculum, NUC Benchmark, Google..."
-                                        value={newPost.citationSource || ''} onChange={e => setNewPost({ ...newPost, citationSource: e.target.value })}
-                                        className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark placeholder-gray-400" />
-                                </div>
+                                <CitationSourceInput
+                                    value={newPost.citationSource || ''}
+                                    onChange={val => setNewPost(prev => ({ ...prev, citationSource: val }))}
+                                />
                                 <select value={newPost.category} onChange={e => setNewPost({ ...newPost, category: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark">
                                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
