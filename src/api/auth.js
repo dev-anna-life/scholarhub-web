@@ -66,7 +66,7 @@ export const shopAction = (endpoint, data) => API.post(`/shop/${endpoint}`, data
 export const buyShopItem = (itemId, recipientUsername) => API.post('/shop/buy', { itemId, recipientUsername })
 export const giftShopItem = (itemId, recipientUsername) => API.post('/shop/gift', { itemId, recipientUsername })
 export const giftReaction = (data) => API.post('/shop/gift', data)
-export const sendCoins = (recipientUsername, amount) => API.post('/shop/send-coins', { recipientUsername, amount })
+export const sendCoins = (recipientUsername, amount, postId) => API.post('/shop/send-coins', { recipientUsername, amount, postId })
 export const redeemAirtime = (itemId, network, phone) => API.post('/shop/redeem-airtime', { itemId, phone, network })
 export const redeemData = (itemId, network, phone) => API.post('/shop/redeem-data', { itemId, phone, network })
 export const buyCoins = (itemId, recipientUsername) => API.post('/shop/buy-coins', { itemId, recipientUsername })

@@ -250,7 +250,8 @@ function UserProfile() {
         setSendingCoins(true)
         setSendMsg(null)
         try {
-            await sendCoins(sendUsername.trim(), parseInt(sendAmount))
+            const latestPostId = userPosts.length > 0 ? (userPosts[0]._id || userPosts[0].id) : null
+            await sendCoins(sendUsername.trim(), parseInt(sendAmount), latestPostId)
             setSendMsg({ type: 'success', text: `Sent ${sendAmount} coins to ${sendUsername}` })
             setSendUsername(''); setSendAmount('')
             setTimeout(() => { setShowSendCoins(false); setSendMsg(null) }, 1500)

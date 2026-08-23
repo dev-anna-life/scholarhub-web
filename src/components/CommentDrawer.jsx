@@ -269,9 +269,21 @@ export default function CommentDrawer({
                         <p className="text-xs font-bold text-white/90 hover:underline cursor-pointer">
                           {comment.author?.name || 'Scholar'}
                         </p>
-                        <p className="text-sm text-white/90 leading-relaxed mt-0.5">
-                          {comment.text}
-                        </p>
+                        {comment.text?.includes('🎁') || comment.content?.includes('🎁') || comment.isGift ? (
+                          <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-600/20 border border-amber-400/50 rounded-xl p-2.5 my-1.5 shadow-sm">
+                            <div className="flex items-center gap-1.5 text-amber-400 font-extrabold text-[11px] mb-0.5">
+                              <FiGift size={13} className="text-amber-300" />
+                              <span>GIFT ANNOUNCEMENT</span>
+                            </div>
+                            <p className="text-xs font-bold text-amber-100 leading-relaxed">
+                              {comment.text || comment.content}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-white/90 leading-relaxed mt-0.5">
+                            {comment.text || comment.content}
+                          </p>
+                        )}
 
                         {renderCommentGifts(comment.gifts)}
 
@@ -341,9 +353,21 @@ export default function CommentDrawer({
                                     <p className="text-xs font-bold text-white/90 hover:underline cursor-pointer">
                                       {reply.author?.name || 'Scholar'}
                                     </p>
-                                    <p className="text-xs text-white/80 leading-relaxed mt-0.5">
-                                      {reply.text}
-                                    </p>
+                                    {reply.text?.includes('🎁') || reply.content?.includes('🎁') || reply.isGift ? (
+                                      <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-600/20 border border-amber-400/50 rounded-xl p-2 my-1 shadow-sm">
+                                        <div className="flex items-center gap-1.5 text-amber-400 font-extrabold text-[10px] mb-0.5">
+                                          <FiGift size={11} className="text-amber-300" />
+                                          <span>GIFT ANNOUNCEMENT</span>
+                                        </div>
+                                        <p className="text-xs font-bold text-amber-100 leading-relaxed">
+                                          {reply.text || reply.content}
+                                        </p>
+                                      </div>
+                                    ) : (
+                                      <p className="text-xs text-white/80 leading-relaxed mt-0.5">
+                                        {reply.text || reply.content}
+                                      </p>
+                                    )}
                                     {renderCommentGifts(reply.gifts)}
                                     <div className="flex items-center gap-3 mt-1 text-[11px] text-white/40">
                                       <span>{reply.createdAt ? new Date(reply.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Just now'}</span>
