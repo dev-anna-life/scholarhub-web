@@ -848,7 +848,9 @@ function Home() {
                                                 ) : (
                                                     post.avatar
                                                 )}
-                                                        <p
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p
                                                     onClick={() => post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`)}
                                                     className={`font-semibold text-dark text-xs md:text-sm leading-tight truncate flex items-center ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:text-primary transition' : ''}`}>
                                                     <span>{(typeof post.author === 'string' ? post.author : (post.author?.name || 'Scholar')).split(' ').slice(0, 2).join(' ')}</span>
@@ -856,7 +858,7 @@ function Home() {
                                                 </p>
                                                 <div className="flex items-center gap-1.5 mt-0.5">
                                                     {post.school && (
-                                                        <SchoolLogo school={post.school} size={22} className="shadow-xs" />
+                                                        <SchoolLogo school={post.school} size={16} className="shadow-xs" />
                                                     )}
                                                     <p className="text-xs text-gray-400">{post.time}</p>
                                                 </div>
