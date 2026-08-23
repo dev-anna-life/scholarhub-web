@@ -34,8 +34,8 @@ function CommunityView({ communityId }) {
                 const res = await getPosts(1, '', 'community', '', communityId)
                 const postsData = res.data?.posts || res.data || []
                 const mapped = postsData.map(post => ({
-                    id: post._id,
-                    authorId: post.author?._id || '',
+                    id: post.id || post._id,
+                    authorId: post.author?.id || post.author?._id || '',
                     author: post.author?.name || 'Student',
                     avatar: post.author?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH',
                     school: post.author?.school || '',
@@ -46,7 +46,7 @@ function CommunityView({ communityId }) {
                     likes: post.likesCount ?? post.likes?.length ?? 0,
                     liked: post.liked || post.likes?.includes(user?._id || user?.id) || false,
                     commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
-                    time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
+                    time: post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently',
                     saved: false,
                     isReal: true
                 }))

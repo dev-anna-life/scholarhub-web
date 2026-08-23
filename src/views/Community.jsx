@@ -35,8 +35,8 @@ function Community() {
         if (userData.faculty && userData.school) {
           const facRes = await getCommunities({ faculty: userData.faculty, school: userData.school, type: 'department' })
           const allDepts = facRes.data || []
-          const myDeptIds = new Set(myList.filter(c => c.type === 'department').map(c => c._id?.toString()))
-          setFacultyComs(allDepts.filter(c => !myDeptIds.has(c._id?.toString())))
+          const myDeptIds = new Set(myList.filter(c => c.type === 'department').map(c => (c.id || c._id)?.toString()))
+          setFacultyComs(allDepts.filter(c => !myDeptIds.has((c.id || c._id)?.toString())))
         }
       } catch (err) {
         console.error(err)
@@ -53,7 +53,7 @@ function Community() {
       await joinCommunity(communityId, 'join')
       const myRes = await getMyCommunities()
       setMyComs(myRes.data.communities || [])
-      setFacultyComs(prev => prev.filter(c => c._id?.toString() !== communityId))
+      setFacultyComs(prev => prev.filter(c => (c.id || c._id)?.toString() !== communityId))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to join')
     } finally {
@@ -132,7 +132,7 @@ function Community() {
                 const order = { department: 0, faculty: 1, school: 2 }
                 return order[a.type] - order[b.type]
               }).map((c, i) => (
-                <motion.div key={c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
+                <motion.div key={c.id || c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
                   className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between hover:shadow-md transition">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${typeColors[c.type].split(' ')[0]}`}>
@@ -146,7 +146,7 @@ function Community() {
                       <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${typeColors[c.type]}`}>{typeLabels[c.type] || c.type}</span>
                     </div>
                   </div>
-                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}&type=${c.type}`)}
+                  <button onClick={() => router.push(`/community/c/${c.id || c._id}?name=${encodeURIComponent(c.name)}&type=${c.type}`)}
                     className="flex items-center gap-1 text-primary text-xs font-semibold hover:underline">
                     View <FiArrowRight size={12} />
                   </button>
@@ -165,7 +165,7 @@ function Community() {
             <p className="text-xs text-gray-400 mb-4">University students across Africa studying the same subject can connect and share here</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {globalComs.map((c, i) => (
-                <motion.div key={c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
+                <motion.div key={c.id || c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
                   className="bg-white rounded-xl border border-orange-100 p-4 flex items-center justify-between hover:shadow-md transition">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-100">
@@ -176,7 +176,7 @@ function Community() {
                       <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">Global Community</span>
                     </div>
                   </div>
-                  <button onClick={() => router.push(`/community/c/${c._id}?name=${encodeURIComponent(c.name)}&type=global`)}
+                  <button onClick={() => router.push(`/community/c/${c.id || c._id}?name=${encodeURIComponent(c.name)}&type=global`)}
                     className="flex items-center gap-1 text-orange-500 text-xs font-semibold hover:underline">
                     View <FiArrowRight size={12} />
                   </button>
@@ -195,15 +195,15 @@ function Community() {
             <p className="text-xs text-gray-400 mb-3">Join any department within your faculty</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {facultyComs.map((c, i) => (
-                <motion.div key={c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
+                <motion.div key={c.id || c._id} custom={i} variants={fadeUp} initial="hidden" animate="visible"
                   className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between hover:shadow-md transition">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-dark truncate">{c.department}</p>
                     <p className="text-xs text-gray-400">{c.name}</p>
                   </div>
-                  <button onClick={() => handleJoin(c._id)} disabled={joining === c._id}
+                  <button onClick={() => handleJoin(c.id || c._id)} disabled={joining === (c.id || c._id)}
                     className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-primary/20 transition disabled:opacity-50">
-                    {joining === c._id ? 'Joining...' : 'Join'}
+                    {joining === (c.id || c._id) ? 'Joining...' : 'Join'}
                   </button>
                 </motion.div>
               ))}
