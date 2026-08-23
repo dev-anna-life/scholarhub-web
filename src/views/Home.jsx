@@ -497,7 +497,10 @@ function Home() {
                     category: created.category || postData.category,
                     image: created.image || postImage,
                     video: created.video || postVideo,
-                    author: created.author || user,
+                    author: typeof created.author === 'string' ? created.author : (created.author?.name || user.name || 'Scholar'),
+                    authorId: created.authorId || (typeof created.author === 'object' ? (created.author?.id || created.author?._id) : null) || user.id || user._id || '',
+                    authorAvatar: (typeof created.author === 'object' ? created.author?.avatar : null) || user.avatar || '',
+                    avatar: (user.name || 'Scholar').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'SH',
                     likesCount: 0,
                     commentCount: 0,
                     liked: false,
@@ -845,12 +848,10 @@ function Home() {
                                                 ) : (
                                                     post.avatar
                                                 )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p
+                                                        <p
                                                     onClick={() => post.authorId && post.authorId !== user.id && router.push(`/profile/${post.authorId}`)}
                                                     className={`font-semibold text-dark text-xs md:text-sm leading-tight truncate flex items-center ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:text-primary transition' : ''}`}>
-                                                    <span>{post.author.split(' ').slice(0, 2).join(' ')}</span>
+                                                    <span>{(typeof post.author === 'string' ? post.author : (post.author?.name || 'Scholar')).split(' ').slice(0, 2).join(' ')}</span>
                                                     {renderAuthorBadge(post)}
                                                 </p>
                                                 <div className="flex items-center gap-1.5 mt-0.5">
