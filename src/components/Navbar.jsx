@@ -260,11 +260,6 @@ function Navbar() {
                   >
                     <Icon size={19} className={active ? 'text-primary dark:text-white' : ''} />
                     <span>{label}</span>
-                    {hasRedBadge && label === 'Chat' && unreadCount > 0 && (
-                      <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                        {unreadCount}
-                      </span>
-                    )}
                   </Link>
                 )
               })}
@@ -394,11 +389,6 @@ function Navbar() {
                         >
                           <Icon size={19} className={active ? 'text-primary dark:text-white' : ''} />
                           <span>{label}</span>
-                          {hasRedBadge && label === 'Chat' && unreadCount > 0 && (
-                            <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                              {unreadCount}
-                            </span>
-                          )}
                         </Link>
                       )
                     })}

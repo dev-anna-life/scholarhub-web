@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
-import { getSchoolLogoUrl, getSchoolAbbr, stringToColor } from '../utils/school'
+import { getSchoolLogoUrl, stringToColor } from '../utils/school'
+import { FiBookOpen } from 'react-icons/fi'
 
 export default function SchoolLogo({
   school,
@@ -13,7 +14,6 @@ export default function SchoolLogo({
   if (!school) return null
 
   const logoUrl = getSchoolLogoUrl(school)
-  const abbr = getSchoolAbbr(school)
   const color = stringToColor(school)
 
   const sizeStyle = {
@@ -23,7 +23,7 @@ export default function SchoolLogo({
     minHeight: typeof size === 'number' ? `${size}px` : size,
   }
 
-  const fontSize = typeof size === 'number' ? Math.max(9, Math.floor(size * 0.38)) : 11
+  const iconSize = typeof size === 'number' ? Math.max(10, Math.floor(size * 0.55)) : 12
 
   return (
     <div
@@ -41,10 +41,10 @@ export default function SchoolLogo({
         />
       ) : (
         <div
-          className="w-full h-full flex items-center justify-center font-extrabold text-white uppercase tracking-tighter select-none"
-          style={{ backgroundColor: color, fontSize: `${fontSize}px` }}
+          className="w-full h-full flex items-center justify-center text-white select-none"
+          style={{ backgroundColor: color }}
         >
-          {abbr.slice(0, 3)}
+          <FiBookOpen size={iconSize} className="text-white" />
         </div>
       )}
     </div>
