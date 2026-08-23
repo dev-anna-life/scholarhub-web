@@ -63,6 +63,7 @@ export default function PostGiftModal({ post, isOpen, onClose }) {
           recipientId,
           postId: post.id || post._id,
         })
+        window.dispatchEvent(new CustomEvent('postGifted', { detail: { postId: post.id || post._id, giftId: gift.id } }))
       }
 
       setStatusMsg({ text: `🎁 Awarded ${gift.name} reaction to ${authorName}! (+${gift.price} coins)`, type: 'success' })

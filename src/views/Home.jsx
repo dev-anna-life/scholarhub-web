@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift } from "react-icons/fi"
+import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift, FiThumbsUp, FiCompass, FiZap, FiStar, FiAward } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
 import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, getCommunities, savePost, getSavedPosts, getMe } from '../api/auth'
 import SOSButton from '../components/SOSButton'
@@ -13,6 +13,37 @@ import SchoolBadge from '../components/SchoolBadge'
 import CitationSourceInput from '../components/CitationSourceInput'
 import { formatCitationSource } from '../data/citationSources'
 import axios from 'axios'
+
+const REACTION_GIFTS_MAP = {
+  gift_helpful: { name: 'Helpful', icon: FiThumbsUp, color: 'text-blue-500 bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20' },
+  gift_insightful: { name: 'Insightful', icon: FiCompass, color: 'text-amber-500 bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20' },
+  gift_creative: { name: 'Creative', icon: FiImage, color: 'text-purple-500 bg-purple-50 border-purple-200 dark:bg-purple-500/10 dark:border-purple-500/20' },
+  gift_brilliant: { name: 'Brilliant', icon: FiZap, color: 'text-amber-400 bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20' },
+  gift_intelligent: { name: 'Super Intelligent', icon: FiStar, color: 'text-yellow-500 bg-yellow-50 border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/20' },
+  gift_masterclass: { name: 'Masterclass', icon: FiAward, color: 'text-emerald-500 bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20' },
+}
+
+const renderPostGifts = (gifts = []) => {
+  if (!gifts || !Array.isArray(gifts) || gifts.length === 0) return null
+  const counts = {}
+  gifts.forEach(g => { if (g) counts[g] = (counts[g] || 0) + 1 })
+
+  return (
+    <div className="flex flex-wrap gap-1.5 mb-2 mt-1">
+      {Object.entries(counts).map(([giftId, count]) => {
+        const giftObj = REACTION_GIFTS_MAP[giftId] || { name: 'Gift', icon: FiGift, color: 'text-amber-500 bg-amber-50 border-amber-200 dark:bg-amber-500/10' }
+        const GiftIcon = giftObj.icon || FiGift
+        return (
+          <div key={giftId} className={`flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border ${giftObj.color} shadow-2xs`} title={`${giftObj.name} reaction gift`}>
+            <GiftIcon size={12} className="flex-shrink-0 animate-pulse" />
+            <span>{giftObj.name}</span>
+            {count > 1 && <span className="ml-1 opacity-80 font-bold">x{count}</span>}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 function Home() {
     const router = useRouter()
@@ -185,6 +216,23 @@ function Home() {
             Notification.requestPermission()
         }
     }
+
+    useEffect(() => {
+        const handlePostGifted = (e) => {
+            const { postId, giftId } = e.detail || {}
+            if (postId && giftId) {
+                setPosts(prev => prev.map(p => {
+                    if (p.id === postId || p._id === postId) {
+                        const currentGifts = Array.isArray(p.gifts) ? p.gifts : []
+                        return { ...p, gifts: [...currentGifts, giftId] }
+                    }
+                    return p
+                }))
+            }
+        }
+        window.addEventListener('postGifted', handlePostGifted)
+        return () => window.removeEventListener('postGifted', handlePostGifted)
+    }, [])
 
     const fetchNotificationsOnly = async () => {
         try {
@@ -927,6 +975,8 @@ function Home() {
                                          {post.video && (
                                              <video src={post.video} controls onClick={e => e.stopPropagation()} className="w-full rounded-xl mb-3 max-h-72" />
                                          )}
+
+                                         {renderPostGifts(post.gifts)}
 
                                         <div className="flex items-center gap-4 pt-2 border-t border-gray-50">
                                             <button onClick={() => toggleLike(post.id, post.isReal)}

@@ -373,7 +373,7 @@ function UserProfile() {
                             </div>
 
                             {!isOwnProfile ? (
-                                <div className="grid grid-cols-3 gap-2 w-full max-w-sm mx-auto my-2.5">
+                                <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm mx-auto my-2.5">
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
@@ -395,15 +395,6 @@ function UserProfile() {
                                         className="flex items-center justify-center gap-1 py-2.5 px-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-bold transition">
                                         <FiMessageSquare size={14} />
                                         <span>Chat</span>
-                                    </motion.button>
-
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => { setSendUsername(''); setSendAmount(''); setSendMsg(null); setShowSendCoins(true) }}
-                                        className="flex items-center justify-center gap-1 py-2.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold transition">
-                                        <BsCoin size={14} />
-                                        <span>Gift</span>
                                     </motion.button>
                                 </div>
                             ) : (
