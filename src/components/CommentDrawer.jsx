@@ -177,9 +177,11 @@ export default function CommentDrawer({
 
   if (!isOpen || !post) return null
 
-  const topLevel = comments.filter(c => !c.parentId)
+  const giftAnnouncements = comments.filter(c => c.text?.includes('🎁') || c.content?.includes('🎁') || c.isGift)
+  const rawComments = comments.filter(c => !c.text?.includes('🎁') && !c.content?.includes('🎁') && !c.isGift)
+  const topLevel = rawComments.filter(c => !c.parentId)
   const repliesMap = {}
-  comments.forEach(c => {
+  rawComments.forEach(c => {
     if (c.parentId) {
       if (!repliesMap[c.parentId]) repliesMap[c.parentId] = []
       repliesMap[c.parentId].push(c)
@@ -194,7 +196,7 @@ export default function CommentDrawer({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[999]">
+      <div className="fixed inset-0 z-[999] flex justify-end">
         {/* Dark Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -221,8 +223,9 @@ export default function CommentDrawer({
 
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3 md:py-4 border-b border-white/10 flex-shrink-0 bg-[#121212]">
-            <h3 className="text-base font-bold text-white tracking-wide">
-              Comments <span className="text-white/60 font-medium text-sm ml-1">{comments.length}</span>
+            <h3 className="text-base font-bold text-white tracking-wide flex items-center gap-2">
+              <span>Comments</span>
+              <span className="bg-white/10 text-white/80 text-xs px-2 py-0.5 rounded-full font-bold">{rawComments.length}</span>
             </h3>
             <button
               onClick={onClose}
@@ -232,17 +235,37 @@ export default function CommentDrawer({
             </button>
           </div>
 
+          {/* Pinned Top Supporters & Reaction Gifts Row */}
+          {(giftAnnouncements.length > 0 || (post?.gifts && post.gifts.length > 0)) && (
+            <div className="px-5 py-3 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-600/15 border-b border-amber-400/20 flex-shrink-0">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <FiGift size={13} className="text-amber-400 animate-pulse" /> Top Supporters & Gift Reactions
+                </span>
+                <span className="text-[10px] text-amber-200/70 font-semibold">{giftAnnouncements.length} gifts</span>
+              </div>
+              {renderCommentGifts(post?.gifts || [])}
+              <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
+                {giftAnnouncements.map((g, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs text-amber-100 font-semibold bg-white/5 px-2.5 py-1 rounded-lg">
+                    <span className="text-amber-400">🎁</span>
+                    <span className="truncate">{g.text || g.content}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Comment List Area */}
           <div ref={listRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
             {loading ? (
               <div className="flex items-center justify-center py-12 text-white/40 text-xs">
                 Loading comments...
               </div>
-            ) : comments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-white/40 text-center">
-                <FiMessageCircle size={44} className="mb-3 opacity-30" />
-                <p className="text-sm font-semibold text-white/70 mb-1">No comments yet</p>
-                <p className="text-xs text-white/40">Be the first to share your thoughts!</p>
+            ) : rawComments.length === 0 ? (
+              <div className="text-center py-12 text-white/40 text-xs flex flex-col items-center gap-2">
+                <FiMessageCircle size={32} className="text-white/20" />
+                <p>No comments yet. Start the conversation!</p>
               </div>
             ) : (
               topLevel.map((comment) => {
