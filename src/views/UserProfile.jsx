@@ -597,68 +597,97 @@ function UserProfile() {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+                            <div className="space-y-3">
                                 {userPosts.map((post, i) => {
                                     const likesCount = Array.isArray(post.likes) ? post.likes.length : (typeof post.likes === 'number' ? post.likes : (typeof post.likesCount === 'number' ? post.likesCount : 0))
                                     const commentsCount = post.commentCount ?? post.commentsData?.length ?? 0
 
                                     return (
-                                        <motion.div key={post._id || post.id}
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
+                                        <motion.div
+                                            key={post._id || post.id}
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.04 }}
                                             onClick={() => router.push(`/post/${post._id || post.id}`)}
-                                            className="group relative aspect-square rounded-2xl overflow-hidden cursor-pointer bg-dark border border-gray-100 dark:border-zinc-800 shadow-xs hover:shadow-md transition-all duration-300">
+                                            className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl p-4 sm:p-5 hover:border-primary/40 hover:shadow-sm transition-all duration-200 cursor-pointer">
                                             
-                                            {post.image ? (
-                                                <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                            ) : post.video ? (
-                                                <div className="relative w-full h-full">
-                                                    <video src={post.video} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                                    <span className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                                                        ▶ Video
-                                                    </span>
+                                            {/* Header: Author / Timestamp / Category */}
+                                            <div className="flex items-center justify-between gap-2 mb-2">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                                        {profileUser.avatar ? (
+                                                            <img src={profileUser.avatar} alt={profileUser.name} className="w-full h-full object-cover rounded-full" />
+                                                        ) : (
+                                                            profileUser.name?.charAt(0)?.toUpperCase() || 'S'
+                                                        )}
+                                                    </div>
+                                                    <div className="min-w-0 flex items-center gap-1.5 flex-wrap text-xs">
+                                                        <span className="font-bold text-dark dark:text-white truncate">{profileUser.name}</span>
+                                                        <span className="text-gray-400">@{profileUser.username || 'scholar'}</span>
+                                                        <span className="text-gray-300">•</span>
+                                                        <span className="text-gray-400 text-[11px]">
+                                                            {new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            ) : (
-                                                <div className="w-full h-full bg-gradient-to-br from-emerald-950 via-dark to-primary p-2.5 sm:p-3.5 flex flex-col justify-between text-white select-none">
-                                                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-black/40 px-2 py-0.5 rounded-full w-max truncate max-w-full">
-                                                        {post.category || 'Academic'}
-                                                    </span>
-                                                    <p className="text-xs sm:text-sm font-bold line-clamp-3 leading-snug">
-                                                        {post.title || post.content}
-                                                    </p>
-                                                    <div />
-                                                </div>
-                                            )}
 
-                                            {/* Hover / Touch Stats Overlay */}
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3 text-white font-bold text-xs sm:text-sm z-10">
-                                                <span className="flex items-center gap-1">
-                                                    <FiHeart size={14} className="fill-red-500 text-red-500" /> {likesCount}
-                                                </span>
-                                                <span className="flex items-center gap-1">
-                                                    <FiMessageCircle size={14} /> {commentsCount}
-                                                </span>
+                                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                                    {post.status && post.status !== 'approved' ? (
+                                                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                                                            post.status === 'rejected' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'
+                                                        }`}>
+                                                            {post.status === 'rejected' ? 'Rejected' : 'Pending'}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="bg-primary/10 text-primary text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                                                            {post.category || 'Academic'}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            {/* Delete button overlay if own profile */}
-                                            {isOwnProfile && (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setConfirmDelete(post._id || post.id) }}
-                                                    className="absolute top-1.5 right-1.5 z-20 p-1.5 bg-black/60 hover:bg-red-600 text-white rounded-lg transition opacity-80 hover:opacity-100"
-                                                    title="Delete post">
-                                                    <FiTrash2 size={13} />
-                                                </button>
+                                            {/* Post Title & Body Content */}
+                                            <h3 className="font-extrabold text-dark dark:text-white text-sm sm:text-base mb-1.5 leading-snug">
+                                                {post.title}
+                                            </h3>
+                                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-3 mb-3">
+                                                {post.content}
+                                            </p>
+
+                                            {/* Media Attachments */}
+                                            {post.image && (
+                                                <div className="mb-3 rounded-xl overflow-hidden max-h-64 bg-gray-100 dark:bg-zinc-800">
+                                                    <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                                                </div>
+                                            )}
+                                            {post.video && (
+                                                <div className="mb-3 rounded-xl overflow-hidden max-h-64 bg-black">
+                                                    <video src={post.video} controls className="w-full h-full object-cover" />
+                                                </div>
                                             )}
 
-                                            {/* Status badge if pending or rejected */}
-                                            {post.status && post.status !== 'approved' && (
-                                                <span className={`absolute top-1.5 left-1.5 text-[9px] font-extrabold px-2 py-0.5 rounded-full z-20 shadow-xs ${
-                                                    post.status === 'rejected' ? 'bg-red-600 text-white' : 'bg-amber-500 text-white'
-                                                }`}>
-                                                    {post.status === 'rejected' ? 'Rejected' : 'Pending'}
-                                                </span>
-                                            )}
+                                            {/* Footer Action Bar (X Style) */}
+                                            <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 dark:border-zinc-800/80 text-xs text-gray-400">
+                                                <div className="flex items-center gap-5">
+                                                    <span className="flex items-center gap-1.5 hover:text-primary transition font-medium">
+                                                        <FiMessageCircle size={15} />
+                                                        <span>{commentsCount}</span>
+                                                    </span>
+                                                    <span className="flex items-center gap-1.5 hover:text-red-500 transition font-medium">
+                                                        <FiHeart size={15} className="text-red-400" />
+                                                        <span>{likesCount}</span>
+                                                    </span>
+                                                </div>
+
+                                                {isOwnProfile && (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setConfirmDelete(post._id || post.id) }}
+                                                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition"
+                                                        title="Delete post">
+                                                        <FiTrash2 size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </motion.div>
                                     )
                                 })}
