@@ -1,9 +1,9 @@
 'use client'
 /* eslint-disable no-unused-vars */
 import { useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe, FiCode, FiLayers, FiCheckCircle } from "react-icons/fi"
+import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe, FiCode, FiLayers, FiCheckCircle, FiThumbsUp, FiStar, FiCompass, FiTrendingUp, FiCheck, FiMessageSquare } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { getLeaderboard } from "../api/auth"
 
@@ -29,6 +29,13 @@ const steps = [
   { number: "03", title: "Build, engage & earn", desc: "Share projects, get peer reviews, earn reaction gifts and build your verified reputation." },
 ]
 
+const stats = [
+  { value: "100+", label: "Global Campus Hubs" },
+  { value: "50+", label: "Pro Skill Guilds" },
+  { value: "50,000+", label: "Scholar Coins Awarded" },
+  { value: "100%", label: "Peer-Reviewed Projects" },
+]
+
 const communities = [
   { id: 'academic', name: "Academic Campus Hubs", color: "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/30", badge: "text-emerald-600 dark:text-emerald-400", desc: "Universities, High Schools & Course Cohorts worldwide" },
   { id: 'skills', name: "Pro Skill Guilds", color: "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30", badge: "text-blue-600 dark:text-blue-400", desc: "UI/UX Design, Web Dev, Data Analytics, Public Speaking" },
@@ -36,6 +43,7 @@ const communities = [
 
 const navLinks = [
   { label: "Home", id: "hero" },
+  { label: "Track Preview", id: "preview" },
   { label: "Features", id: "features" },
   { label: "Hubs & Guilds", id: "communities" },
   { label: "How It Works", id: "how" },
@@ -46,6 +54,7 @@ function Landing() {
   const revealRefs = useRef([])
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [activeTrackTab, setActiveTrackTab] = useState('academic')
   const [topScholars, setTopScholars] = useState([])
   const [scholarsLoading, setScholarsLoading] = useState(true)
   const router = useRouter()
@@ -103,10 +112,10 @@ function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-light overflow-x-hidden">
+    <div className="min-h-screen bg-light overflow-x-hidden text-dark">
 
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-dark backdrop-blur-md shadow-sm border-b border-gray-100' : 'bg-dark'}`}>
-        <h1 className="text-xl font-extrabold text-light">
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-dark backdrop-blur-md shadow-md border-b border-gray-800' : 'bg-dark'}`}>
+        <h1 className="text-xl font-extrabold text-light flex items-center gap-1.5">
           Scholar<span className="text-accent">Hub</span>
         </h1>
 
@@ -115,7 +124,7 @@ function Landing() {
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
-              className="text-sm font-medium text-gray-400 hover:text-accent px-3 py-2 rounded-lg hover:bg-primary/5 transition-all duration-200"
+              className="text-sm font-medium text-gray-300 hover:text-accent px-3 py-2 rounded-lg hover:bg-white/5 transition-all duration-200"
             >
               {link.label}
             </button>
@@ -123,7 +132,7 @@ function Landing() {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <Link href="/login" className="text-sm rounded-xl bg-light px-5 py-2.5 font-medium text-accent hover:text-accent transition">
+          <Link href="/login" className="text-sm rounded-xl bg-white/10 px-5 py-2.5 font-medium text-white hover:bg-white/20 transition">
             Sign In
           </Link>
           <Link href="/signup" className="bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:opacity-90 transition active:scale-95 shadow-md shadow-primary/20">
@@ -141,40 +150,43 @@ function Landing() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="fixed top-16 left-0 right-0 z-40 bg-white shadow-lg border-b border-gray-100 px-6 py-4 flex flex-col gap-2 md:hidden"
+          className="fixed top-16 left-0 right-0 z-40 bg-dark shadow-xl border-b border-gray-800 px-6 py-4 flex flex-col gap-2 md:hidden"
         >
           {navLinks.map(link => (
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
-              className="text-sm font-medium text-gray-600 hover:text-primary text-left py-2 border-b border-gray-50"
+              className="text-sm font-medium text-gray-300 hover:text-accent text-left py-2 border-b border-gray-800"
             >
               {link.label}
             </button>
           ))}
           <div className="flex gap-3 pt-2">
-            <Link href="/login" className="flex-1 text-center py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-dark hover:border-primary transition">Sign In</Link>
+            <Link href="/login" className="flex-1 text-center py-2.5 border border-gray-700 rounded-xl text-sm font-medium text-white hover:border-primary transition">Sign In</Link>
             <Link href="/signup" className="flex-1 text-center py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition">Get Started</Link>
           </div>
         </motion.div>
       )}
 
-      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-16 overflow-hidden">
+      {/* HERO SECTION */}
+      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 pb-16 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <div className="animate-blob absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-primary/8 blur-3xl" />
-          <div className="animate-blob-delay1 absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-accent/6 blur-3xl" />
-          <div className="animate-blob-delay2 absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-primary/5 blur-2xl" />
+          <div className="animate-blob absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
+          <div className="animate-blob-delay1 absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-accent/8 blur-3xl" />
+          <div className="animate-blob-delay2 absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full bg-primary/8 blur-2xl" />
         </div>
 
+        {/* Live Reaction Gift Ticker Badge */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={0}
-          className="relative inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-gray-200 rounded-full px-4 py-2 text-xs font-medium text-dark mb-6 shadow-sm"
+          className="relative inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-bold text-dark mb-6 shadow-sm"
         >
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse-green inline-block" />
-          🌐 Global Social Learning Network
+          <FiGlobe size={14} className="text-primary animate-pulse" />
+          <span>Global Social Learning Network</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
         </motion.div>
 
         <motion.h1
@@ -182,7 +194,7 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={1}
-          className="relative text-4xl md:text-6xl font-extrabold text-dark leading-tight mb-6 max-w-4xl"
+          className="relative text-4xl md:text-6xl font-extrabold text-dark leading-tight mb-6 max-w-4xl tracking-tight"
         >
           Where Students & Skill Learners{" "}
           <span className="gradient-text">Connect, Build & Earn Together.</span>
@@ -193,11 +205,28 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={2}
-          className="relative text-gray-500 text-base md:text-lg max-w-2xl mb-10 leading-relaxed"
+          className="relative text-gray-600 dark:text-gray-400 text-base md:text-lg max-w-2xl mb-8 leading-relaxed font-normal"
         >
           Join global campus communities, master in-demand skills through peer project reviews, and get rewarded with reaction gifts and Scholar Coins as you learn.
         </motion.p>
 
+        {/* Floating Live Reaction Badges Preview */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+          <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 shadow-xs animate-bounce" style={{ animationDuration: '3s' }}>
+            <FiThumbsUp size={13} />
+            <span>Helpful (+10 Coins)</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200 shadow-xs animate-bounce" style={{ animationDuration: '3.5s' }}>
+            <FiZap size={13} />
+            <span>Brilliant (+100 Coins)</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-xs animate-bounce" style={{ animationDuration: '4s' }}>
+            <FiAward size={13} />
+            <span>Masterclass (+500 Coins)</span>
+          </div>
+        </div>
+
+        {/* Clean Action Buttons with SVG Feather Icons (NO RAW EMOJIS) */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
@@ -207,24 +236,145 @@ function Landing() {
         >
           <Link
             href="/signup?track=academic"
-            className="animate-glow bg-primary text-white font-bold px-7 py-3.5 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25 text-sm"
+            className="animate-glow bg-primary text-white font-bold px-7 py-3.5 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center gap-2.5 shadow-lg shadow-primary/25 text-sm"
           >
-            🎓 Join as Academic Scholar <FiArrowRight size={18} />
+            <FiBookOpen size={18} />
+            <span>Join as Academic Scholar</span>
+            <FiArrowRight size={16} />
           </Link>
           <Link
             href="/signup?track=pro_skill"
-            className="bg-dark text-white font-bold px-7 py-3.5 rounded-xl hover:bg-black hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-md text-sm"
+            className="bg-dark text-white font-bold px-7 py-3.5 rounded-xl hover:bg-black hover:scale-105 transition-all duration-300 flex items-center gap-2.5 shadow-md text-sm"
           >
-            🚀 Join as Pro Skill Scholar <FiArrowRight size={18} />
+            <FiCode size={18} />
+            <span>Join as Pro Skill Scholar</span>
+            <FiArrowRight size={16} />
           </Link>
         </motion.div>
       </section>
 
+      {/* STATS BAR */}
+      <section className="py-10 bg-white border-y border-gray-100 px-6">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {stats.map((s, idx) => (
+            <div key={idx} className="space-y-1">
+              <p className="text-3xl font-extrabold text-primary">{s.value}</p>
+              <p className="text-xs font-semibold text-gray-500">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* INTERACTIVE TRACK PREVIEW WIDGET */}
+      <section id="preview" className="py-20 px-6 bg-light">
+        <div className="max-w-4xl mx-auto">
+          <div ref={addRef} className="reveal text-center mb-10">
+            <h2 className="text-3xl font-extrabold text-dark mb-2">Experience Both Worlds</h2>
+            <p className="text-gray-500 text-sm max-w-lg mx-auto">Click below to preview how ScholarHub adapts to your learning focus.</p>
+            
+            {/* Tab Buttons */}
+            <div className="inline-flex p-1.5 bg-white border border-gray-200 rounded-2xl mt-6 shadow-xs">
+              <button
+                onClick={() => setActiveTrackTab('academic')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTrackTab === 'academic' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:text-dark'}`}
+              >
+                <FiBookOpen size={15} /> Academic Track
+              </button>
+              <button
+                onClick={() => setActiveTrackTab('skills')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTrackTab === 'skills' ? 'bg-dark text-white shadow-sm' : 'text-gray-600 hover:text-dark'}`}
+              >
+                <FiCode size={15} /> Pro Skill Track
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Card Preview */}
+          <AnimatePresence mode="wait">
+            {activeTrackTab === 'academic' ? (
+              <motion.div
+                key="academic"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-3xl p-6 md:p-8 border border-gray-200 shadow-xl max-w-2xl mx-auto"
+              >
+                <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                      <FiBookOpen size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-dark">Computer Science (UNN 300L)</p>
+                      <p className="text-xs text-gray-400">Academic Campus Hub</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    🟢 Verified Academic Source
+                  </span>
+                </div>
+                <h3 className="font-bold text-dark text-base mb-2">Time Complexity & Big O Notation Breakdown</h3>
+                <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                  In Computer Science, Big O notation describes how an algorithm execution time scales with input size. Here are the core rules for analyzing nested loops...
+                </p>
+                <div className="flex items-center gap-3 pt-3 border-t border-gray-100 text-xs text-gray-500 font-semibold">
+                  <span className="flex items-center gap-1"><FiThumbsUp size={13} className="text-blue-500" /> 18 Likes</span>
+                  <span className="flex items-center gap-1"><FiMessageSquare size={13} className="text-primary" /> 6 Answers</span>
+                  <span className="ml-auto text-emerald-600 font-bold">📖 Citation: Google Scholar</span>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="skills"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-3xl p-6 md:p-8 border border-gray-200 shadow-xl max-w-2xl mx-auto"
+              >
+                <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                      <FiCode size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-dark">UI/UX Design Studio</p>
+                      <p className="text-xs text-gray-400">Pro Skill Guild</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                    🛠️ Project Showcase
+                  </span>
+                </div>
+                <h3 className="font-bold text-dark text-base mb-2">Figma Mobile Checkout Flow Draft</h3>
+                <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                  Hey Guild! Here is my responsive checkout component redesign. Would love feedback on the spacing and contrast before I push to portfolio...
+                </p>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
+                    <FiZap size={11} className="inline mr-1" /> Brilliant x4
+                  </span>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
+                    <FiAward size={11} className="inline mr-1" /> Masterclass x2
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 pt-3 border-t border-gray-100 text-xs text-gray-500 font-semibold">
+                  <span className="flex items-center gap-1 text-primary"><FiCheck size={13} /> 12 Peer Reviews</span>
+                  <span className="ml-auto text-amber-600 font-bold">+100 Scholar Coins</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* FEATURES SECTION */}
       <section id="features" className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">Built for Modern Scholars</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">One platform for academic excellence, hands-on skill reviews, and coin rewards worldwide.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">Built for Modern Scholars</h2>
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">One platform for academic excellence, hands-on skill reviews, and coin rewards worldwide.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {features.map((f) => (
@@ -237,18 +387,19 @@ function Landing() {
                   <f.icon size={22} className="text-primary group-hover:text-white transition-all duration-300" />
                 </div>
                 <h3 className="font-bold text-dark text-lg mb-2">{f.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* HUBS & GUILDS SHOWCASE */}
       <section id="communities" className="py-24 px-6 bg-light">
         <div className="max-w-5xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">Find Your Space</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">Every scholar has a home on ScholarHub from university campus hubs to professional skill guilds.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">Find Your Space</h2>
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">Every scholar has a home on ScholarHub from university campus hubs to professional skill guilds.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {communities.map(c => (
@@ -272,11 +423,12 @@ function Landing() {
         </div>
       </section>
 
+      {/* HOW IT WORKS */}
       <section id="how" className="py-24 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">How It Works</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">Get started in three simple steps.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">How It Works</h2>
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">Get started in three simple steps.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {steps.map((s, idx) => (
@@ -285,18 +437,19 @@ function Landing() {
                   {s.number}
                 </div>
                 <h3 className="font-bold text-dark text-lg mb-2">{s.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* LEADERBOARD SECTION */}
       <section id="leaderboard" className="py-24 px-6 bg-light">
         <div className="max-w-3xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">Top Scholars This Week</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">The most active students and skill creators rise to the top. Could you be next?</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">Top Scholars This Week</h2>
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">The most active students and skill creators rise to the top. Could you be next?</p>
           </div>
           <div ref={addRef} className="reveal flex flex-col gap-3">
             {scholarsLoading ? (
@@ -339,11 +492,12 @@ function Landing() {
         </div>
       </section>
 
-      <section className="relative py-24 px-6 bg-dark overflow-hidden">
+      {/* FINAL CALL TO ACTION */}
+      <section className="relative py-24 px-6 bg-dark overflow-hidden text-center">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="animate-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
         </div>
-        <div ref={addRef} className="reveal relative max-w-3xl mx-auto text-center">
+        <div ref={addRef} className="reveal relative max-w-3xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
             Ready to join the global movement?
           </h2>
@@ -352,7 +506,7 @@ function Landing() {
           </p>
           <Link
             href="/signup"
-            className="animate-glow bg-primary text-white font-semibold px-10 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 inline-flex items-center gap-2 shadow-lg shadow-primary/30"
+            className="animate-glow bg-primary text-white font-semibold px-10 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 inline-flex items-center gap-2 shadow-lg shadow-primary/30 text-sm"
           >
             Get Started Free <FiArrowRight size={18} />
           </Link>
@@ -363,7 +517,9 @@ function Landing() {
         <h1 className="text-xl font-extrabold text-white mb-2">
           Scholar<span className="text-accent">Hub</span>
         </h1>
-        <p className="text-gray-400 text-sm flex items-center justify-center gap-1">© 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={14} className="inline" /></p>
+        <p className="text-gray-400 text-sm flex items-center justify-center gap-1.5">
+          © 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={14} className="inline" />
+        </p>
       </footer>
 
     </div>
