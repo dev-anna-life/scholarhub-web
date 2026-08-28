@@ -3,8 +3,8 @@ import ClientLayout from './ClientLayout'
 import './globals.css'
 
 export const metadata = {
-  title: 'ScholarHub, Africa\'s Student Platform',
-  description: 'Connect, learn, and earn coins with fellow African students',
+  title: 'ScholarHub | Global Social Learning Network',
+  description: 'Connect, learn, build projects, and earn coins with students and skill learners worldwide',
   icons: {
     icon: '/scholarhub-logo.svg',
     apple: '/scholarhub-logo.svg',

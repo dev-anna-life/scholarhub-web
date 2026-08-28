@@ -1151,31 +1151,6 @@ function Home() {
                                     value={newPost.citationSource || ''}
                                     onChange={val => setNewPost(prev => ({ ...prev, citationSource: val }))}
                                 />
-                                <select value={newPost.category} onChange={e => setNewPost({ ...newPost, category: e.target.value })}
-                                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary transition text-dark">
-                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                                {userCommunities.length > 0 && (
-                                    <div className="space-y-1.5">
-                                        <p className="text-xs font-semibold text-gray-500">Post to communities:</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {Array.from(new Map(userCommunities.map(c => [c.name?.trim(), c])).values()).map(c => {
-                                                const cid = c.id || c._id
-                                                if (!cid) return null
-                                                const isSelected = selectedCommunityIds.includes(cid)
-                                                return (
-                                                    <label key={cid} onClick={e => { e.stopPropagation(); }}
-                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer border transition ${isSelected ? 'bg-primary text-white border-primary' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-primary/50'}`}>
-                                                        <input type="checkbox" checked={isSelected}
-                                                            onChange={() => setSelectedCommunityIds(prev => prev.includes(cid) ? prev.filter(id => id !== cid) : [...prev, cid])}
-                                                            className="hidden" />
-                                                        {c.name}
-                                                    </label>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
                                 <div className="flex items-center gap-3 flex-wrap">
                                     {!postImage && !postVideo && (
                                         <>
@@ -1255,8 +1230,6 @@ function Home() {
                 post={giftPost}
                 onClose={() => setGiftPost(null)}
             />
-
-            <SOSButton />
         </div>
     )
 }

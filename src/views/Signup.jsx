@@ -20,7 +20,7 @@ const fadeUp = {
   exit: { opacity: 0, y: 30, transition: { duration: 0.3 } },
 }
 
-const levels = ['Secondary', 'University', 'Alumni']
+const levels = ['Secondary', 'University']
 const secondaryInterests = ['Sciences', 'Mathematics', 'English & Literature', 'Arts & Creativity', 'Commerce / Business', 'Technology / ICT', 'History & Government', 'Sports']
 const universityInterests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
 const tracks = ['Science', 'Art', 'Commercial']
