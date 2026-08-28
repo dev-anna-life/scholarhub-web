@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe } from "react-icons/fi"
+import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe, FiCode, FiLayers, FiCheckCircle } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { getLeaderboard } from "../api/auth"
 
@@ -17,31 +17,30 @@ const fadeUp = {
 }
 
 const features = [
-  { icon: FiBookOpen, title: "Share Knowledge", desc: "Post study notes, past questions, exam tips and educational content for students across Africa." },
-  { icon: FiUsers, title: "Join Communities", desc: "Connect with students at your level, Secondary or University. Find your tribe." },
-  { icon: FiAward, title: "Earn & Grow", desc: "Get rewarded with coins for every approved post. Streak daily and earn even more." },
-  { icon: FiZap, title: "Stay Updated", desc: "Get the latest on JAMB, WAEC, NECO, campus gist and education news across Africa." },
+  { icon: FiCode, title: "Skill Guilds & Peer Reviews", desc: "Build in public, submit project drafts for constructive peer reviews, and build a verified job-ready portfolio." },
+  { icon: FiUsers, title: "Global Campus Communities", desc: "Connect with students at your university, school, or skill category worldwide. Find your tribe." },
+  { icon: FiAward, title: "Reaction Gifts & Coins", desc: "Earn reaction gift badges (Helpful, Brilliant, Masterclass) and Scholar Coins for adding value." },
+  { icon: FiCheckCircle, title: "Citation Source Verification", desc: "Share academic posts backed by official citation tags like NASA, Google Scholar, Wikipedia, and UNESCO." },
 ]
 
 const steps = [
-  { number: "01", title: "Create your account", desc: "Sign up with email, Google or phone number in seconds." },
-  { number: "02", title: "Pick your interests", desc: "Tell us your level and what subjects you love. We personalise your feed." },
-  { number: "03", title: "Post, engage & earn", desc: "Share content, get approved, earn coins and build your reputation." },
+  { number: "01", title: "Create your Scholar account", desc: "Choose your primary track (Academic Scholar or Pro Skill Scholar) in seconds." },
+  { number: "02", title: "Join Campus Hubs & Skill Guilds", desc: "Select your school or skill interests so we can personalize your live home feed." },
+  { number: "03", title: "Build, engage & earn", desc: "Share projects, get peer reviews, earn reaction gifts and build your verified reputation." },
 ]
 
 const communities = [
-  { id: 'secondary', name: "Secondary School Hub", color: "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/30", badge: "text-emerald-600 dark:text-emerald-400", desc: "Secondary" },
-  { id: 'university', name: "University Hub", color: "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30", badge: "text-blue-600 dark:text-blue-400", desc: "University" },
+  { id: 'academic', name: "Academic Campus Hubs", color: "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/30", badge: "text-emerald-600 dark:text-emerald-400", desc: "Universities, High Schools & Course Cohorts worldwide" },
+  { id: 'skills', name: "Pro Skill Guilds", color: "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30", badge: "text-blue-600 dark:text-blue-400", desc: "UI/UX Design, Web Dev, Data Analytics, Public Speaking" },
 ]
 
 const navLinks = [
   { label: "Home", id: "hero" },
   { label: "Features", id: "features" },
-  { label: "Communities", id: "communities" },
+  { label: "Hubs & Guilds", id: "communities" },
   { label: "How It Works", id: "how" },
   { label: "Leaderboard", id: "leaderboard" },
 ]
-
 
 function Landing() {
   const revealRefs = useRef([])
@@ -97,9 +96,9 @@ function Landing() {
   const handleCommunityClick = (id) => {
     const token = localStorage.getItem('token')
     if (token) {
-      router.push(`/community/${id}`)
+      router.push(id === 'skills' ? '/community?tab=skills' : '/community')
     } else {
-      router.push('/signup')
+      router.push(`/signup?track=${id}`)
     }
   }
 
@@ -161,7 +160,6 @@ function Landing() {
       )}
 
       <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-16 overflow-hidden">
-        {/* Animated background blobs */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="animate-blob absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-primary/8 blur-3xl" />
           <div className="animate-blob-delay1 absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-accent/6 blur-3xl" />
@@ -176,7 +174,7 @@ function Landing() {
           className="relative inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-gray-200 rounded-full px-4 py-2 text-xs font-medium text-dark mb-6 shadow-sm"
         >
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse-green inline-block" />
-          Africa's #1 Student Content Platform
+          🌐 Global Social Learning Network
         </motion.div>
 
         <motion.h1
@@ -184,10 +182,10 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={1}
-          className="relative text-5xl md:text-7xl font-extrabold text-dark leading-tight mb-6 max-w-3xl"
+          className="relative text-4xl md:text-6xl font-extrabold text-dark leading-tight mb-6 max-w-4xl"
         >
-          Learn. Share.{" "}
-          <span className="gradient-text">Earn.</span>
+          Where Students & Skill Learners{" "}
+          <span className="gradient-text">Connect, Build & Earn Together.</span>
         </motion.h1>
 
         <motion.p
@@ -195,9 +193,9 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={2}
-          className="relative text-gray-500 text-lg max-w-xl mb-10 leading-relaxed"
+          className="relative text-gray-500 text-base md:text-lg max-w-2xl mb-10 leading-relaxed"
         >
-          ScholarHub is where African students come to share knowledge, connect with their community and get rewarded for adding value.
+          Join global campus communities, master in-demand skills through peer project reviews, and get rewarded with reaction gifts and Scholar Coins as you learn.
         </motion.p>
 
         <motion.div
@@ -205,19 +203,19 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={3}
-          className="relative flex flex-col sm:flex-row items-center gap-3"
+          className="relative flex flex-col sm:flex-row items-center gap-4"
         >
           <Link
-            href="/signup"
-            className="animate-glow bg-primary text-white font-semibold px-8 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25"
+            href="/signup?track=academic"
+            className="animate-glow bg-primary text-white font-bold px-7 py-3.5 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25 text-sm"
           >
-            Join ScholarHub Free <FiArrowRight size={18} />
+            🎓 Join as Academic Scholar <FiArrowRight size={18} />
           </Link>
           <Link
-            href="/login"
-            className="bg-white/80 backdrop-blur border border-gray-200 text-dark font-medium px-8 py-4 rounded-xl hover:border-primary hover:scale-105 transition-all duration-300"
+            href="/signup?track=pro_skill"
+            className="bg-dark text-white font-bold px-7 py-3.5 rounded-xl hover:bg-black hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-md text-sm"
           >
-            Sign In
+            🚀 Join as Pro Skill Scholar <FiArrowRight size={18} />
           </Link>
         </motion.div>
       </section>
@@ -225,8 +223,8 @@ function Landing() {
       <section id="features" className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">Everything a student needs</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">One platform for learning, connecting and earning, built for African students.</p>
+            <h2 className="text-4xl font-extrabold text-dark mb-3">Built for Modern Scholars</h2>
+            <p className="text-gray-400 max-w-xl mx-auto">One platform for academic excellence, hands-on skill reviews, and coin rewards worldwide.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {features.map((f) => (
@@ -234,13 +232,6 @@ function Landing() {
                 ref={addRef}
                 key={f.title}
                 className="card-3d reveal bg-light rounded-2xl p-6 border border-gray-100 hover:border-primary hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-default"
-                onMouseMove={e => {
-                  const r = e.currentTarget.getBoundingClientRect()
-                  const x = ((e.clientX - r.left) / r.width - 0.5) * 16
-                  const y = ((e.clientY - r.top) / r.height - 0.5) * -16
-                  e.currentTarget.style.transform = `perspective(800px) rotateX(${y}deg) rotateY(${x}deg) translateY(-4px)`
-                }}
-                onMouseLeave={e => { e.currentTarget.style.transform = '' }}
               >
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary transition-all duration-300">
                   <f.icon size={22} className="text-primary group-hover:text-white transition-all duration-300" />
@@ -256,10 +247,10 @@ function Landing() {
       <section id="communities" className="py-24 px-6 bg-light">
         <div className="max-w-5xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">Find your community</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">Every student has a space on ScholarHub from Secondary to University.</p>
+            <h2 className="text-4xl font-extrabold text-dark mb-3">Find Your Space</h2>
+            <p className="text-gray-400 max-w-xl mx-auto">Every scholar has a home on ScholarHub from university campus hubs to professional skill guilds.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {communities.map(c => (
               <div
                 ref={addRef}
@@ -268,12 +259,12 @@ function Landing() {
                 className={`reveal border rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-2 transition-all duration-300 cursor-pointer ${c.color}`}
               >
                 <p className={`flex justify-center mb-3 ${c.badge}`}>
-                  {c.id === 'secondary' ? <FiBookOpen size={28} /> : <FiGlobe size={28} />}
+                  {c.id === 'academic' ? <FiBookOpen size={32} /> : <FiLayers size={32} />}
                 </p>
-                <p className="font-extrabold text-dark text-base mt-1">{c.name}</p>
-                <p className="text-xs text-gray-450 mt-1 mb-4">{c.desc}</p>
-                <span className={`text-xs font-semibold px-4 py-1.5 rounded-full ${c.badge} border border-current bg-white/60 dark:bg-dark/60`}>
-                  Enter Community
+                <p className="font-extrabold text-dark text-lg mt-1">{c.name}</p>
+                <p className="text-xs text-gray-500 mt-1 mb-5">{c.desc}</p>
+                <span className={`text-xs font-bold px-5 py-2 rounded-full ${c.badge} border border-current bg-white/80 dark:bg-dark/80`}>
+                  Explore Space →
                 </span>
               </div>
             ))}
@@ -284,7 +275,7 @@ function Landing() {
       <section id="how" className="py-24 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">How it works</h2>
+            <h2 className="text-4xl font-extrabold text-dark mb-3">How It Works</h2>
             <p className="text-gray-400 max-w-xl mx-auto">Get started in three simple steps.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -304,8 +295,8 @@ function Landing() {
       <section id="leaderboard" className="py-24 px-6 bg-light">
         <div className="max-w-3xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-dark mb-3">Top Scholars this week</h2>
-            <p className="text-gray-400 max-w-xl mx-auto">The most active students rise to the top. Could you be next?</p>
+            <h2 className="text-4xl font-extrabold text-dark mb-3">Top Scholars This Week</h2>
+            <p className="text-gray-400 max-w-xl mx-auto">The most active students and skill creators rise to the top. Could you be next?</p>
           </div>
           <div ref={addRef} className="reveal flex flex-col gap-3">
             {scholarsLoading ? (
@@ -330,12 +321,12 @@ function Landing() {
               topScholars.map((s, i) => {
                 const rankStr = i === 0 ? '1st' : i === 1 ? '2nd' : i === 2 ? '3rd' : `${i + 1}`
                 const school = s.school || s.university || ''
-                const name = s.name || s.username || 'Student'
+                const name = s.name || s.username || 'Scholar'
                 return (
                   <div key={s._id || i}
                     className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 hover:shadow-md hover:-translate-x-1 ${i === 0 ? 'bg-primary/5 border-primary/20' : 'bg-white border-gray-100'}`}
                   >
-                    <span className="text-2xl w-8 text-center">{rankStr}</span>
+                    <span className="text-2xl w-8 text-center font-extrabold text-primary">{rankStr}</span>
                     <div className="flex-1">
                       <p className="font-bold text-dark text-sm">{name}</p>
                       {school && <p className="text-xs text-gray-400">{school}</p>}
@@ -349,16 +340,15 @@ function Landing() {
       </section>
 
       <section className="relative py-24 px-6 bg-dark overflow-hidden">
-        {/* Floating glow orb behind CTA */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="animate-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
         </div>
         <div ref={addRef} className="reveal relative max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-            Ready to join the movement?
+            Ready to join the global movement?
           </h2>
           <p className="text-gray-400 mb-10 text-lg">
-            Thousands of African students are already learning, sharing and earning on ScholarHub.
+            Thousands of students and skill learners are building, connecting, and earning together on ScholarHub.
           </p>
           <Link
             href="/signup"
@@ -373,7 +363,7 @@ function Landing() {
         <h1 className="text-xl font-extrabold text-white mb-2">
           Scholar<span className="text-accent">Hub</span>
         </h1>
-        <p className="text-gray-400 text-sm flex items-center justify-center gap-1">© 2026 ScholarHub. Built for African students. <FiGlobe size={14} className="inline" /></p>
+        <p className="text-gray-400 text-sm flex items-center justify-center gap-1">© 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={14} className="inline" /></p>
       </footer>
 
     </div>
