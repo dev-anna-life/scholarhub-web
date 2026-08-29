@@ -1,9 +1,9 @@
 'use client'
 /* eslint-disable no-unused-vars */
 import { useEffect, useRef, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import Link from "next/link"
-import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe, FiCode, FiLayers, FiCheckCircle, FiThumbsUp, FiStar, FiCompass, FiTrendingUp, FiCheck, FiMessageSquare } from "react-icons/fi"
+import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe, FiCode, FiLayers, FiCheckCircle } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { getLeaderboard } from "../api/auth"
 
@@ -29,13 +29,6 @@ const steps = [
   { number: "03", title: "Build, engage & earn", desc: "Share projects, get peer reviews, earn reaction gifts and build your verified reputation." },
 ]
 
-const stats = [
-  { value: "100+", label: "Global Campus Hubs" },
-  { value: "50+", label: "Pro Skill Guilds" },
-  { value: "50,000+", label: "Scholar Coins Awarded" },
-  { value: "100%", label: "Peer-Reviewed Projects" },
-]
-
 const communities = [
   { id: 'academic', name: "Academic Campus Hubs", color: "bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/30", badge: "text-emerald-600 dark:text-emerald-400", desc: "Universities, High Schools & Course Cohorts worldwide" },
   { id: 'skills', name: "Pro Skill Guilds", color: "bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30", badge: "text-blue-600 dark:text-blue-400", desc: "UI/UX Design, Web Dev, Data Analytics, Public Speaking" },
@@ -43,7 +36,6 @@ const communities = [
 
 const navLinks = [
   { label: "Home", id: "hero" },
-  { label: "Track Preview", id: "preview" },
   { label: "Features", id: "features" },
   { label: "Hubs & Guilds", id: "communities" },
   { label: "How It Works", id: "how" },
@@ -54,7 +46,6 @@ function Landing() {
   const revealRefs = useRef([])
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [activeTrackTab, setActiveTrackTab] = useState('academic')
   const [topScholars, setTopScholars] = useState([])
   const [scholarsLoading, setScholarsLoading] = useState(true)
   const router = useRouter()
@@ -176,7 +167,6 @@ function Landing() {
           <div className="animate-blob-delay2 absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full bg-primary/8 blur-2xl" />
         </div>
 
-        {/* Live Reaction Gift Ticker Badge */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
@@ -205,26 +195,10 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={2}
-          className="relative text-gray-600 dark:text-gray-400 text-base md:text-lg max-w-2xl mb-8 leading-relaxed font-normal"
+          className="relative text-gray-600 dark:text-gray-400 text-base md:text-lg max-w-2xl mb-10 leading-relaxed font-normal"
         >
           Join global campus communities, master in-demand skills through peer project reviews, and get rewarded with reaction gifts and Scholar Coins as you learn.
         </motion.p>
-
-        {/* Floating Live Reaction Badges Preview */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
-          <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 shadow-xs animate-bounce" style={{ animationDuration: '3s' }}>
-            <FiThumbsUp size={13} />
-            <span>Helpful (+10 Coins)</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200 shadow-xs animate-bounce" style={{ animationDuration: '3.5s' }}>
-            <FiZap size={13} />
-            <span>Brilliant (+100 Coins)</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-xs animate-bounce" style={{ animationDuration: '4s' }}>
-            <FiAward size={13} />
-            <span>Masterclass (+500 Coins)</span>
-          </div>
-        </div>
 
         {/* Clean Action Buttons with SVG Feather Icons (NO RAW EMOJIS) */}
         <motion.div
@@ -251,122 +225,6 @@ function Landing() {
             <FiArrowRight size={16} />
           </Link>
         </motion.div>
-      </section>
-
-      {/* STATS BAR */}
-      <section className="py-10 bg-white border-y border-gray-100 px-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {stats.map((s, idx) => (
-            <div key={idx} className="space-y-1">
-              <p className="text-3xl font-extrabold text-primary">{s.value}</p>
-              <p className="text-xs font-semibold text-gray-500">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* INTERACTIVE TRACK PREVIEW WIDGET */}
-      <section id="preview" className="py-20 px-6 bg-light">
-        <div className="max-w-4xl mx-auto">
-          <div ref={addRef} className="reveal text-center mb-10">
-            <h2 className="text-3xl font-extrabold text-dark mb-2">Experience Both Worlds</h2>
-            <p className="text-gray-500 text-sm max-w-lg mx-auto">Click below to preview how ScholarHub adapts to your learning focus.</p>
-            
-            {/* Tab Buttons */}
-            <div className="inline-flex p-1.5 bg-white border border-gray-200 rounded-2xl mt-6 shadow-xs">
-              <button
-                onClick={() => setActiveTrackTab('academic')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTrackTab === 'academic' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:text-dark'}`}
-              >
-                <FiBookOpen size={15} /> Academic Track
-              </button>
-              <button
-                onClick={() => setActiveTrackTab('skills')}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTrackTab === 'skills' ? 'bg-dark text-white shadow-sm' : 'text-gray-600 hover:text-dark'}`}
-              >
-                <FiCode size={15} /> Pro Skill Track
-              </button>
-            </div>
-          </div>
-
-          {/* Interactive Card Preview */}
-          <AnimatePresence mode="wait">
-            {activeTrackTab === 'academic' ? (
-              <motion.div
-                key="academic"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-3xl p-6 md:p-8 border border-gray-200 shadow-xl max-w-2xl mx-auto"
-              >
-                <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                      <FiBookOpen size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-dark">Computer Science (UNN 300L)</p>
-                      <p className="text-xs text-gray-400">Academic Campus Hub</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    🟢 Verified Academic Source
-                  </span>
-                </div>
-                <h3 className="font-bold text-dark text-base mb-2">Time Complexity & Big O Notation Breakdown</h3>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  In Computer Science, Big O notation describes how an algorithm execution time scales with input size. Here are the core rules for analyzing nested loops...
-                </p>
-                <div className="flex items-center gap-3 pt-3 border-t border-gray-100 text-xs text-gray-500 font-semibold">
-                  <span className="flex items-center gap-1"><FiThumbsUp size={13} className="text-blue-500" /> 18 Likes</span>
-                  <span className="flex items-center gap-1"><FiMessageSquare size={13} className="text-primary" /> 6 Answers</span>
-                  <span className="ml-auto text-emerald-600 font-bold">📖 Citation: Google Scholar</span>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="skills"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-3xl p-6 md:p-8 border border-gray-200 shadow-xl max-w-2xl mx-auto"
-              >
-                <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                      <FiCode size={20} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-dark">UI/UX Design Studio</p>
-                      <p className="text-xs text-gray-400">Pro Skill Guild</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                    🛠️ Project Showcase
-                  </span>
-                </div>
-                <h3 className="font-bold text-dark text-base mb-2">Figma Mobile Checkout Flow Draft</h3>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  Hey Guild! Here is my responsive checkout component redesign. Would love feedback on the spacing and contrast before I push to portfolio...
-                </p>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200">
-                    <FiZap size={11} className="inline mr-1" /> Brilliant x4
-                  </span>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
-                    <FiAward size={11} className="inline mr-1" /> Masterclass x2
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 pt-3 border-t border-gray-100 text-xs text-gray-500 font-semibold">
-                  <span className="flex items-center gap-1 text-primary"><FiCheck size={13} /> 12 Peer Reviews</span>
-                  <span className="ml-auto text-amber-600 font-bold">+100 Scholar Coins</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
       </section>
 
       {/* FEATURES SECTION */}
