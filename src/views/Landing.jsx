@@ -232,8 +232,8 @@ function Landing() {
       <section id="showcase" className="py-20 px-6 bg-white border-y border-gray-100">
         <div className="max-w-4xl mx-auto">
           <div ref={addRef} className="reveal text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-2">Inside ScholarHub</h2>
-            <p className="text-gray-500 text-sm max-w-lg mx-auto">Real academic discussions and skill project reviews happening live on the platform.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-2">What You Will Experience</h2>
+            <p className="text-gray-500 text-sm max-w-lg mx-auto">Explore real academic discussions, verified study notes, and hands-on skill project reviews built by scholars worldwide.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
