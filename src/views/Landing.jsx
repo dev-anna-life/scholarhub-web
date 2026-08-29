@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe, FiCode, FiLayers, FiCheckCircle } from "react-icons/fi"
+import { FiArrowRight, FiUsers, FiBookOpen, FiAward, FiZap, FiMenu, FiX, FiGlobe, FiCode, FiLayers, FiCheckCircle, FiThumbsUp, FiMessageSquare } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { getLeaderboard } from "../api/auth"
 
@@ -36,6 +36,7 @@ const communities = [
 
 const navLinks = [
   { label: "Home", id: "hero" },
+  { label: "Showcase", id: "showcase" },
   { label: "Features", id: "features" },
   { label: "Hubs & Guilds", id: "communities" },
   { label: "How It Works", id: "how" },
@@ -107,7 +108,7 @@ function Landing() {
 
       <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-dark backdrop-blur-md shadow-md border-b border-gray-800' : 'bg-dark'}`}>
         <h1 className="text-xl font-extrabold text-light flex items-center gap-1.5">
-          Scholar<span className="text-accent">Hub</span>
+          Scholar<span className="gradient-text">Hub</span>
         </h1>
 
         <div className="hidden md:flex items-center gap-1">
@@ -200,7 +201,7 @@ function Landing() {
           Join global campus communities, master in-demand skills through peer project reviews, and get rewarded with reaction gifts and Scholar Coins as you learn.
         </motion.p>
 
-        {/* Clean Action Buttons with SVG Feather Icons (NO RAW EMOJIS) */}
+        {/* Action Buttons */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
@@ -225,6 +226,70 @@ function Landing() {
             <FiArrowRight size={16} />
           </Link>
         </motion.div>
+      </section>
+
+      {/* REAL DISCUSSIONS & SHOWCASE SECTION */}
+      <section id="showcase" className="py-20 px-6 bg-white border-y border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <div ref={addRef} className="reveal text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-2">Inside ScholarHub</h2>
+            <p className="text-gray-500 text-sm max-w-lg mx-auto">Real academic discussions and skill project reviews happening live on the platform.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card 1: Academic Showcase */}
+            <div ref={addRef} className="reveal bg-light rounded-3xl p-6 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between mb-4 border-b border-gray-200/60 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs">
+                    <FiBookOpen size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-dark">Computer Science (UNN 300L)</p>
+                    <p className="text-[11px] text-gray-400">Academic Campus Hub</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  🟢 Verified Source
+                </span>
+              </div>
+              <h3 className="font-bold text-dark text-sm md:text-base mb-1.5">Time Complexity & Big O Notation Breakdown</h3>
+              <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                In Computer Science, Big O notation describes how an algorithm execution time scales with input size. Here are the core rules for analyzing nested loops O(n^2) vs linear search O(n)...
+              </p>
+              <div className="flex items-center gap-3 pt-3 border-t border-gray-200/60 text-xs text-gray-500 font-semibold">
+                <span className="flex items-center gap-1"><FiThumbsUp size={13} className="text-blue-500" /> 18 Likes</span>
+                <span className="ml-auto text-emerald-600 font-bold">📖 Citation: Google Scholar</span>
+              </div>
+            </div>
+
+            {/* Card 2: Skill Guild Showcase */}
+            <div ref={addRef} className="reveal bg-light rounded-3xl p-6 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center justify-between mb-4 border-b border-gray-200/60 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs">
+                    <FiCode size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-dark">UI/UX Design Studio</p>
+                    <p className="text-[11px] text-gray-400">Pro Skill Guild</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  🛠️ Project Showcase
+                </span>
+              </div>
+              <h3 className="font-bold text-dark text-sm md:text-base mb-1.5">Figma Mobile Checkout Flow Draft</h3>
+              <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                Hey Guild! Here is my responsive checkout component redesign. Would love constructive feedback on button contrast and mobile spacing before I push to my portfolio...
+              </p>
+              <div className="flex items-center gap-3 pt-3 border-t border-gray-200/60 text-xs text-gray-500 font-semibold">
+                <span className="flex items-center gap-1 text-primary"><FiCheckCircle size={13} /> 12 Peer Reviews</span>
+                <span className="ml-auto text-amber-600 font-bold">+100 Scholar Coins</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* FEATURES SECTION */}
@@ -371,12 +436,16 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="bg-dark border-t border-white/10 px-6 py-8 text-center">
-        <h1 className="text-xl font-extrabold text-white mb-2">
-          Scholar<span className="text-accent">Hub</span>
+      {/* GLOWING FOOTER */}
+      <footer className="relative bg-dark border-t border-white/10 px-6 py-12 text-center overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="animate-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
+        </div>
+        <h1 className="relative text-3xl font-extrabold text-white mb-2">
+          Scholar<span className="gradient-text">Hub</span>
         </h1>
-        <p className="text-gray-400 text-sm flex items-center justify-center gap-1.5">
-          © 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={14} className="inline" />
+        <p className="relative text-gray-400 text-sm flex items-center justify-center gap-1.5 font-medium">
+          © 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={14} className="inline text-accent" />
         </p>
       </footer>
 
