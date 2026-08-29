@@ -436,17 +436,24 @@ function Landing() {
         </div>
       </section>
 
-      {/* GLOWING FOOTER */}
-      <footer className="relative bg-dark border-t border-white/10 px-6 py-12 text-center overflow-hidden">
+      {/* ULTRA GLOWING FOOTER */}
+      <footer className="relative bg-dark border-t border-primary/30 px-6 py-14 text-center overflow-hidden shadow-2xl shadow-primary/20">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <div className="animate-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
+          <div className="animate-blob absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/25 blur-3xl" />
+          <div className="animate-blob-delay1 absolute top-1/2 right-1/3 -translate-y-1/2 w-96 h-96 rounded-full bg-accent/20 blur-3xl" />
         </div>
-        <h1 className="relative text-3xl font-extrabold text-white mb-2">
-          Scholar<span className="gradient-text">Hub</span>
-        </h1>
-        <p className="relative text-gray-400 text-sm flex items-center justify-center gap-1.5 font-medium">
-          © 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={14} className="inline text-accent" />
-        </p>
+        <div className="relative max-w-xl mx-auto space-y-3">
+          <h1 className="text-4xl font-extrabold tracking-tight">
+            <span className="text-white drop-shadow-md">Scholar</span>
+            <span className="bg-gradient-to-r from-emerald-400 via-primary to-accent bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(52,211,153,0.8)] animate-pulse">
+              Hub
+            </span>
+          </h1>
+          <div className="h-0.5 w-24 mx-auto bg-gradient-to-r from-transparent via-primary to-transparent rounded-full shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
+          <p className="text-gray-300 text-sm flex items-center justify-center gap-2 font-semibold">
+            © 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={16} className="inline text-accent" />
+          </p>
+        </div>
       </footer>
 
     </div>
