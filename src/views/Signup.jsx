@@ -2,19 +2,17 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiEye, FiEyeOff, FiSearch, FiX, FiCheck, FiBookOpen, FiCode, FiZap, FiAward, FiGlobe, FiLayers } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiEye, FiEyeOff, FiSearch, FiX, FiCheck, FiBookOpen, FiCode, FiZap, FiAward, FiGlobe, FiShield, FiRefreshCw } from "react-icons/fi";
 import Link from "next/link"
 import { useRouter } from "next/navigation";
-import { signupUser, updateSchool, searchSchools, requestSchool, checkUsername } from "../api/auth"
+import { signupUser, checkAvailability, sendOTP, verifyOTPAndSignup, searchSchools } from "../api/auth"
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuth } from "../api/auth";
 import { courses } from '../data/courses'
 import { faculties, departmentsByFaculty, getSuggestedDepartment, getSuggestedFaculty } from '../data/faculties'
-import { getCountryFromState, getSchoolLogo } from '../data/schools'
+import { getCountryFromState } from '../data/schools'
 import { resolveSchoolName } from '../data/schoolAliases'
 import SchoolLogo from '../components/SchoolLogo'
-import SchoolBadge from '../components/SchoolBadge'
-import { getClientGeo } from '../utils/geo'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -93,19 +91,13 @@ export const skillCategories = [
 export const skillLevels = ['Foundation / Beginner', 'Builder / Intermediate', 'Advanced / Pro']
 
 export const countryList = [
-  { name: 'Nigeria', code: '+234', flag: '🇳🇬', region: 'Africa' },
   { name: 'United States', code: '+1', flag: '🇺🇸', region: 'Americas' },
   { name: 'United Kingdom', code: '+44', flag: '🇬🇧', region: 'Europe' },
   { name: 'Canada', code: '+1', flag: '🇨🇦', region: 'Americas' },
+  { name: 'Nigeria', code: '+234', flag: '🇳🇬', region: 'Africa' },
   { name: 'Ghana', code: '+233', flag: '🇬🇭', region: 'Africa' },
   { name: 'Kenya', code: '+254', flag: '🇰🇪', region: 'Africa' },
   { name: 'South Africa', code: '+27', flag: '🇿🇦', region: 'Africa' },
-  { name: 'Uganda', code: '+256', flag: '🇺🇬', region: 'Africa' },
-  { name: 'Rwanda', code: '+250', flag: '🇷🇼', region: 'Africa' },
-  { name: 'Cameroon', code: '+237', flag: '🇨🇲', region: 'Africa' },
-  { name: 'Tanzania', code: '+255', flag: '🇹🇿', region: 'Africa' },
-  { name: 'Senegal', code: '+221', flag: '🇸🇳', region: 'Africa' },
-  { name: 'Egypt', code: '+20', flag: '🇪🇬', region: 'Africa' },
   { name: 'Germany', code: '+49', flag: '🇩🇪', region: 'Europe' },
   { name: 'France', code: '+33', flag: '🇫🇷', region: 'Europe' },
   { name: 'India', code: '+91', flag: '🇮🇳', region: 'Asia' },
@@ -218,7 +210,7 @@ function StateSelect({ value, onChange, error, country, level }) {
         <input type="text" value={query}
           onChange={e => { setQuery(e.target.value); setSelected(false); onChange(e.target.value) }}
           onFocus={() => setShowDropdown(true)}
-          placeholder="State or region (e.g. Lagos, California, London)"
+          placeholder="State or region (e.g. California, London, New York)"
           className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : selected ? 'border-primary' : ''}`} />
       </div>
       {showDropdown && states.length > 0 && (
@@ -270,16 +262,12 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
         fetched = data.schools || []
       } catch { fetched = [] }
 
-      // Check for live acronym/alias match
       const acronymMatch = resolveSchoolName(query, country)
       const list = [...fetched]
 
       if (query && acronymMatch && acronymMatch.toLowerCase() !== query.toLowerCase()) {
-        // Prepend acronym match at top of suggestions list!
         const existingIdx = list.findIndex(s => s.name.toLowerCase() === acronymMatch.toLowerCase())
-        if (existingIdx !== -1) {
-          list.splice(existingIdx, 1)
-        }
+        if (existingIdx !== -1) list.splice(existingIdx, 1)
         list.unshift({ name: acronymMatch, isAcronymMatch: true })
       }
 
@@ -304,7 +292,6 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
     setShowDropdown(false)
   }
 
-  // Compute live acronym match highlight
   const liveAcronymMatch = query ? resolveSchoolName(query, country) : null
   const showLiveAcronymBanner = liveAcronymMatch && liveAcronymMatch.toLowerCase() !== query.toLowerCase()
 
@@ -322,7 +309,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
           onChange={e => { setQuery(e.target.value); onChange(e.target.value); setShowDropdown(true) }}
           onBlur={handleBlur}
           onFocus={() => setShowDropdown(true)}
-          placeholder={currentLevel === 'High School' ? 'Type High School name or acronym...' : 'Type University name or acronym (e.g. ESUT, UNN, MIT, UNILAG, Oxford)...'}
+          placeholder={currentLevel === 'High School' ? 'Type High School name or acronym...' : 'Type University name (e.g. Harvard, Oxford, MIT, Stanford)...'}
           className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : showLiveAcronymBanner ? 'border-primary ring-1 ring-primary/30' : ''}`}
           autoComplete="off" />
         {query && (
@@ -362,7 +349,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
 
 function Signup() {
   const router = useRouter()
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(1) // 1: Step1 Info, 2: OTP Verification Modal, 3: Scholar Track, 4: Interests
   const [showPassword, setShowPassword] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState(countryList[0])
   const [rawPhone, setRawPhone] = useState('')
@@ -373,9 +360,9 @@ function Signup() {
     email: '',
     phone: '',
     password: '',
-    scholarTrack: 'academic', // 'academic' | 'dual' | 'pro_skill'
-    level: 'University', // 'High School' | 'University'
-    country: 'Nigeria',
+    scholarTrack: 'academic',
+    level: 'University',
+    country: 'United States',
     state: '',
     school: '',
     course: '',
@@ -387,71 +374,54 @@ function Signup() {
     interests: [],
   })
 
+  const [otpCode, setOtpCode] = useState(['', '', '', '', '', ''])
+  const [otpTimer, setOtpTimer] = useState(60)
+  const [canResendOtp, setCanResendOtp] = useState(false)
+  const otpInputRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)]
+
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const [facultyQuery, setFacultyQuery] = useState('')
-  const [showFacultyDropdown, setShowFacultyDropdown] = useState(false)
-  const [deptQuery, setDeptQuery] = useState('')
-  const [showDeptDropdown, setShowDeptDropdown] = useState(false)
-
   const [usernameStatus, setUsernameStatus] = useState({ state: '', msg: '' })
-
-  const facultyRef = useRef(null)
-  const deptRef = useRef(null)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search)
-      const trackParam = searchParams.get('track')
-      if (trackParam === 'pro_skill' || trackParam === 'skills') {
-        setForm(prev => ({ ...prev, scholarTrack: 'pro_skill' }))
-      } else if (trackParam === 'dual') {
-        setForm(prev => ({ ...prev, scholarTrack: 'dual', level: 'University' }))
-      } else if (trackParam === 'academic') {
-        setForm(prev => ({ ...prev, scholarTrack: 'academic' }))
-      }
-    }
-  }, [])
+  const [emailStatus, setEmailStatus] = useState({ state: '', msg: '' })
+  const [phoneStatus, setPhoneStatus] = useState({ state: '', msg: '' })
 
   useEffect(() => {
-    if (form.state && (!form.country || form.country === 'Nigeria')) {
-      const derived = getCountryFromState(form.state)
-      if (derived && derived !== form.country) setForm(prev => ({ ...prev, country: derived }))
+    let interval = null
+    if (step === 2 && otpTimer > 0) {
+      interval = setInterval(() => setOtpTimer(prev => prev - 1), 1000)
+    } else if (otpTimer === 0) {
+      setCanResendOtp(true)
     }
-  }, [form.state, form.country])
+    return () => { if (interval) clearInterval(interval) }
+  }, [step, otpTimer])
 
-  useEffect(() => {
-    if (form.course && !form.faculty) {
-      const sugF = getSuggestedFaculty(form.course)
-      if (sugF) { setForm(prev => ({ ...prev, faculty: sugF })); setFacultyQuery(sugF) }
-    }
-  }, [form.course, form.faculty])
+  // Password Strength Calculation
+  const getPasswordStrength = (pass) => {
+    if (!pass) return { score: 0, label: '', color: 'bg-gray-200' }
+    let score = 0
+    if (pass.length >= 8) score += 1
+    if (/[A-Z]/.test(pass)) score += 1
+    if (/[0-9]/.test(pass)) score += 1
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1
 
-  useEffect(() => {
-    if (form.course && form.faculty && !form.department) {
-      const sugD = getSuggestedDepartment(form.course, form.faculty)
-      if (sugD) { setForm(prev => ({ ...prev, department: sugD })); setDeptQuery(sugD) }
-    }
-  }, [form.course, form.faculty, form.department])
+    if (score <= 1) return { score: 25, label: 'Weak', color: 'bg-red-500' }
+    if (score === 2) return { score: 50, label: 'Medium', color: 'bg-amber-500' }
+    if (score === 3) return { score: 75, label: 'Strong', color: 'bg-blue-500' }
+    return { score: 100, label: 'Secure & Strong', color: 'bg-emerald-500' }
+  }
 
-  const filteredFaculties = facultyQuery
-    ? faculties.filter(f => f.toLowerCase().includes(facultyQuery.toLowerCase()))
-    : faculties
+  const passStrength = getPasswordStrength(form.password)
 
-  const availableDepts = form.faculty ? (faculties.includes(form.faculty) ? departmentsByFaculty[form.faculty] || [] : []) : []
-  const filteredDepts = deptQuery
-    ? availableDepts.filter(d => d.toLowerCase().includes(deptQuery.toLowerCase()))
-    : availableDepts
-
+  // Real-time Username Uniqueness & 5-Char Rule Validation
   const usernameTimerRef = useRef(null)
-
   useEffect(() => {
     if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current)
     const u = form.username.trim()
-    if (!u || u.length < 3) {
-      setUsernameStatus({ state: '', msg: '' })
+    if (!u) { setUsernameStatus({ state: '', msg: '' }); return }
+    if (u.length < 5) {
+      setUsernameStatus({ state: 'error', msg: 'Username must be at least 5 characters' })
       return
     }
     if (!/^[a-zA-Z0-9_]+$/.test(u)) {
@@ -462,21 +432,49 @@ function Signup() {
     setUsernameStatus({ state: 'checking', msg: 'Checking availability...' })
     usernameTimerRef.current = setTimeout(async () => {
       try {
-        const { data } = await checkUsername(u)
+        const { data } = await checkAvailability({ username: u })
         if (data.available) {
           setUsernameStatus({ state: 'available', msg: 'Username available' })
           setErrors(prev => ({ ...prev, username: '' }))
-        } else {
-          setUsernameStatus({ state: 'taken', msg: data.message || 'Username already taken' })
-          setErrors(prev => ({ ...prev, username: data.message || 'Username already taken' }))
         }
-      } catch (_) {
-        setUsernameStatus({ state: '', msg: '' })
+      } catch (err) {
+        const msg = err.response?.data?.message || 'Username unavailable'
+        setUsernameStatus({ state: 'taken', msg })
+        setErrors(prev => ({ ...prev, username: msg }))
       }
-    }, 400)
-
+    }, 350)
     return () => { if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current) }
   }, [form.username])
+
+  // Email Uniqueness Check on Blur
+  const handleEmailBlur = async () => {
+    const email = form.email.trim()
+    if (!email || !/\S+@\S+\.\S+/.test(email)) return
+    try {
+      await checkAvailability({ email })
+      setEmailStatus({ state: 'available', msg: '' })
+      setErrors(prev => ({ ...prev, email: '' }))
+    } catch (err) {
+      const msg = err.response?.data?.message || 'This email address is already registered.'
+      setEmailStatus({ state: 'taken', msg })
+      setErrors(prev => ({ ...prev, email: msg }))
+    }
+  }
+
+  // Phone Uniqueness Check on Blur
+  const handlePhoneBlur = async () => {
+    const phone = form.phone.trim()
+    if (!phone) return
+    try {
+      await checkAvailability({ phone })
+      setPhoneStatus({ state: 'available', msg: '' })
+      setErrors(prev => ({ ...prev, phone: '' }))
+    } catch (err) {
+      const msg = err.response?.data?.message || 'This phone number is already registered.'
+      setPhoneStatus({ state: 'taken', msg })
+      setErrors(prev => ({ ...prev, phone: msg }))
+    }
+  }
 
   const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
@@ -493,16 +491,82 @@ function Signup() {
     const newErrors = {}
     if (!form.name.trim()) newErrors.name = 'Full Name is required'
     if (!form.username.trim()) newErrors.username = 'Username is required'
-    else if (form.username.trim().length < 3) newErrors.username = 'Username must be at least 3 characters'
+    else if (form.username.trim().length < 5) newErrors.username = 'Username must be at least 5 characters'
     else if (!/^[a-zA-Z0-9_]+$/.test(form.username.trim())) newErrors.username = 'Username can only contain letters, numbers, and underscores'
-    if (!form.email.trim()) newErrors.email = 'Email is required'
-    if (!form.phone.trim()) newErrors.phone = 'Phone Number is required'
+    
+    if (!form.email.trim()) newErrors.email = 'Email address is required'
+    else if (!/\S+@\S+\.\S+/.test(form.email.trim())) newErrors.email = 'Please enter a valid email address'
+    
+    if (!form.phone.trim()) newErrors.phone = 'Phone number is required'
+    
     if (!form.password.trim()) newErrors.password = 'Password is required'
+    else if (form.password.length < 8) newErrors.password = 'Password must be at least 8 characters'
+    
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return Object.keys(newErrors).length === 0 && usernameStatus.state !== 'taken' && emailStatus.state !== 'taken' && phoneStatus.state !== 'taken'
   }
 
-  const validateStep2 = () => {
+  const handleRequestOTP = async () => {
+    if (!validateStep1()) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await sendOTP({ email: form.email, phone: form.phone })
+      setStep(2)
+      setOtpTimer(60)
+      setCanResendOtp(false)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send verification code. Please check your email/phone and try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleOtpBoxChange = (index, val) => {
+    if (!/^[0-9]?$/.test(val)) return
+    const newArr = [...otpCode]
+    newArr[index] = val
+    setOtpCode(newArr)
+
+    if (val && index < 5) {
+      otpInputRefs[index + 1].current?.focus()
+    }
+  }
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
+      otpInputRefs[index - 1].current?.focus()
+    }
+  }
+
+  const handleVerifyOTP = async () => {
+    const fullCode = otpCode.join('')
+    if (fullCode.length < 6) {
+      setError('Please enter the complete 6-digit verification code')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const finalSchool = resolveSchoolName(form.school, form.country)
+      const res = await verifyOTPAndSignup({
+        ...form,
+        otp: fullCode,
+        school: finalSchool,
+        level: form.scholarTrack === 'pro_skill' ? 'Pro Skill' : form.scholarTrack === 'dual' ? 'University' : form.level,
+      })
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('user', JSON.stringify(res.data.user))
+      window.dispatchEvent(new Event('userStateChange'))
+      setStep(3) // Advance to Track Selection
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid or expired verification code. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const validateStep3 = () => {
     const newErrors = {}
     if (form.scholarTrack === 'pro_skill') {
       if (!form.skillDomain) newErrors.skillDomain = 'Please select your primary skill domain'
@@ -510,43 +574,19 @@ function Signup() {
       if (!form.country) newErrors.country = 'Country is required'
       if (!form.state.trim()) newErrors.state = 'State / Region is required'
       if (!form.school.trim()) newErrors.school = 'University name is required'
-      if (!form.faculty) newErrors.faculty = 'Faculty is required'
-      if (!form.department) newErrors.department = 'Department is required'
       if (!form.skillDomain) newErrors.skillDomain = 'Please select your primary skill guild'
-    } else { // 'academic'
+    } else {
       if (!form.level) newErrors.level = 'Please select High School or University'
       if (!form.country) newErrors.country = 'Country is required'
       if (!form.state.trim()) newErrors.state = 'State / Region is required'
       if (!form.school.trim()) newErrors.school = 'School name is required'
-      if (form.level === 'High School' && !form.track) newErrors.track = 'Please select a stream'
-      if (form.level === 'University') {
-        if (!form.faculty) newErrors.faculty = 'Faculty is required'
-        if (!form.department) newErrors.department = 'Department is required'
-      }
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSignup = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const finalSchool = resolveSchoolName(form.school, form.country)
-      const res = await signupUser({
-        ...form,
-        school: finalSchool,
-        level: form.scholarTrack === 'pro_skill' ? 'Pro Skill' : form.scholarTrack === 'dual' ? 'University' : form.level,
-      })
-      localStorage.setItem('token', res.data.token)
-      localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.dispatchEvent(new Event('userStateChange'))
-      router.push('/feed')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please check credentials and try again.')
-    } finally {
-      setLoading(false)
-    }
+  const handleFinishSignup = () => {
+    router.push('/feed')
   }
 
   return (
@@ -564,13 +604,14 @@ function Signup() {
         </div>
 
         <div className="flex gap-2 mb-6">
-          {[1, 2, 3].map(s => (
+          {[1, 2, 3, 4].map(s => (
             <div key={s} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${step >= s ? 'bg-primary' : 'bg-gray-200 dark:bg-zinc-700'}`} />
           ))}
         </div>
 
         <AnimatePresence mode="wait">
 
+          {/* STEP 1: ACCOUNT REGISTRATION FORM */}
           {step === 1 && (
             <motion.div key="step1" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
               <h2 className="text-xl font-bold text-dark dark:text-white mb-1">Create Your Account</h2>
@@ -613,16 +654,16 @@ function Signup() {
 
                 <div className="relative">
                   <span className="absolute left-3 top-3.5 text-gray-400 font-bold text-xs">@</span>
-                  <input name="username" type="text" placeholder="Choose Username (e.g. alex_scholar)" value={form.username} onChange={handleChange} className={`input-field !pl-8 ${usernameStatus.state === 'taken' || errors.username ? 'border-red-400' : usernameStatus.state === 'available' ? 'border-emerald-500' : ''}`} />
+                  <input name="username" type="text" placeholder="Choose Username (min 5 chars, e.g. alex_scholar)" value={form.username} onChange={handleChange} className={`input-field !pl-8 ${usernameStatus.state === 'taken' || errors.username ? 'border-red-400' : usernameStatus.state === 'available' ? 'border-emerald-500' : ''}`} />
                   {usernameStatus.state === 'available' && <p className="text-emerald-600 text-xs font-semibold mt-1 flex items-center gap-1"><FiCheck size={12} /> {usernameStatus.msg}</p>}
                   {usernameStatus.state === 'taken' && <p className="text-red-500 text-xs font-semibold mt-1">❌ {usernameStatus.msg}</p>}
+                  {usernameStatus.state === 'error' && <p className="text-red-500 text-xs mt-1">{usernameStatus.msg}</p>}
                   {usernameStatus.state === 'checking' && <p className="text-gray-400 text-xs mt-1 animate-pulse">Checking availability...</p>}
-                  {errors.username && usernameStatus.state !== 'taken' && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
                 </div>
 
                 <div className="relative">
                   <FiMail className="absolute left-3 top-3.5 text-gray-400" size={16} />
-                  <input id="signup-email" name="email" type="email" autoComplete="email" placeholder="Email Address" value={form.email} onChange={handleChange} className={`input-field ${errors.email ? 'border-red-400' : ''}`} />
+                  <input id="signup-email" name="email" type="email" autoComplete="email" placeholder="Email Address" value={form.email} onChange={handleChange} onBlur={handleEmailBlur} className={`input-field ${errors.email || emailStatus.state === 'taken' ? 'border-red-400' : ''}`} />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
 
@@ -656,7 +697,7 @@ function Signup() {
                         name="phone"
                         type="tel"
                         autoComplete="tel-national"
-                        placeholder="Phone Number (e.g. 8012345678)"
+                        placeholder="Phone Number"
                         value={rawPhone}
                         onChange={e => {
                           const val = e.target.value.replace(/[^0-9]/g, '')
@@ -666,7 +707,8 @@ function Signup() {
                             phone: val.trim() ? `${selectedCountry.code} ${val.trim()}` : ''
                           }))
                         }}
-                        className={`input-field !pl-9 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white font-medium ${errors.phone ? 'border-red-400' : ''}`}
+                        onBlur={handlePhoneBlur}
+                        className={`input-field !pl-9 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white font-medium ${errors.phone || phoneStatus.state === 'taken' ? 'border-red-400' : ''}`}
                       />
                     </div>
                   </div>
@@ -681,11 +723,26 @@ function Signup() {
                     {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                   </button>
                   {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                  
+                  {/* Password Strength Indicator */}
+                  {form.password && (
+                    <div className="mt-2">
+                      <div className="h-1.5 w-full bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                        <div className={`h-full ${passStrength.color} transition-all duration-300`} style={{ width: `${passStrength.score}%` }} />
+                      </div>
+                      <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 mt-1 flex justify-between">
+                        <span>Password Strength:</span>
+                        <span className="font-extrabold text-primary">{passStrength.label}</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <button onClick={() => { if (validateStep1()) setStep(2) }} className="btn-primary mt-6 flex items-center justify-center gap-2">
-                Continue <FiArrowRight size={16} />
+              {error && <p className="text-red-500 text-xs mt-3 text-center">{error}</p>}
+
+              <button onClick={handleRequestOTP} disabled={loading} className="btn-primary mt-6 flex items-center justify-center gap-2">
+                {loading ? 'Sending Verification Code...' : <>Get Verification Code <FiArrowRight size={16} /></>}
               </button>
               <p className="text-center text-xs text-gray-400 mt-4">
                 Already have an account? <Link href="/login" className="text-primary font-bold">Sign in</Link>
@@ -693,12 +750,58 @@ function Signup() {
             </motion.div>
           )}
 
+          {/* STEP 2: MANDATORY 6-DIGIT OTP VERIFICATION SCREEN */}
           {step === 2 && (
-            <motion.div key="step2" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
+            <motion.div key="step2" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="text-center">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
+                <FiShield size={28} />
+              </div>
+              <h2 className="text-xl font-bold text-dark dark:text-white mb-1">Verify Security Code</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                We sent a 6-digit verification code to <strong className="text-dark dark:text-white">{form.email}</strong>
+              </p>
+
+              <div className="flex justify-center gap-2 mb-6">
+                {otpCode.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    ref={otpInputRefs[idx]}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={e => handleOtpBoxChange(idx, e.target.value)}
+                    onKeyDown={e => handleOtpKeyDown(idx, e)}
+                    className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-extrabold bg-gray-50 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 rounded-xl focus:border-primary focus:outline-none transition-all text-dark dark:text-white"
+                  />
+                ))}
+              </div>
+
+              {error && <p className="text-red-500 text-xs mb-4">{error}</p>}
+
+              <button onClick={handleVerifyOTP} disabled={loading || otpCode.join('').length < 6}
+                className="btn-primary w-full flex items-center justify-center gap-2">
+                {loading ? 'Verifying Code...' : <>Confirm & Continue <FiArrowRight size={16} /></>}
+              </button>
+
+              <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                <button type="button" onClick={() => setStep(1)} className="hover:text-primary font-semibold">Change Details</button>
+                {canResendOtp ? (
+                  <button type="button" onClick={handleRequestOTP} className="text-primary font-bold hover:underline flex items-center gap-1">
+                    <FiRefreshCw size={12} /> Resend Code
+                  </button>
+                ) : (
+                  <span className="text-gray-400 font-mono">Resend code in {otpTimer}s</span>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 3: SCHOLAR TRACK SELECTION */}
+          {step === 3 && (
+            <motion.div key="step3" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
               <h2 className="text-xl font-bold text-dark dark:text-white mb-1">Choose Your Scholar Track</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Select how you want to learn, build and connect</p>
 
-              {/* TRACK SELECTOR */}
               <div className="space-y-2 mb-5">
                 {scholarTrackOptions.map(t => {
                   const Icon = t.icon
@@ -731,7 +834,6 @@ function Signup() {
                 })}
               </div>
 
-              {/* CONDITIONAL TRACK FORM FIELDS */}
               {form.scholarTrack === 'academic' && (
                 <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-zinc-700">
                   <div>
@@ -749,39 +851,6 @@ function Signup() {
                   <CountrySelect value={form.country} error={errors.country} onChange={(val) => setForm(prev => ({ ...prev, country: val, state: '', school: '' }))} />
                   <StateSelect value={form.state} error={errors.state} country={form.country} level={form.level} onChange={(val) => setForm(prev => ({ ...prev, state: val, school: '' }))} />
                   <SchoolSearchInput value={form.school} currentLevel={form.level} country={form.country} state={form.state} onChange={(val) => setForm(prev => ({ ...prev, school: val }))} error={errors.school} />
-
-                  {form.level === 'High School' && (
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Stream / Track</label>
-                      <div className="flex gap-2">
-                        {tracks.map(t => (
-                          <button key={t} type="button" onClick={() => setForm(prev => ({ ...prev, track: t }))}
-                            className={`flex-1 px-3 py-2 rounded-xl border text-xs font-bold transition-all ${form.track === t ? 'bg-primary text-white border-primary' : 'border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50'}`}>
-                            {t}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {form.level === 'University' && (
-                    <>
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Faculty</label>
-                        <input type="text" value={facultyQuery}
-                          onChange={e => { setFacultyQuery(e.target.value); setForm(prev => ({ ...prev, faculty: e.target.value, department: '' })) }}
-                          placeholder="Type or search faculty (e.g. Engineering, Law, Science)..."
-                          className="input-field" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Department / Major</label>
-                        <input type="text" value={deptQuery}
-                          onChange={e => { setDeptQuery(e.target.value); setForm(prev => ({ ...prev, department: e.target.value })) }}
-                          placeholder="Type department (e.g. Computer Science, Public Law)..."
-                          className="input-field" />
-                      </div>
-                    </>
-                  )}
                 </div>
               )}
 
@@ -795,14 +864,6 @@ function Signup() {
                   <CountrySelect value={form.country} error={errors.country} onChange={(val) => setForm(prev => ({ ...prev, country: val, state: '', school: '' }))} />
                   <StateSelect value={form.state} error={errors.state} country={form.country} level="University" onChange={(val) => setForm(prev => ({ ...prev, state: val, school: '' }))} />
                   <SchoolSearchInput value={form.school} currentLevel="University" country={form.country} state={form.state} onChange={(val) => setForm(prev => ({ ...prev, school: val }))} error={errors.school} />
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Faculty & Department</label>
-                    <input type="text" value={deptQuery}
-                      onChange={e => { setDeptQuery(e.target.value); setForm(prev => ({ ...prev, faculty: 'University Faculty', department: e.target.value })) }}
-                      placeholder="Type your Department (e.g. Software Engineering)..."
-                      className="input-field" />
-                  </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Primary Skill Guild</label>
@@ -833,38 +894,20 @@ function Signup() {
                       {skillCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
                   </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Skill Experience Level</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {skillLevels.map(lvl => (
-                        <button
-                          key={lvl}
-                          type="button"
-                          onClick={() => setForm(prev => ({ ...prev, skillLevel: lvl }))}
-                          className={`py-2 px-2 rounded-xl border text-[11px] font-bold text-center transition-all ${form.skillLevel === lvl ? 'bg-dark text-white border-dark' : 'border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 hover:border-dark'}`}
-                        >
-                          {lvl.split('/')[0]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               )}
 
-              {error && <p className="text-red-500 text-xs mt-3 text-center">{error}</p>}
-
               <div className="flex gap-3 mt-6">
-                <button onClick={() => setStep(1)} className="btn-ghost !w-auto px-5">Back</button>
-                <button onClick={() => { if (validateStep2()) setStep(3) }} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                <button onClick={() => { if (validateStep3()) setStep(4) }} className="btn-primary flex-1 flex items-center justify-center gap-2">
                   Continue <FiArrowRight size={16} />
                 </button>
               </div>
             </motion.div>
           )}
 
-          {step === 3 && (
-            <motion.div key="step3" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
+          {/* STEP 4: TOPIC INTERESTS */}
+          {step === 4 && (
+            <motion.div key="step4" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
               <h2 className="text-xl font-bold text-dark dark:text-white mb-1">Pick Your Favorite Topics</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Choose interests to personalize your live home feed</p>
 
@@ -882,12 +925,9 @@ function Signup() {
                 })}
               </div>
 
-              {error && <p className="text-red-500 text-xs mb-3 text-center">{error}</p>}
-
-              <button onClick={handleSignup} disabled={loading} className="btn-primary flex items-center justify-center gap-2">
-                {loading ? 'Creating account...' : 'Create Account & Enter Hub'}
+              <button onClick={handleFinishSignup} className="btn-primary flex items-center justify-center gap-2">
+                Enter ScholarHub Feed <FiArrowRight size={16} />
               </button>
-              <button onClick={() => setStep(2)} className="btn-ghost mt-3">Back</button>
             </motion.div>
           )}
 
