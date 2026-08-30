@@ -553,7 +553,7 @@ function Signup() {
           <h1 className="text-3xl font-extrabold text-dark">
             Scholar<span className="text-accent">Hub</span>
           </h1>
-          <p className="text-sm text-gray-400 mt-2">Africa's student platform</p>
+          <p className="text-sm text-gray-400 mt-2">Global Social Learning Network</p>
         </div>
 
         <div className="flex gap-2 mb-7">
@@ -567,7 +567,7 @@ function Signup() {
           {step === 1 && (
             <motion.div key="step1" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
               <h2 className="text-xl font-bold text-dark mb-1">Create Your Account</h2>
-              <p className="text-sm text-gray-400 mb-5">Join thousands of African students on ScholarHub</p>
+              <p className="text-sm text-gray-400 mb-5">Join thousands of students and skill learners globally</p>
 
               <div id="google-login-wrapper" className="w-full mb-4 overflow-hidden flex justify-center">
                 <GoogleLogin

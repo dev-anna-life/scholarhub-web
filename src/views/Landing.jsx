@@ -245,7 +245,7 @@ function Landing() {
                     <FiBookOpen size={18} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-dark">Computer Science (UNN 300L)</p>
+                    <p className="text-xs font-bold text-dark">Computer Science (Harvard University)</p>
                     <p className="text-[11px] text-gray-400">Academic Campus Hub</p>
                   </div>
                 </div>
