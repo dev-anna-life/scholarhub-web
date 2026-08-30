@@ -259,7 +259,7 @@ function Landing() {
               </p>
               <div className="flex items-center gap-3 pt-3 border-t border-gray-200/60 text-xs text-gray-500 font-semibold">
                 <span className="flex items-center gap-1"><FiThumbsUp size={13} className="text-blue-500" /> 18 Likes</span>
-                <span className="ml-auto text-emerald-600 font-bold">📖 Citation: Google Scholar</span>
+                <span className="ml-auto text-emerald-600 font-bold">📖 Citation: Google</span>
               </div>
             </div>
 
