@@ -74,7 +74,7 @@ export default function CitationSourceInput({ value, onChange }) {
           onFocus={() => setIsOpen(true)}
           onChange={handleInputChange}
           onBlur={handleBlur}
-          placeholder="e.g. NASA, Wikipedia, Google (Google Scholar), UNESCO, Verified Textbook..."
+          placeholder="e.g. NASA, Wikipedia, Google, UNESCO, Verified Textbook..."
           className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-dark dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition shadow-xs"
         />
         <button
