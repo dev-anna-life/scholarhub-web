@@ -7,6 +7,7 @@ import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, 
 import SOSButton from '../components/SOSButton'
 import CommentDrawer from '../components/CommentDrawer'
 import PostGiftModal from '../components/PostGiftModal'
+import ClipsFeed from '../components/ClipsFeed'
 import { getSchoolAbbr, stringToColor } from '../utils/school'
 import SchoolLogo from '../components/SchoolLogo'
 import SchoolBadge from '../components/SchoolBadge'
@@ -751,7 +752,6 @@ function Home() {
                     </div>
                 </div>
             </div>
-
             <div className="max-w-5xl mx-auto px-3 md:px-4 pb-24 flex gap-6">
                 <div className="flex-1 min-w-0">
 
@@ -763,6 +763,10 @@ function Home() {
                         <button onClick={() => { setActiveTab('following'); setActiveCommunity(null); setPage(1) }}
                             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition whitespace-nowrap flex-shrink-0 ${activeTab === 'following' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
                             Following
+                        </button>
+                        <button onClick={() => { setActiveTab('clips'); setActiveCommunity(null); }}
+                            className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${activeTab === 'clips' ? 'bg-gradient-to-r from-amber-500 via-primary to-emerald-500 text-white shadow-md' : 'text-dark font-bold hover:bg-gray-100'}`}>
+                            <span>📹 Clips</span>
                         </button>
                         {userCommunities.filter(c => c.type !== 'general').map(c => {
                             const cId = c.id || c._id
@@ -824,7 +828,9 @@ function Home() {
                     </AnimatePresence>
 
                     <div className="flex flex-col gap-3">
-                        {loading ? (
+                        {activeTab === 'clips' ? (
+                            <ClipsFeed />
+                        ) : loading ? (
                             [1, 2, 3].map(i => (
                                 <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 animate-pulse">
                                     <div className="flex gap-3 mb-3">
