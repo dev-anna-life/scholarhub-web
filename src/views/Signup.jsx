@@ -91,21 +91,77 @@ export const skillCategories = [
 export const skillLevels = ['Foundation / Beginner', 'Builder / Intermediate', 'Advanced / Pro']
 
 export const countryList = [
-  { name: 'United States', code: '+1', flag: '🇺🇸', region: 'Americas' },
-  { name: 'United Kingdom', code: '+44', flag: '🇬🇧', region: 'Europe' },
-  { name: 'Canada', code: '+1', flag: '🇨🇦', region: 'Americas' },
-  { name: 'Nigeria', code: '+234', flag: '🇳🇬', region: 'Africa' },
-  { name: 'Ghana', code: '+233', flag: '🇬🇭', region: 'Africa' },
-  { name: 'Kenya', code: '+254', flag: '🇰🇪', region: 'Africa' },
-  { name: 'South Africa', code: '+27', flag: '🇿🇦', region: 'Africa' },
-  { name: 'Germany', code: '+49', flag: '🇩🇪', region: 'Europe' },
-  { name: 'France', code: '+33', flag: '🇫🇷', region: 'Europe' },
-  { name: 'India', code: '+91', flag: '🇮🇳', region: 'Asia' },
-  { name: 'Australia', code: '+61', flag: '🇦🇺', region: 'Oceania' },
-  { name: 'United Arab Emirates', code: '+971', flag: '🇦🇪', region: 'Middle East' },
-  { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦', region: 'Middle East' },
-  { name: 'China', code: '+86', flag: '🇨🇳', region: 'Asia' },
-  { name: 'Brazil', code: '+55', flag: '🇧🇷', region: 'Americas' },
+  // North America
+  { name: 'United States', shortName: 'United States', code: '+1', flag: '🇺🇸', region: 'Americas' },
+  { name: 'United Kingdom', shortName: 'United Kingdom (UK)', code: '+44', flag: '🇬🇧', region: 'Europe' },
+  { name: 'Canada', shortName: 'Canada', code: '+1', flag: '🇨🇦', region: 'Americas' },
+  { name: 'Australia', shortName: 'Australia', code: '+61', flag: '🇦🇺', region: 'Oceania' },
+  { name: 'New Zealand', shortName: 'New Zealand', code: '+64', flag: '🇳🇿', region: 'Oceania' },
+  
+  // Europe
+  { name: 'Germany', shortName: 'Germany', code: '+49', flag: '🇩🇪', region: 'Europe' },
+  { name: 'France', shortName: 'France', code: '+33', flag: '🇫🇷', region: 'Europe' },
+  { name: 'Italy', shortName: 'Italy', code: '+39', flag: '🇮🇹', region: 'Europe' },
+  { name: 'Spain', shortName: 'Spain', code: '+34', flag: '🇪🇸', region: 'Europe' },
+  { name: 'Netherlands', shortName: 'Netherlands', code: '+31', flag: '🇳🇱', region: 'Europe' },
+  { name: 'Switzerland', shortName: 'Switzerland', code: '+41', flag: '🇨🇭', region: 'Europe' },
+  { name: 'Sweden', shortName: 'Sweden', code: '+46', flag: '🇸🇪', region: 'Europe' },
+  { name: 'Norway', shortName: 'Norway', code: '+47', flag: '🇳🇴', region: 'Europe' },
+  { name: 'Denmark', shortName: 'Denmark', code: '+45', flag: '🇩🇰', region: 'Europe' },
+  { name: 'Finland', shortName: 'Finland', code: '+358', flag: '🇫🇮', region: 'Europe' },
+  { name: 'Ireland', shortName: 'Ireland', code: '+353', flag: '🇮🇪', region: 'Europe' },
+  { name: 'Portugal', shortName: 'Portugal', code: '+351', flag: '🇵🇹', region: 'Europe' },
+  { name: 'Poland', shortName: 'Poland', code: '+48', flag: '🇵🇱', region: 'Europe' },
+  { name: 'Austria', shortName: 'Austria', code: '+43', flag: '🇦🇹', region: 'Europe' },
+  { name: 'Belgium', shortName: 'Belgium', code: '+32', flag: '🇧🇪', region: 'Europe' },
+  { name: 'Greece', shortName: 'Greece', code: '+30', flag: '🇬🇷', region: 'Europe' },
+
+  // Asia & Pacific
+  { name: 'India', shortName: 'India', code: '+91', flag: '🇮🇳', region: 'Asia' },
+  { name: 'China', shortName: 'China', code: '+86', flag: '🇨🇳', region: 'Asia' },
+  { name: 'Japan', shortName: 'Japan', code: '+81', flag: '🇯🇵', region: 'Asia' },
+  { name: 'South Korea', shortName: 'South Korea', code: '+82', flag: '🇰🇷', region: 'Asia' },
+  { name: 'Singapore', shortName: 'Singapore', code: '+65', flag: '🇸🇬', region: 'Asia' },
+  { name: 'Malaysia', shortName: 'Malaysia', code: '+60', flag: '🇲🇾', region: 'Asia' },
+  { name: 'Indonesia', shortName: 'Indonesia', code: '+62', flag: '🇮🇩', region: 'Asia' },
+  { name: 'Philippines', shortName: 'Philippines', code: '+63', flag: '🇵🇭', region: 'Asia' },
+  { name: 'Thailand', shortName: 'Thailand', code: '+66', flag: '🇹🇭', region: 'Asia' },
+  { name: 'Vietnam', shortName: 'Vietnam', code: '+84', flag: '🇻🇳', region: 'Asia' },
+  { name: 'Pakistan', shortName: 'Pakistan', code: '+92', flag: '🇵🇰', region: 'Asia' },
+  { name: 'Bangladesh', shortName: 'Bangladesh', code: '+880', flag: '🇧🇩', region: 'Asia' },
+
+  // Middle East
+  { name: 'United Arab Emirates', shortName: 'UAE', code: '+971', flag: '🇦🇪', region: 'Middle East' },
+  { name: 'Saudi Arabia', shortName: 'Saudi Arabia', code: '+966', flag: '🇸🇦', region: 'Middle East' },
+  { name: 'Qatar', shortName: 'Qatar', code: '+974', flag: '🇶🇦', region: 'Middle East' },
+  { name: 'Kuwait', shortName: 'Kuwait', code: '+965', flag: '🇰🇼', region: 'Middle East' },
+  { name: 'Oman', shortName: 'Oman', code: '+968', flag: '🇴🇲', region: 'Middle East' },
+  { name: 'Bahrain', shortName: 'Bahrain', code: '+973', flag: '🇧🇭', region: 'Middle East' },
+  { name: 'Turkey', shortName: 'Turkey', code: '+90', flag: '🇹🇷', region: 'Middle East' },
+  { name: 'Israel', shortName: 'Israel', code: '+972', flag: '🇮🇱', region: 'Middle East' },
+
+  // Latin America
+  { name: 'Brazil', shortName: 'Brazil', code: '+55', flag: '🇧🇷', region: 'Americas' },
+  { name: 'Mexico', shortName: 'Mexico', code: '+52', flag: '🇲🇽', region: 'Americas' },
+  { name: 'Argentina', shortName: 'Argentina', code: '+54', flag: '🇦🇷', region: 'Americas' },
+  { name: 'Colombia', shortName: 'Colombia', code: '+57', flag: '🇨🇴', region: 'Americas' },
+  { name: 'Chile', shortName: 'Chile', code: '+56', flag: '🇨🇱', region: 'Americas' },
+  { name: 'Peru', shortName: 'Peru', code: '+51', flag: '🇵🇪', region: 'Americas' },
+
+  // Africa
+  { name: 'Nigeria', shortName: 'Nigeria', code: '+234', flag: '🇳🇬', region: 'Africa' },
+  { name: 'Ghana', shortName: 'Ghana', code: '+233', flag: '🇬🇭', region: 'Africa' },
+  { name: 'Kenya', shortName: 'Kenya', code: '+254', flag: '🇰🇪', region: 'Africa' },
+  { name: 'South Africa', shortName: 'South Africa', code: '+27', flag: '🇿🇦', region: 'Africa' },
+  { name: 'Egypt', shortName: 'Egypt', code: '+20', flag: '🇪🇬', region: 'Africa' },
+  { name: 'Morocco', shortName: 'Morocco', code: '+212', flag: '🇲🇦', region: 'Africa' },
+  { name: 'Algeria', shortName: 'Algeria', code: '+213', flag: '🇩🇿', region: 'Africa' },
+  { name: 'Ethiopia', shortName: 'Ethiopia', code: '+251', flag: '🇪🇹', region: 'Africa' },
+  { name: 'Uganda', shortName: 'Uganda', code: '+256', flag: '🇺🇬', region: 'Africa' },
+  { name: 'Rwanda', shortName: 'Rwanda', code: '+250', flag: '🇷🇼', region: 'Africa' },
+  { name: 'Tanzania', shortName: 'Tanzania', code: '+255', flag: '🇹🇿', region: 'Africa' },
+  { name: 'Senegal', shortName: 'Senegal', code: '+221', flag: '🇸🇳', region: 'Africa' },
+  { name: 'Cameroon', shortName: 'Cameroon', code: '+237', flag: '🇨🇲', region: 'Africa' },
 ]
 
 function CountrySelect({ value, onChange, error }) {
@@ -157,7 +213,7 @@ function CountrySelect({ value, onChange, error }) {
               className="w-full text-left px-3 py-2.5 text-sm text-dark dark:text-white hover:bg-primary/5 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span>{c.flag}</span>
-                <span>{c.name}</span>
+                <span>{c.shortName || c.name}</span>
               </span>
               <span className="text-xs text-gray-400 font-mono font-semibold">{c.code}</span>
             </button>
@@ -349,7 +405,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
 
 function Signup() {
   const router = useRouter()
-  const [step, setStep] = useState(1) // 1: Step1 Info, 2: OTP Verification Modal, 3: Scholar Track, 4: Interests
+  const [step, setStep] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState(countryList[0])
   const [rawPhone, setRawPhone] = useState('')
@@ -397,7 +453,6 @@ function Signup() {
     return () => { if (interval) clearInterval(interval) }
   }, [step, otpTimer])
 
-  // Password Strength Calculation
   const getPasswordStrength = (pass) => {
     if (!pass) return { score: 0, label: '', color: 'bg-gray-200' }
     let score = 0
@@ -414,7 +469,6 @@ function Signup() {
 
   const passStrength = getPasswordStrength(form.password)
 
-  // Real-time Username Uniqueness & 5-Char Rule Validation
   const usernameTimerRef = useRef(null)
   useEffect(() => {
     if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current)
@@ -446,7 +500,6 @@ function Signup() {
     return () => { if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current) }
   }, [form.username])
 
-  // Email Uniqueness Check on Blur
   const handleEmailBlur = async () => {
     const email = form.email.trim()
     if (!email || !/\S+@\S+\.\S+/.test(email)) return
@@ -461,7 +514,6 @@ function Signup() {
     }
   }
 
-  // Phone Uniqueness Check on Blur
   const handlePhoneBlur = async () => {
     const phone = form.phone.trim()
     if (!phone) return
@@ -558,7 +610,7 @@ function Signup() {
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
       window.dispatchEvent(new Event('userStateChange'))
-      setStep(3) // Advance to Track Selection
+      setStep(3)
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid or expired verification code. Please try again.')
     } finally {
@@ -669,11 +721,11 @@ function Signup() {
 
                 <div>
                   <div className="flex gap-2">
-                    <div className="relative w-36 flex-shrink-0">
+                    <div className="relative w-44 flex-shrink-0">
                       <select
-                        value={selectedCountry.code}
+                        value={selectedCountry.name}
                         onChange={e => {
-                          const c = countryList.find(item => item.code === e.target.value) || countryList[0]
+                          const c = countryList.find(item => item.name === e.target.value) || countryList[0]
                           setSelectedCountry(c)
                           setForm(prev => ({
                             ...prev,
@@ -684,8 +736,8 @@ function Signup() {
                         className="w-full h-full py-3 px-2 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-semibold bg-white dark:bg-zinc-800 text-gray-900 dark:text-white focus:border-primary focus:outline-none cursor-pointer"
                       >
                         {countryList.map((c, i) => (
-                          <option key={i} value={c.code} className="bg-white dark:bg-zinc-800 text-gray-900 dark:text-white">
-                            {c.flag} {c.code} ({c.name})
+                          <option key={i} value={c.name} className="bg-white dark:bg-zinc-800 text-gray-900 dark:text-white">
+                            {c.shortName || c.name} ({c.code})
                           </option>
                         ))}
                       </select>
@@ -724,7 +776,6 @@ function Signup() {
                   </button>
                   {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                   
-                  {/* Password Strength Indicator */}
                   {form.password && (
                     <div className="mt-2">
                       <div className="h-1.5 w-full bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
