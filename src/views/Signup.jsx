@@ -23,8 +23,46 @@ const fadeUp = {
 }
 
 const levels = ['High School', 'University']
-const secondaryInterests = ['Sciences', 'Mathematics', 'English & Literature', 'Arts & Creativity', 'Commerce / Business', 'Technology / ICT', 'History & Government', 'Sports']
-const universityInterests = ['Science', 'Mathematics', 'Law', 'Medicine', 'Technology', 'Arts & Lit', 'Commerce', 'History', 'Entertainment']
+
+export const secondaryInterests = [
+  'Sciences & Physics',
+  'Mathematics & Algebra',
+  'Coding & Robotics',
+  'English & Literature',
+  'Visual Arts & Drawing',
+  'Business & Economics',
+  'Computer ICT & Web',
+  'World History & Civics',
+  'Debate & Public Speaking',
+  'Sports & Athletics',
+  'Music & Performing Arts',
+  'Environmental Science',
+  'Foreign Languages',
+  'Entrepreneurship',
+]
+
+export const universityInterests = [
+  'Computer Science & AI',
+  'Software & Cloud Engineering',
+  'UI/UX & Digital Product Design',
+  'Data Science & Analytics',
+  'Cybersecurity & Networks',
+  'Medicine, Anatomy & Healthcare',
+  'Law, Jurisprudence & Legal Studies',
+  'Electrical & Civil Engineering',
+  'Business, Banking & Finance',
+  'Entrepreneurship & Startups',
+  'Creative Writing & Journalism',
+  'Film Production & Photography',
+  'Digital Marketing & Growth',
+  'Economics & Global Trade',
+  'Psychology & Human Behavior',
+  'Architecture & Spatial Design',
+  'Music Production & Sound Design',
+  'Foreign Languages & Linguistics',
+  'Philosophy, Ethics & Politics',
+]
+
 const tracks = ['Science', 'Art', 'Commercial']
 
 export const scholarTrackOptions = [
@@ -34,14 +72,22 @@ export const scholarTrackOptions = [
 ]
 
 export const skillCategories = [
-  'UI/UX Design Studio',
-  'Web & Software Engineering',
-  'Mobile App Development',
-  'Data Science & AI/ML',
-  'Digital Marketing & Content Growth',
-  'Graphic Design & Branding',
-  'Video Editing & Motion Graphics',
-  'Product & Project Management',
+  'UI/UX & Product Design Studio',
+  'Full-Stack Web Engineering (React, Node, Python, Next.js)',
+  'Mobile App Development (React Native, Flutter, Swift, Kotlin)',
+  'Artificial Intelligence & Machine Learning Engineering',
+  'Data Science, Big Data & Analytics',
+  'Cybersecurity & Ethical Hacking',
+  'Cloud Computing & DevOps (AWS, Azure, Docker)',
+  'Digital Marketing, SEO & Growth Hacking',
+  'Content Creation, Copywriting & Storytelling',
+  'Graphic Design, 3D & Brand Identity',
+  'Video Editing, Motion Graphics & Animation',
+  'Product Management & Agile Leadership',
+  '3D Design, Game Development & AR/VR',
+  'Financial Tech, Trading & Accounting Systems',
+  'Public Speaking, Communication & Leadership',
+  'Environmental Science & Green Tech',
 ]
 
 export const skillLevels = ['Foundation / Beginner', 'Builder / Intermediate', 'Advanced / Pro']
@@ -218,11 +264,27 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
     const lvlKey = (currentLevel || 'University').toLowerCase() === 'high school' ? 'secondary' : 'university'
 
     timerRef.current = setTimeout(async () => {
+      let fetched = []
       try {
         const { data } = await searchSchools(country, lvlKey, query, state)
-        setSuggestions(data.schools || [])
-      } catch { setSuggestions([]) }
-    }, 250)
+        fetched = data.schools || []
+      } catch { fetched = [] }
+
+      // Check for live acronym/alias match
+      const acronymMatch = resolveSchoolName(query, country)
+      const list = [...fetched]
+
+      if (query && acronymMatch && acronymMatch.toLowerCase() !== query.toLowerCase()) {
+        // Prepend acronym match at top of suggestions list!
+        const existingIdx = list.findIndex(s => s.name.toLowerCase() === acronymMatch.toLowerCase())
+        if (existingIdx !== -1) {
+          list.splice(existingIdx, 1)
+        }
+        list.unshift({ name: acronymMatch, isAcronymMatch: true })
+      }
+
+      setSuggestions(list)
+    }, 200)
 
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [query, currentLevel, country, state])
@@ -242,10 +304,17 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
     setShowDropdown(false)
   }
 
+  // Compute live acronym match highlight
+  const liveAcronymMatch = query ? resolveSchoolName(query, country) : null
+  const showLiveAcronymBanner = liveAcronymMatch && liveAcronymMatch.toLowerCase() !== query.toLowerCase()
+
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
-        {currentLevel === 'High School' ? 'High School Name' : 'University / Institution Name'}
+      <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1 flex items-center justify-between">
+        <span>{currentLevel === 'High School' ? 'High School Name' : 'University / Institution Name'}</span>
+        {showLiveAcronymBanner && (
+          <span className="text-[10px] font-bold text-primary animate-pulse">⚡ Acronym Recognized</span>
+        )}
       </label>
       <div className="relative">
         <FiSearch className="absolute left-3 top-3.5 text-gray-400" size={16} />
@@ -253,8 +322,8 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
           onChange={e => { setQuery(e.target.value); onChange(e.target.value); setShowDropdown(true) }}
           onBlur={handleBlur}
           onFocus={() => setShowDropdown(true)}
-          placeholder={currentLevel === 'High School' ? 'Type High School name or acronym...' : 'Type University name or acronym (e.g. ESUT, MIT, Oxford)...'}
-          className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : ''}`}
+          placeholder={currentLevel === 'High School' ? 'Type High School name or acronym...' : 'Type University name or acronym (e.g. ESUT, UNN, MIT, UNILAG, Oxford)...'}
+          className={`input-field !pl-9 !pr-9 ${error ? 'border-red-400' : showLiveAcronymBanner ? 'border-primary ring-1 ring-primary/30' : ''}`}
           autoComplete="off" />
         {query && (
           <button type="button" onClick={() => { setQuery(''); onChange(''); setSuggestions([]); }} className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600">
@@ -263,9 +332,20 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
         )}
       </div>
 
-      {showDropdown && suggestions.length > 0 && (
-        <div className="absolute z-50 bottom-full mb-1 w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-lg overflow-hidden max-h-48 overflow-y-auto">
-          {suggestions.map((s, idx) => (
+      {showDropdown && (suggestions.length > 0 || showLiveAcronymBanner) && (
+        <div className="absolute z-50 bottom-full mb-1 w-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-xl overflow-hidden max-h-56 overflow-y-auto">
+          {showLiveAcronymBanner && (
+            <button type="button" onClick={() => handleSelect(liveAcronymMatch)}
+              className="w-full text-left p-3 bg-primary/10 hover:bg-primary/20 border-b border-primary/20 transition-all flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0">⚡</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-extrabold text-primary truncate">{liveAcronymMatch}</p>
+                <p className="text-[10px] text-gray-500 font-semibold">Matched from "{query.toUpperCase()}"</p>
+              </div>
+            </button>
+          )}
+
+          {suggestions.filter(s => !showLiveAcronymBanner || s.name !== liveAcronymMatch).map((s, idx) => (
             <button key={idx} type="button" onClick={() => handleSelect(s.name)}
               className="w-full text-left px-3 py-2.5 text-xs text-dark dark:text-white hover:bg-primary/5 flex items-center gap-2 border-b border-gray-100 dark:border-zinc-700/50 last:border-0">
               <SchoolLogo school={s.name} size={18} />
@@ -463,7 +543,7 @@ function Signup() {
       window.dispatchEvent(new Event('userStateChange'))
       router.push('/feed')
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please check your credentials and try again.')
+      setError(err.response?.data?.message || 'Registration failed. Please check credentials and try again.')
     } finally {
       setLoading(false)
     }
@@ -748,25 +828,14 @@ function Signup() {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Select Primary Skill Domain</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1 border border-gray-200 dark:border-zinc-700 rounded-xl">
-                      {skillCategories.map(cat => {
-                        const isSelected = form.skillDomain === cat
-                        return (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => setForm(prev => ({ ...prev, skillDomain: cat }))}
-                            className={`p-2.5 rounded-lg border text-left text-xs font-bold transition-all ${isSelected ? 'bg-primary text-white border-primary' : 'bg-gray-50 dark:bg-zinc-700/50 text-dark dark:text-white border-gray-200 dark:border-zinc-700 hover:border-primary'}`}
-                          >
-                            {cat}
-                          </button>
-                        )
-                      })}
-                    </div>
+                    <select value={form.skillDomain} onChange={e => setForm(prev => ({ ...prev, skillDomain: e.target.value }))}
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs font-bold text-dark dark:text-white">
+                      {skillCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Skill Level</label>
+                    <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">Skill Experience Level</label>
                     <div className="grid grid-cols-3 gap-2">
                       {skillLevels.map(lvl => (
                         <button
@@ -797,16 +866,20 @@ function Signup() {
           {step === 3 && (
             <motion.div key="step3" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
               <h2 className="text-xl font-bold text-dark dark:text-white mb-1">Pick Your Favorite Topics</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-5">Choose interests to personalize your live feed</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Choose interests to personalize your live home feed</p>
 
-              <div className="flex flex-wrap gap-2 mb-6 max-h-56 overflow-y-auto p-1">
-                {(form.level === 'High School' ? secondaryInterests : universityInterests).map(item => (
-                  <motion.button key={item} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleInterest(item)}
-                    className={`px-3.5 py-2 rounded-full border text-xs font-bold transition-all ${form.interests.includes(item) ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-zinc-800 text-dark dark:text-white border-gray-200 dark:border-zinc-700 hover:border-primary'}`}>
-                    {item}
-                  </motion.button>
-                ))}
+              <div className="flex flex-wrap gap-2 mb-6 max-h-60 overflow-y-auto p-1.5 border border-gray-100 dark:border-zinc-700/60 rounded-2xl">
+                {(form.level === 'High School' ? secondaryInterests : universityInterests).map(item => {
+                  const isSelected = form.interests.includes(item)
+                  return (
+                    <motion.button key={item} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }}
+                      type="button"
+                      onClick={() => toggleInterest(item)}
+                      className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${isSelected ? 'bg-primary text-white border-primary shadow-xs' : 'bg-gray-50 dark:bg-zinc-800 text-dark dark:text-white border-gray-200 dark:border-zinc-700 hover:border-primary'}`}>
+                      {item}
+                    </motion.button>
+                  )
+                })}
               </div>
 
               {error && <p className="text-red-500 text-xs mb-3 text-center">{error}</p>}
