@@ -20,7 +20,7 @@ const features = [
   { icon: FiCode, title: "Skill Guilds & Peer Reviews", desc: "Build in public, submit project drafts for constructive peer reviews, and build a verified job-ready portfolio." },
   { icon: FiUsers, title: "Global Campus Communities", desc: "Connect with students at your university, school, or skill category worldwide. Find your tribe." },
   { icon: FiAward, title: "Reaction Gifts & Coins", desc: "Earn reaction gift badges (Helpful, Brilliant, Masterclass) and Scholar Coins for adding value." },
-  { icon: FiCheckCircle, title: "Citation Source Verification", desc: "Share academic posts backed by official citation tags like NASA, Google Scholar, Wikipedia, and UNESCO." },
+  { icon: FiCheckCircle, title: "Citation Source Verification", desc: "Share academic posts backed by official citation tags like NASA, Google, Wikipedia, and UNESCO." },
 ]
 
 const steps = [
@@ -106,7 +106,7 @@ function Landing() {
   return (
     <div className="min-h-screen bg-light overflow-x-hidden text-dark">
 
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-dark backdrop-blur-md shadow-md border-b border-gray-800' : 'bg-dark'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4 flex items-center justify-between transition-all duration-300 ${scrolled ? 'bg-dark backdrop-blur-md shadow-md border-b border-gray-800' : 'bg-dark'}`}>
         <h1 className="text-xl font-extrabold text-light flex items-center gap-1.5">
           Scholar<span className="gradient-text">Hub</span>
         </h1>
@@ -132,7 +132,7 @@ function Landing() {
           </Link>
         </div>
 
-        <button className="md:hidden text-light" onClick={() => setMenuOpen(!menuOpen)}>
+        <button className="md:hidden text-light p-1" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
       </nav>
@@ -161,7 +161,7 @@ function Landing() {
       )}
 
       {/* HERO SECTION */}
-      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 pb-16 overflow-hidden">
+      <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 pt-24 sm:pt-28 pb-14 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="animate-blob absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
           <div className="animate-blob-delay1 absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-accent/8 blur-3xl" />
@@ -173,11 +173,11 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={0}
-          className="relative inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-bold text-dark mb-6 shadow-sm"
+          className="relative inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3.5 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold text-dark mb-6 shadow-xs max-w-full truncate"
         >
-          <FiGlobe size={14} className="text-primary animate-pulse" />
-          <span>Global Social Learning Network</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
+          <FiGlobe size={14} className="text-primary animate-pulse flex-shrink-0" />
+          <span className="truncate">Global Social Learning Network</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping flex-shrink-0" />
         </motion.div>
 
         <motion.h1
@@ -185,7 +185,7 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={1}
-          className="relative text-4xl md:text-6xl font-extrabold text-dark leading-tight mb-6 max-w-4xl tracking-tight"
+          className="relative text-3xl sm:text-5xl md:text-6xl font-extrabold text-dark leading-tight mb-6 max-w-4xl tracking-tight"
         >
           Where Students & Skill Learners{" "}
           <span className="gradient-text">Connect, Build & Earn Together.</span>
@@ -196,22 +196,22 @@ function Landing() {
           initial="hidden"
           animate="visible"
           custom={2}
-          className="relative text-gray-600 dark:text-gray-400 text-base md:text-lg max-w-2xl mb-10 leading-relaxed font-normal"
+          className="relative text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mb-8 leading-relaxed font-normal"
         >
           Join global campus communities, master in-demand skills through peer project reviews, and get rewarded with reaction gifts and Scholar Coins as you learn.
         </motion.p>
 
-        {/* Action Buttons */}
+        {/* Responsive Action Buttons */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate="visible"
           custom={3}
-          className="relative flex flex-col sm:flex-row items-center gap-4"
+          className="relative flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto"
         >
           <Link
             href="/signup?track=academic"
-            className="animate-glow bg-primary text-white font-bold px-7 py-3.5 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center gap-2.5 shadow-lg shadow-primary/25 text-sm"
+            className="animate-glow bg-primary text-white font-bold px-6 py-3.5 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg shadow-primary/25 text-sm w-full sm:w-auto"
           >
             <FiBookOpen size={18} />
             <span>Join as Academic Scholar</span>
@@ -219,7 +219,7 @@ function Landing() {
           </Link>
           <Link
             href="/signup?track=pro_skill"
-            className="bg-dark text-white font-bold px-7 py-3.5 rounded-xl hover:bg-black hover:scale-105 transition-all duration-300 flex items-center gap-2.5 shadow-md text-sm"
+            className="bg-dark text-white font-bold px-6 py-3.5 rounded-xl hover:bg-black hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2.5 shadow-md text-sm w-full sm:w-auto"
           >
             <FiCode size={18} />
             <span>Join as Pro Skill Scholar</span>
@@ -228,28 +228,28 @@ function Landing() {
         </motion.div>
       </section>
 
-      {/* REAL DISCUSSIONS & SHOWCASE SECTION */}
-      <section id="showcase" className="py-20 px-6 bg-white border-y border-gray-100">
+      {/* REAL DISCUSSIONS & SHOWCASE SECTION - FULLY RESPONSIVE MOBILE FIX */}
+      <section id="showcase" className="py-14 sm:py-20 px-4 sm:px-6 bg-white border-y border-gray-100">
         <div className="max-w-4xl mx-auto">
-          <div ref={addRef} className="reveal text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-2">What You Will Experience</h2>
-            <p className="text-gray-500 text-sm max-w-lg mx-auto">Explore real academic discussions, verified study notes, and hands-on skill project reviews built by scholars worldwide.</p>
+          <div ref={addRef} className="reveal text-center mb-10 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-dark mb-2">What You Will Experience</h2>
+            <p className="text-gray-500 text-xs sm:text-sm max-w-lg mx-auto">Explore real academic discussions, verified study notes, and hands-on skill project reviews built by scholars worldwide.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             {/* Card 1: Academic Showcase */}
-            <div ref={addRef} className="reveal bg-light rounded-3xl p-6 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-4 border-b border-gray-200/60 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs">
+            <div ref={addRef} className="reveal bg-light rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="flex flex-wrap items-start justify-between gap-2 mb-3.5 border-b border-gray-200/60 pb-3">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-xl sm:rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs flex-shrink-0">
                     <FiBookOpen size={18} />
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-dark">Computer Science (Harvard University)</p>
-                    <p className="text-[11px] text-gray-400">Academic Campus Hub</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-dark truncate">Computer Science</p>
+                    <p className="text-[11px] text-gray-500 font-medium truncate">Harvard University</p>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0 self-center">
                   🟢 Verified Source
                 </span>
               </div>
@@ -257,25 +257,25 @@ function Landing() {
               <p className="text-xs text-gray-600 leading-relaxed mb-4">
                 In Computer Science, Big O notation describes how an algorithm execution time scales with input size. Here are the core rules for analyzing nested loops O(n^2) vs linear search O(n)...
               </p>
-              <div className="flex items-center gap-3 pt-3 border-t border-gray-200/60 text-xs text-gray-500 font-semibold">
-                <span className="flex items-center gap-1"><FiThumbsUp size={13} className="text-blue-500" /> 18 Likes</span>
-                <span className="ml-auto text-emerald-600 font-bold">📖 Citation: Google</span>
+              <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-200/60 text-xs text-gray-500 font-semibold">
+                <span className="flex items-center gap-1 text-gray-600"><FiThumbsUp size={13} className="text-blue-500" /> 18 Likes</span>
+                <span className="text-emerald-600 font-bold truncate">📖 Citation: Google</span>
               </div>
             </div>
 
             {/* Card 2: Skill Guild Showcase */}
-            <div ref={addRef} className="reveal bg-light rounded-3xl p-6 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center justify-between mb-4 border-b border-gray-200/60 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs">
+            <div ref={addRef} className="reveal bg-light rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="flex flex-wrap items-start justify-between gap-2 mb-3.5 border-b border-gray-200/60 pb-3">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-xl sm:rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs flex-shrink-0">
                     <FiCode size={18} />
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-dark">UI/UX Design Studio</p>
-                    <p className="text-[11px] text-gray-400">Pro Skill Guild</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-dark truncate">UI/UX Design Studio</p>
+                    <p className="text-[11px] text-gray-500 font-medium truncate">Pro Skill Guild</p>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex-shrink-0 self-center">
                   🛠️ Project Showcase
                 </span>
               </div>
@@ -283,9 +283,9 @@ function Landing() {
               <p className="text-xs text-gray-600 leading-relaxed mb-4">
                 Hey Guild! Here is my responsive checkout component redesign. Would love constructive feedback on button contrast and mobile spacing before I push to my portfolio...
               </p>
-              <div className="flex items-center gap-3 pt-3 border-t border-gray-200/60 text-xs text-gray-500 font-semibold">
+              <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-200/60 text-xs text-gray-500 font-semibold">
                 <span className="flex items-center gap-1 text-primary"><FiCheckCircle size={13} /> 12 Peer Reviews</span>
-                <span className="ml-auto text-amber-600 font-bold">+100 Scholar Coins</span>
+                <span className="text-amber-600 font-bold truncate">+100 Scholar Coins</span>
               </div>
             </div>
           </div>
@@ -293,24 +293,24 @@ function Landing() {
       </section>
 
       {/* FEATURES SECTION */}
-      <section id="features" className="py-24 px-6 bg-white">
+      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">Built for Modern Scholars</h2>
-            <p className="text-gray-500 text-sm max-w-xl mx-auto">One platform for academic excellence, hands-on skill reviews, and coin rewards worldwide.</p>
+          <div ref={addRef} className="reveal text-center mb-12 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-dark mb-3">Built for Modern Scholars</h2>
+            <p className="text-gray-500 text-xs sm:text-sm max-w-xl mx-auto">One platform for academic excellence, hands-on skill reviews, and coin rewards worldwide.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
             {features.map((f) => (
               <div
                 ref={addRef}
                 key={f.title}
-                className="card-3d reveal bg-light rounded-2xl p-6 border border-gray-100 hover:border-primary hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-default"
+                className="card-3d reveal bg-light rounded-2xl p-5 sm:p-6 border border-gray-100 hover:border-primary hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-default"
               >
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary transition-all duration-300">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary transition-all duration-300">
                   <f.icon size={22} className="text-primary group-hover:text-white transition-all duration-300" />
                 </div>
-                <h3 className="font-bold text-dark text-lg mb-2">{f.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+                <h3 className="font-bold text-dark text-base sm:text-lg mb-2">{f.title}</h3>
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -318,24 +318,24 @@ function Landing() {
       </section>
 
       {/* HUBS & GUILDS SHOWCASE */}
-      <section id="communities" className="py-24 px-6 bg-light">
+      <section id="communities" className="py-16 sm:py-24 px-4 sm:px-6 bg-light">
         <div className="max-w-5xl mx-auto">
-          <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">Find Your Space</h2>
-            <p className="text-gray-500 text-sm max-w-xl mx-auto">Every scholar has a home on ScholarHub from university campus hubs to professional skill guilds.</p>
+          <div ref={addRef} className="reveal text-center mb-12 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-dark mb-3">Find Your Space</h2>
+            <p className="text-gray-500 text-xs sm:text-sm max-w-xl mx-auto">Every scholar has a home on ScholarHub from university campus hubs to professional skill guilds.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 max-w-3xl mx-auto">
             {communities.map(c => (
               <div
                 ref={addRef}
                 key={c.name}
                 onClick={() => handleCommunityClick(c.id)}
-                className={`reveal border rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-2 transition-all duration-300 cursor-pointer ${c.color}`}
+                className={`reveal border rounded-2xl p-5 sm:p-6 text-center hover:shadow-lg hover:-translate-y-2 transition-all duration-300 cursor-pointer ${c.color}`}
               >
                 <p className={`flex justify-center mb-3 ${c.badge}`}>
                   {c.id === 'academic' ? <FiBookOpen size={32} /> : <FiLayers size={32} />}
                 </p>
-                <p className="font-extrabold text-dark text-lg mt-1">{c.name}</p>
+                <p className="font-extrabold text-dark text-base sm:text-lg mt-1">{c.name}</p>
                 <p className="text-xs text-gray-500 mt-1 mb-5">{c.desc}</p>
                 <span className={`text-xs font-bold px-5 py-2 rounded-full ${c.badge} border border-current bg-white/80 dark:bg-dark/80`}>
                   Explore Space →
@@ -347,20 +347,20 @@ function Landing() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="py-24 px-6 bg-white">
+      <section id="how" className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
         <div className="max-w-4xl mx-auto">
-          <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">How It Works</h2>
-            <p className="text-gray-500 text-sm max-w-xl mx-auto">Get started in three simple steps.</p>
+          <div ref={addRef} className="reveal text-center mb-12 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-dark mb-3">How It Works</h2>
+            <p className="text-gray-500 text-xs sm:text-sm max-w-xl mx-auto">Get started in three simple steps.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {steps.map((s, idx) => (
               <div ref={addRef} key={s.number} className="reveal text-center group" style={{ animationDelay: `${idx * 0.15}s` }}>
-                <div className="w-16 h-16 bg-dark text-white rounded-2xl flex items-center justify-center text-xl font-extrabold mx-auto mb-4 animate-float group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-dark text-white rounded-2xl flex items-center justify-center text-lg sm:text-xl font-extrabold mx-auto mb-4 animate-float group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
                   {s.number}
                 </div>
-                <h3 className="font-bold text-dark text-lg mb-2">{s.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
+                <h3 className="font-bold text-dark text-base sm:text-lg mb-2">{s.title}</h3>
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -368,11 +368,11 @@ function Landing() {
       </section>
 
       {/* LEADERBOARD SECTION */}
-      <section id="leaderboard" className="py-24 px-6 bg-light">
+      <section id="leaderboard" className="py-16 sm:py-24 px-4 sm:px-6 bg-light">
         <div className="max-w-3xl mx-auto">
-          <div ref={addRef} className="reveal text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-dark mb-3">Top Scholars This Week</h2>
-            <p className="text-gray-500 text-sm max-w-xl mx-auto">The most active students and skill creators rise to the top. Could you be next?</p>
+          <div ref={addRef} className="reveal text-center mb-12 sm:mb-14">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-dark mb-3">Top Scholars This Week</h2>
+            <p className="text-gray-500 text-xs sm:text-sm max-w-xl mx-auto">The most active students and skill creators rise to the top. Could you be next?</p>
           </div>
           <div ref={addRef} className="reveal flex flex-col gap-3">
             {scholarsLoading ? (
@@ -400,12 +400,12 @@ function Landing() {
                 const name = s.name || s.username || 'Scholar'
                 return (
                   <div key={s._id || i}
-                    className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 hover:shadow-md hover:-translate-x-1 ${i === 0 ? 'bg-primary/5 border-primary/20' : 'bg-white border-gray-100'}`}
+                    className={`flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 hover:shadow-md hover:-translate-x-1 ${i === 0 ? 'bg-primary/5 border-primary/20' : 'bg-white border-gray-100'}`}
                   >
-                    <span className="text-2xl w-8 text-center font-extrabold text-primary">{rankStr}</span>
-                    <div className="flex-1">
-                      <p className="font-bold text-dark text-sm">{name}</p>
-                      {school && <p className="text-xs text-gray-400">{school}</p>}
+                    <span className="text-xl sm:text-2xl w-7 sm:w-8 text-center font-extrabold text-primary">{rankStr}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-dark text-xs sm:text-sm truncate">{name}</p>
+                      {school && <p className="text-[11px] sm:text-xs text-gray-400 truncate">{school}</p>}
                     </div>
                   </div>
                 )
@@ -416,20 +416,20 @@ function Landing() {
       </section>
 
       {/* FINAL CALL TO ACTION */}
-      <section className="relative py-24 px-6 bg-dark overflow-hidden text-center">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-dark overflow-hidden text-center">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="animate-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
         </div>
         <div ref={addRef} className="reveal relative max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4">
             Ready to join the global movement?
           </h2>
-          <p className="text-gray-400 mb-10 text-lg">
+          <p className="text-gray-400 mb-8 sm:mb-10 text-sm sm:text-lg">
             Thousands of students and skill learners are building, connecting, and earning together on ScholarHub.
           </p>
           <Link
             href="/signup"
-            className="animate-glow bg-primary text-white font-semibold px-10 py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 inline-flex items-center gap-2 shadow-lg shadow-primary/30 text-sm"
+            className="animate-glow bg-primary text-white font-semibold px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl hover:opacity-90 hover:scale-105 transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-lg shadow-primary/30 text-sm w-full sm:w-auto"
           >
             Get Started Free <FiArrowRight size={18} />
           </Link>
@@ -437,20 +437,20 @@ function Landing() {
       </section>
 
       {/* ULTRA GLOWING FOOTER */}
-      <footer className="relative bg-dark border-t border-primary/30 px-6 py-14 text-center overflow-hidden shadow-2xl shadow-primary/20">
+      <footer className="relative bg-dark border-t border-primary/30 px-4 sm:px-6 py-10 sm:py-14 text-center overflow-hidden shadow-2xl shadow-primary/20">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="animate-blob absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/25 blur-3xl" />
           <div className="animate-blob-delay1 absolute top-1/2 right-1/3 -translate-y-1/2 w-96 h-96 rounded-full bg-accent/20 blur-3xl" />
         </div>
         <div className="relative max-w-xl mx-auto space-y-3">
-          <h1 className="text-4xl font-extrabold tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
             <span className="text-white drop-shadow-md">Scholar</span>
             <span className="bg-gradient-to-r from-emerald-400 via-primary to-accent bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(52,211,153,0.8)] animate-pulse">
               Hub
             </span>
           </h1>
           <div className="h-0.5 w-24 mx-auto bg-gradient-to-r from-transparent via-primary to-transparent rounded-full shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
-          <p className="text-gray-300 text-sm flex items-center justify-center gap-2 font-semibold">
+          <p className="text-gray-300 text-xs sm:text-sm flex items-center justify-center gap-2 font-semibold">
             © 2026 ScholarHub. Global Social Learning Network. <FiGlobe size={16} className="inline text-accent" />
           </p>
         </div>
