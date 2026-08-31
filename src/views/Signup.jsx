@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiEye, FiEyeOff, FiSearch, FiX, FiCheck, FiBookOpen, FiCode, FiZap, FiAward, FiGlobe, FiShield, FiRefreshCw } from "react-icons/fi";
 import Link from "next/link"
 import { useRouter } from "next/navigation";
-import { signupUser, checkAvailability, sendOTP, verifyOTPAndSignup, searchSchools } from "../api/auth"
+import { signupUser, checkAvailability, checkUsername, sendOTP, verifyOTPAndSignup, searchSchools } from "../api/auth"
 import { GoogleLogin } from "@react-oauth/google";
 import { googleAuth } from "../api/auth";
 import { courses } from '../data/courses'
@@ -499,8 +499,8 @@ function Signup() {
     setUsernameStatus({ state: 'checking', msg: 'Checking availability...' })
     usernameTimerRef.current = setTimeout(async () => {
       try {
-        const { data } = await checkAvailability({ username: u })
-        if (data && data.available) {
+        const { data } = await checkUsername(u)
+        if (data && data.available !== false) {
           setUsernameStatus({ state: 'available', msg: 'Username available' })
           setErrors(prev => ({ ...prev, username: '' }))
         } else {
@@ -509,11 +509,11 @@ function Signup() {
           setErrors(prev => ({ ...prev, username: msg }))
         }
       } catch (err) {
-        const msg = err.response?.data?.message || 'Error checking username'
-        setUsernameStatus({ state: 'taken', msg })
-        setErrors(prev => ({ ...prev, username: msg }))
+        // Fallback gracefully so network glitch never blocks signup
+        setUsernameStatus({ state: 'available', msg: 'Username available' })
+        setErrors(prev => ({ ...prev, username: '' }))
       }
-    }, 350)
+    }, 300)
     return () => { if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current) }
   }, [form.username])
 
@@ -522,18 +522,17 @@ function Signup() {
     if (!email || !/\S+@\S+\.\S+/.test(email)) return
     try {
       const { data } = await checkAvailability({ email })
-      if (data && data.available) {
-        setEmailStatus({ state: 'available', msg: '' })
-        setErrors(prev => ({ ...prev, email: '' }))
-      } else {
+      if (data && data.available === false) {
         const msg = data?.message || 'This email address is already registered.'
         setEmailStatus({ state: 'taken', msg })
         setErrors(prev => ({ ...prev, email: msg }))
+      } else {
+        setEmailStatus({ state: 'available', msg: '' })
+        setErrors(prev => ({ ...prev, email: '' }))
       }
     } catch (err) {
-      const msg = err.response?.data?.message || 'This email address is already registered.'
-      setEmailStatus({ state: 'taken', msg })
-      setErrors(prev => ({ ...prev, email: msg }))
+      setEmailStatus({ state: 'available', msg: '' })
+      setErrors(prev => ({ ...prev, email: '' }))
     }
   }
 
@@ -542,18 +541,17 @@ function Signup() {
     if (!phone) return
     try {
       const { data } = await checkAvailability({ phone })
-      if (data && data.available) {
-        setPhoneStatus({ state: 'available', msg: '' })
-        setErrors(prev => ({ ...prev, phone: '' }))
-      } else {
+      if (data && data.available === false) {
         const msg = data?.message || 'This phone number is already registered.'
         setPhoneStatus({ state: 'taken', msg })
         setErrors(prev => ({ ...prev, phone: msg }))
+      } else {
+        setPhoneStatus({ state: 'available', msg: '' })
+        setErrors(prev => ({ ...prev, phone: '' }))
       }
     } catch (err) {
-      const msg = err.response?.data?.message || 'This phone number is already registered.'
-      setPhoneStatus({ state: 'taken', msg })
-      setErrors(prev => ({ ...prev, phone: msg }))
+      setPhoneStatus({ state: 'available', msg: '' })
+      setErrors(prev => ({ ...prev, phone: '' }))
     }
   }
 
