@@ -612,17 +612,12 @@ function Signup() {
     return Object.keys(newErrors).length === 0 && usernameStatus.state !== 'taken' && emailStatus.state !== 'taken' && phoneStatus.state !== 'taken'
   }
 
-  const [receivedOtp, setReceivedOtp] = useState('')
-
   const handleRequestOTP = async () => {
     if (!validateStep1()) return
     setLoading(true)
     setError('')
     try {
-      const res = await sendOTP({ email: form.email, phone: form.phone })
-      if (res && res.data && res.data.otp) {
-        setReceivedOtp(res.data.otp)
-      }
+      await sendOTP({ email: form.email, phone: form.phone })
       setStep(2)
       setOtpTimer(60)
       setCanResendOtp(false)
@@ -867,15 +862,9 @@ function Signup() {
                 <FiShield size={28} />
               </div>
               <h2 className="text-xl font-bold text-dark dark:text-white mb-1">Verify Security Code</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
                 We sent a 6-digit verification code to <strong className="text-dark dark:text-white">{form.email}</strong>
               </p>
-
-              {receivedOtp && (
-                <div className="mb-4 inline-block bg-primary/10 border border-primary/20 rounded-xl px-3 py-1.5 text-xs text-primary font-bold">
-                  ⚡ Verification Code: <span className="font-mono text-sm tracking-widest">{receivedOtp}</span>
-                </div>
-              )}
 
               <div className="flex justify-center gap-2 mb-6">
                 {otpCode.map((digit, idx) => (
