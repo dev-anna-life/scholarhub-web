@@ -500,12 +500,16 @@ function Signup() {
     usernameTimerRef.current = setTimeout(async () => {
       try {
         const { data } = await checkAvailability({ username: u })
-        if (data.available) {
+        if (data && data.available) {
           setUsernameStatus({ state: 'available', msg: 'Username available' })
           setErrors(prev => ({ ...prev, username: '' }))
+        } else {
+          const msg = data?.message || 'Username already taken'
+          setUsernameStatus({ state: 'taken', msg })
+          setErrors(prev => ({ ...prev, username: msg }))
         }
       } catch (err) {
-        const msg = err.response?.data?.message || 'Username unavailable'
+        const msg = err.response?.data?.message || 'Error checking username'
         setUsernameStatus({ state: 'taken', msg })
         setErrors(prev => ({ ...prev, username: msg }))
       }
@@ -517,9 +521,15 @@ function Signup() {
     const email = form.email.trim()
     if (!email || !/\S+@\S+\.\S+/.test(email)) return
     try {
-      await checkAvailability({ email })
-      setEmailStatus({ state: 'available', msg: '' })
-      setErrors(prev => ({ ...prev, email: '' }))
+      const { data } = await checkAvailability({ email })
+      if (data && data.available) {
+        setEmailStatus({ state: 'available', msg: '' })
+        setErrors(prev => ({ ...prev, email: '' }))
+      } else {
+        const msg = data?.message || 'This email address is already registered.'
+        setEmailStatus({ state: 'taken', msg })
+        setErrors(prev => ({ ...prev, email: msg }))
+      }
     } catch (err) {
       const msg = err.response?.data?.message || 'This email address is already registered.'
       setEmailStatus({ state: 'taken', msg })
@@ -531,9 +541,15 @@ function Signup() {
     const phone = form.phone.trim()
     if (!phone) return
     try {
-      await checkAvailability({ phone })
-      setPhoneStatus({ state: 'available', msg: '' })
-      setErrors(prev => ({ ...prev, phone: '' }))
+      const { data } = await checkAvailability({ phone })
+      if (data && data.available) {
+        setPhoneStatus({ state: 'available', msg: '' })
+        setErrors(prev => ({ ...prev, phone: '' }))
+      } else {
+        const msg = data?.message || 'This phone number is already registered.'
+        setPhoneStatus({ state: 'taken', msg })
+        setErrors(prev => ({ ...prev, phone: msg }))
+      }
     } catch (err) {
       const msg = err.response?.data?.message || 'This phone number is already registered.'
       setPhoneStatus({ state: 'taken', msg })
