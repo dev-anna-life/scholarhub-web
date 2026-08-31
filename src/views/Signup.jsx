@@ -517,9 +517,36 @@ function Signup() {
     return () => { if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current) }
   }, [form.username])
 
+  const validateEmailCompleteness = (emailStr) => {
+    const trimmed = emailStr.trim().toLowerCase()
+    if (!trimmed) return 'Email address is required'
+    if (!/\S+@\S+\.\S+/.test(trimmed)) return 'Your email address is incomplete'
+    
+    const parts = trimmed.split('@')
+    if (parts.length !== 2) return 'Your email address is incomplete'
+    const domain = parts[1]
+    if (!domain || domain.length < 4 || !domain.includes('.')) return 'Your email address is incomplete'
+    
+    const invalidDomains = ['gail.com', 'gmial.com', 'gamil.com', 'yaho.com', 'outlok.com', 'hotmial.com', 'icoud.com', 'gmai.com', 'gmaill.com']
+    if (invalidDomains.includes(domain)) {
+      return 'Your email address is incomplete'
+    }
+    
+    const tld = domain.split('.').pop()
+    if (!tld || tld.length < 2 || tld === 'c' || (tld === 'co' && !domain.endsWith('.co.uk'))) {
+      return 'Your email address is incomplete'
+    }
+    return null
+  }
+
   const handleEmailBlur = async () => {
     const email = form.email.trim()
-    if (!email || !/\S+@\S+\.\S+/.test(email)) return
+    const completenessErr = validateEmailCompleteness(email)
+    if (completenessErr) {
+      setEmailStatus({ state: 'taken', msg: completenessErr })
+      setErrors(prev => ({ ...prev, email: completenessErr }))
+      return
+    }
     try {
       const { data } = await checkAvailability({ email })
       if (data && data.available === false) {
@@ -573,8 +600,8 @@ function Signup() {
     else if (form.username.trim().length < 5) newErrors.username = 'Username must be at least 5 characters'
     else if (!/^[a-zA-Z0-9_]+$/.test(form.username.trim())) newErrors.username = 'Username can only contain letters, numbers, and underscores'
     
-    if (!form.email.trim()) newErrors.email = 'Email address is required'
-    else if (!/\S+@\S+\.\S+/.test(form.email.trim())) newErrors.email = 'Please enter a valid email address'
+    const emailErr = validateEmailCompleteness(form.email)
+    if (emailErr) newErrors.email = emailErr
     
     if (!form.phone.trim()) newErrors.phone = 'Phone number is required'
     
