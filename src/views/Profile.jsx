@@ -11,6 +11,7 @@ import { getMe, getUserPosts, deletePost, getUserById, followUser, updateProfile
 import { getSchoolLogo } from "../data/schools"
 import SchoolBadge from "../components/SchoolBadge"
 import SchoolLogo from "../components/SchoolLogo"
+import UserBadge from "../components/UserBadge"
 
 function Profile() {
   const router = useRouter()
