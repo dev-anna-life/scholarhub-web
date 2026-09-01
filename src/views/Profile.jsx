@@ -189,11 +189,7 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
 
               <h2 className="text-xl sm:text-2xl font-extrabold text-dark flex items-center justify-center gap-1.5 flex-wrap">
                 <span>{user.name || 'Student'}</span>
-                {user.isVerified && (
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#008751] text-white text-[10px] font-extrabold shadow-xs flex-shrink-0" title="Scholar Verified">
-                    ✓
-                  </span>
-                )}
+                <UserBadge user={user} />
               </h2>
               <p className="text-xs sm:text-sm font-semibold text-primary mt-0.5">
                 @{user.username || user.name?.toLowerCase().replace(/\s+/g, '')}
