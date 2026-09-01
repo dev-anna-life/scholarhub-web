@@ -332,7 +332,7 @@ function SchoolSearchInput({ value, onChange, error, currentLevel, country, stat
       } catch { fetched = [] }
 
       const acronymMatch = resolveSchoolName(query, country)
-      const list = [...fetched]
+      const list = [...fetched].filter(s => !s.isRegionPlaceholder)
 
       if (query && acronymMatch && acronymMatch.toLowerCase() !== query.toLowerCase()) {
         const existingIdx = list.findIndex(s => s.name.toLowerCase() === acronymMatch.toLowerCase())
