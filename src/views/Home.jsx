@@ -12,6 +12,7 @@ import { getSchoolAbbr, stringToColor } from '../utils/school'
 import SchoolLogo from '../components/SchoolLogo'
 import SchoolBadge from '../components/SchoolBadge'
 import CitationSourceInput from '../components/CitationSourceInput'
+import UserBadge from '../components/UserBadge'
 import { formatCitationSource } from '../data/citationSources'
 import axios from 'axios'
 
@@ -85,14 +86,7 @@ function Home() {
     }
 
     const renderAuthorBadge = (author) => {
-        if (author?.isVerified) {
-            return (
-                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#008751] text-white text-[9px] font-extrabold ml-1 flex-shrink-0" title="Scholar Verified">
-                    ✓
-                </span>
-            )
-        }
-        return null
+        return <UserBadge user={author} className="ml-1" />
     }
     const [userCommunities, setUserCommunities] = useState([])
     const [selectedCommunityIds, setSelectedCommunityIds] = useState([])
