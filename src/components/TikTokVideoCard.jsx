@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FiHeart, FiMessageSquare, FiGift, FiDownload, FiLock, FiShare2, FiVolume2, FiVolumeX, FiPlay, FiPause, FiCheckCircle } from 'react-icons/fi'
 import CommentDrawer from './CommentDrawer'
 import PostGiftModal from './PostGiftModal'
+import ShareModal from './ShareModal'
 
 export default function TikTokVideoCard({ video, onGift, isActive }) {
   const videoRef = useRef(null)
@@ -12,6 +13,7 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
   const [isLiked, setIsLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(video?.likesCount || 24)
   const [showGiftModal, setShowGiftModal] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
   const [showComments, setShowComments] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadNotice, setDownloadNotice] = useState('')
@@ -19,12 +21,7 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
 
   const handleShare = (e) => {
     e.stopPropagation()
-    const url = typeof window !== 'undefined' ? (window.location.origin + '/post/' + (video.id || video._id || 'clip')) : ''
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url)
-    }
-    setShareNotice('🔗 Video link copied to clipboard!')
-    setTimeout(() => setShareNotice(''), 3000)
+    setShowShareModal(true)
   }
 
   const allowDownload = video?.allowDownload !== false // Default true unless creator toggled false
@@ -251,6 +248,13 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
         isOpen={showGiftModal}
         post={video}
         onClose={() => setShowGiftModal(false)}
+      />
+
+      {/* Share Modal Integration */}
+      <ShareModal
+        isOpen={showShareModal}
+        post={video}
+        onClose={() => setShowShareModal(false)}
       />
 
       {/* Comment Drawer Integration */}

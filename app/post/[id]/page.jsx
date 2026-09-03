@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getPostById, addComment, likePost, getMe, giftReaction } from '../../../src/api/auth'
-import { FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiArrowLeft, FiSend, FiGift, FiThumbsUp, FiCompass, FiImage, FiZap, FiStar, FiAward } from 'react-icons/fi'
+import { FiHeart, FiMessageCircle, FiShare2, FiBookmark, FiArrowLeft, FiSend, FiGift, FiThumbsUp, FiCompass, FiImage, FiZap, FiStar, FiAward, FiPlay, FiVolume2, FiVolumeX, FiCheckCircle } from 'react-icons/fi'
 import { motion } from 'framer-motion'
+import ShareModal from '../../../src/components/ShareModal'
+import UserBadge from '../../../src/components/UserBadge'
 
 const REACTION_GIFTS = [
   { id: 'gift_helpful', name: 'Helpful', price: 10, icon: FiThumbsUp, color: 'text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100' },
@@ -14,27 +16,37 @@ const REACTION_GIFTS = [
   { id: 'gift_masterclass', name: 'Masterclass', price: 500, icon: FiAward, color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' },
 ]
 
-const renderCommentGifts = (gifts = []) => {
-  if (!gifts || gifts.length === 0) return null
-  const counts = {}
-  gifts.forEach(g => counts[g] = (counts[g] || 0) + 1)
-
-  return (
-    <div className="flex flex-wrap gap-1 mt-1.5 mb-1">
-      {Object.entries(counts).map(([giftId, count]) => {
-        const giftObj = REACTION_GIFTS.find(g => g.id === giftId)
-        if (!giftObj) return null
-        const GiftIcon = giftObj.icon
-        return (
-          <div key={giftId} className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-150 text-amber-650 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-400" title={`${giftObj.name} reaction`}>
-            <GiftIcon size={9} className="text-amber-500 flex-shrink-0" />
-            <span>{giftObj.name}</span>
-            {count > 1 && <span className="text-gray-500/80 ml-0.5">x{count}</span>}
-          </div>
-        )
-      })}
-    </div>
-  )
+const SAMPLE_CLIPS = {
+  clip_1: {
+    id: 'clip_1',
+    title: '3 Mobile Navigation UX Patterns You Need to Know',
+    content: 'Stop using complex 3-level accordion menus on mobile screens! Here are 3 clean navigation patterns that increase mobile retention by 40%...',
+    video: 'https://assets.mixkit.co/videos/preview/mixkit-student-reading-a-book-in-a-library-42930-large.mp4',
+    author: { name: 'Alex Rivers', username: 'alex_ux', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', school: 'UI/UX Design Studio', isOfficial: true },
+    likesCount: 342,
+    commentsData: [],
+    citationSource: 'Google Design Index'
+  },
+  clip_2: {
+    id: 'clip_2',
+    title: 'How Async/Await Actually Works in JavaScript',
+    content: 'The event loop processes microtasks before macrotasks! Watch this 45-second visual breakdown of async execution order...',
+    video: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-man-working-on-a-laptop-43093-large.mp4',
+    author: { name: 'Sarah Jenkins', username: 'sarah_dev', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150', school: 'Web & Software Engineering' },
+    likesCount: 512,
+    commentsData: [],
+    citationSource: 'IEEE Computer Society'
+  },
+  clip_3: {
+    id: 'clip_3',
+    title: 'Understanding Transformer Self-Attention in 60s',
+    content: 'Why did Transformers replace RNNs in AI? Self-attention calculates query-key matrix weights in parallel across all tokens at once!',
+    video: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-studying-with-a-laptop-in-a-library-42932-large.mp4',
+    author: { name: 'Dr. Michael Chen', username: 'prof_chen', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', school: 'Data Science & AI' },
+    likesCount: 890,
+    commentsData: [],
+    citationSource: 'ACM Digital Library'
+  }
 }
 
 export default function PostDetail() {
@@ -45,38 +57,49 @@ export default function PostDetail() {
   const [loading, setLoading] = useState(true)
   const [commentText, setCommentText] = useState('')
   const [replyTo, setReplyTo] = useState(null)
-  const [showRepliesMap, setShowRepliesMap] = useState({})
   const [liked, setLiked] = useState(false)
   const [saved, setSaved] = useState(false)
   const [commenting, setCommenting] = useState(false)
-  const [activeGiftCommentId, setActiveGiftCommentId] = useState(null)
-  const [gifting, setGifting] = useState(false)
-  const [giftMsg, setGiftMsg] = useState('')
-
-  const toggleShowReplies = (cId) => {
-    setShowRepliesMap(prev => ({ ...prev, [cId]: !prev[cId] }))
-  }
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return router.push('/login')
-    getMe().then(r => setUser(r.data)).catch(() => {})
-    getPostById(id).then(r => {
-      setPost(r.data)
-      setLiked(r.data.liked)
-      setSaved(r.data.saved)
-    }).catch(() => router.push('/feed')).finally(() => setLoading(false))
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    if (token) {
+      getMe().then(r => setUser(r.data)).catch(() => {})
+    }
+
+    if (id && SAMPLE_CLIPS[id]) {
+      setPost(SAMPLE_CLIPS[id])
+      setLoading(false)
+      return
+    }
+
+    if (id) {
+      getPostById(id)
+        .then(r => {
+          setPost(r.data)
+          setLiked(r.data.liked || false)
+          setSaved(r.data.saved || false)
+        })
+        .catch(err => {
+          console.warn('Post not found or fetch error:', err)
+        })
+        .finally(() => setLoading(false))
+    }
   }, [id])
 
   const toggleLike = async () => {
+    if (!user) return router.push('/login')
     try {
       await likePost(id)
       setLiked(!liked)
-      setPost(p => ({ ...p, likesCount: p.likesCount + (liked ? -1 : 1) }))
+      setPost(p => ({ ...p, likesCount: (p.likesCount || 0) + (liked ? -1 : 1) }))
     } catch {}
   }
 
   const handleComment = async () => {
+    if (!user) return router.push('/login')
     if (!commentText.trim()) return
     setCommenting(true)
     try {
@@ -99,304 +122,168 @@ export default function PostDetail() {
     }
   }
 
-  const handleSendGift = async (item, comment) => {
-    const recipientId = comment.author?.id || comment.author?._id || comment.authorId
-    if (!recipientId) return
-    if (recipientId === (user?.id || user?._id)) {
-      setGiftMsg('You cannot gift your own comment!')
-      return
-    }
-    setGifting(true)
-    setGiftMsg('')
-    try {
-      const res = await giftReaction({
-        itemId: item.id,
-        recipientId,
-        commentId: comment.id || comment._id,
-        postId: id,
-      })
-      setGiftMsg(`Success! Awarded ${item.name} (+${item.price} coins)`)
-      if (comment) {
-        if (!comment.gifts) comment.gifts = []
-        comment.gifts.push(item.id)
-      }
-      const newCoins = res.data?.coins !== undefined ? res.data.coins : Math.max(0, (user?.coins || 0) - item.price)
-      try {
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
-        storedUser.coins = newCoins
-        localStorage.setItem('user', JSON.stringify(storedUser))
-      } catch (e) {}
-      setUser(u => ({ ...u, coins: newCoins }))
-      window.dispatchEvent(new Event('userStateChange'))
-      setTimeout(() => { setActiveGiftCommentId(null); setGiftMsg('') }, 2000)
-    } catch (err) {
-      setGiftMsg(err.response?.data?.message || 'Failed to send gift reaction')
-    } finally {
-      setGifting(false)
-    }
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
-  if (loading) return (
-    <div className="min-h-screen bg-light flex items-center justify-center">
-      <div className="animate-pulse text-gray-400">Loading post...</div>
-    </div>
-  )
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-4 text-center">
+        <h2 className="text-xl font-bold text-dark dark:text-white mb-2">ScholarHub Post Not Found</h2>
+        <p className="text-xs text-gray-500 mb-4">This post may have been removed or is unavailable.</p>
+        <button
+          onClick={() => router.push('/feed')}
+          className="px-4 py-2 bg-primary text-white font-bold text-xs rounded-xl shadow-md"
+        >
+          Go to Feed
+        </button>
+      </div>
+    )
+  }
 
-  if (!post) return null
-
-  const c = post
+  const author = post.author || {}
 
   return (
-    <div className="min-h-screen bg-light pb-24 md:pb-8">
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-500 hover:text-primary transition mb-4">
-          <FiArrowLeft size={18} /> Back
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 pb-20">
+      {/* Top Header */}
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-150 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
+        <button onClick={() => router.back()} className="p-2 text-dark dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full">
+          <FiArrowLeft size={20} />
         </button>
+        <h1 className="font-extrabold text-sm text-dark dark:text-white truncate max-w-[200px]">
+          {post.title || 'ScholarHub Post'}
+        </h1>
+        <button onClick={() => setShowShareModal(true)} className="p-2 text-primary hover:bg-primary/10 rounded-full">
+          <FiShare2 size={20} />
+        </button>
+      </div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl p-5 border border-gray-100">
-          <div className="flex items-start gap-3 mb-4">
-            <div onClick={() => { const aId = c.author?.id || c.author?._id; if (aId && aId !== (user?.id || user?._id)) router.push(`/profile/${aId}`) }}
-              className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-sm font-bold flex-shrink-0 cursor-pointer hover:bg-primary/20 transition">
-              {c.author?.name?.charAt(0) || 'S'}
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        {/* Main Post Card Container */}
+        <div className="bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-2xl p-5 shadow-sm mb-6">
+          
+          {/* Author Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold overflow-hidden border border-gray-200 dark:border-zinc-700">
+                {author.avatar ? (
+                  <img src={author.avatar} alt={author.name} className="w-full h-full object-cover" />
+                ) : (
+                  (author.name || 'S')[0]
+                )}
+              </div>
+              <div>
+                <h3 className="font-extrabold text-sm text-dark dark:text-white flex items-center gap-1.5">
+                  <span>{author.name || 'Scholar Creator'}</span>
+                  <UserBadge user={author} />
+                </h3>
+                <p className="text-xs text-gray-500 font-medium">@{author.username || 'scholar'} • {author.school || 'Global Network'}</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p onClick={() => { const aId = c.author?.id || c.author?._id; if (aId && aId !== (user?.id || user?._id)) router.push(`/profile/${aId}`) }}
-                className="font-semibold text-dark text-sm cursor-pointer hover:text-primary transition truncate">
-                {c.author?.name || 'Scholar'}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">{c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ''}</p>
-            </div>
-            {c.category && <span className="bg-primary/10 text-primary font-medium px-2 py-0.5 rounded-full text-xs">{c.category}</span>}
           </div>
 
-          <h1 className="text-lg font-bold text-dark mb-2">{c.title}</h1>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">{c.content}</p>
+          {/* Title & Body */}
+          <h2 className="text-lg font-bold text-dark dark:text-white mb-2">{post.title}</h2>
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap mb-4">
+            {post.content}
+          </p>
 
-          {c.image && (
-            <div className="mb-4 rounded-xl overflow-hidden max-h-96">
-              <img src={c.image} alt="" className="w-full h-full object-cover" />
+          {/* Media Player: Video Support */}
+          {post.video && (
+            <div className="relative mb-4 rounded-xl overflow-hidden bg-black aspect-video shadow-md">
+              <video
+                src={post.video}
+                controls
+                className="w-full h-full object-contain"
+                muted={isMuted}
+              />
             </div>
           )}
 
-          {renderCommentGifts(c.gifts)}
-
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-gray-500 text-xs mb-4">
-            <div className="flex items-center gap-4">
-              <button onClick={toggleLike} className={`flex items-center gap-1.5 transition ${liked ? 'text-red-500 font-bold' : 'hover:text-red-500'}`}>
-                <FiHeart size={16} fill={liked ? 'currentColor' : 'none'} />
-                <span>{c.likesCount || 0}</span>
-              </button>
-              <div className="flex items-center gap-1.5">
-                <FiMessageCircle size={16} />
-                <span>{Array.isArray(c.commentsData) ? c.commentsData.length : (c.commentsCount || 0)}</span>
-              </div>
+          {/* Image Support */}
+          {post.image && (
+            <div className="mb-4 rounded-xl overflow-hidden bg-gray-100 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-800">
+              <img src={post.image} alt={post.title} className="w-full h-auto object-cover max-h-[500px]" />
             </div>
+          )}
+
+          {/* Academic Citation Badge */}
+          {post.citationSource && (
+            <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+              <FiCheckCircle size={14} />
+              <span>Verified Citation: {post.citationSource}</span>
+            </div>
+          )}
+
+          {/* Action Bar */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-zinc-800 text-gray-500">
+            <button onClick={toggleLike} className={`flex items-center gap-1.5 text-xs font-bold transition ${liked ? 'text-red-500' : 'hover:text-dark dark:hover:text-white'}`}>
+              <FiHeart size={18} className={liked ? 'fill-current' : ''} />
+              <span>{post.likesCount || 0} Likes</span>
+            </button>
+
+            <button onClick={() => setShowShareModal(true)} className="flex items-center gap-1.5 text-xs font-bold hover:text-primary transition">
+              <FiShare2 size={18} />
+              <span>Share Post</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Comments Section */}
+        <div className="bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-2xl p-5 shadow-sm">
+          <h3 className="font-extrabold text-sm text-dark dark:text-white mb-4">
+            Comments ({Array.isArray(post.commentsData) ? post.commentsData.length : 0})
+          </h3>
+
+          {/* Add Comment Input */}
+          <div className="flex gap-2 mb-6">
+            <input
+              type="text"
+              value={commentText}
+              onChange={e => setCommentText(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleComment()}
+              placeholder={user ? "Write a scholarly comment..." : "Log in to join discussion..."}
+              className="flex-1 px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs bg-gray-50 dark:bg-zinc-800 text-dark dark:text-white focus:border-primary focus:outline-none"
+            />
+            <button
+              onClick={handleComment}
+              disabled={commenting || !commentText.trim()}
+              className="px-4 py-2 bg-primary text-white font-bold text-xs rounded-xl hover:opacity-90 disabled:opacity-50 transition flex items-center gap-1"
+            >
+              <FiSend size={14} />
+              <span>Post</span>
+            </button>
           </div>
 
-          {/* Comment Section Header */}
-          <div className="border-t border-gray-100 pt-4">
-            <h3 className="text-sm font-bold text-dark mb-3">Comments</h3>
-
-            {replyTo && (
-              <div className="flex items-center justify-between bg-primary/10 px-3 py-1.5 rounded-lg mb-2 text-xs text-primary font-medium">
-                <span>Replying to <strong>{replyTo.authorName}</strong></span>
-                <button onClick={() => setReplyTo(null)} className="hover:text-red-500 font-bold">×</button>
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 mb-4">
-              <input
-                value={commentText}
-                onChange={e => setCommentText(e.target.value)}
-                placeholder={replyTo ? `Reply to ${replyTo.authorName}...` : "Write a comment..."}
-                className="flex-1 input-field text-sm py-2"
-              />
-              <button onClick={handleComment} disabled={commenting || !commentText.trim()} className="btn-primary !w-auto !px-4 !py-2">
-                <FiSend size={15} />
-              </button>
-            </div>
-
-            {(!Array.isArray(c.commentsData) || c.commentsData.length === 0) ? (
-              <p className="text-gray-400 text-sm text-center py-4">No comments yet, be the first!</p>
+          {/* Comments List */}
+          <div className="space-y-4">
+            {(!post.commentsData || post.commentsData.length === 0) ? (
+              <p className="text-xs text-gray-400 text-center py-4">No comments yet. Be the first to share your thoughts!</p>
             ) : (
-              <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1">
-                {(() => {
-                  const allComments = Array.isArray(c.commentsData) ? c.commentsData : []
-                  const topLevel = allComments.filter(cm => !cm.parentId)
-                  const repliesMap = {}
-                  allComments.forEach(cm => {
-                    if (cm.parentId) {
-                      if (!repliesMap[cm.parentId]) repliesMap[cm.parentId] = []
-                      repliesMap[cm.parentId].push(cm)
-                    }
-                  })
-
-                  return topLevel.map((comment) => {
-                    const cId = comment.id || comment._id
-                    const replies = repliesMap[cId] || []
-
-                    return (
-                      <div key={cId} className="flex flex-col gap-1 pb-3 border-b border-gray-100 dark:border-slate-800/60 last:border-0">
-                        <div className="flex items-start gap-2.5 py-1">
-                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
-                            {comment.author?.name?.charAt(0) || 'S'}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="text-xs font-bold text-dark dark:text-white">{comment.author?.name || 'Scholar'}</p>
-                              <span className="text-[10px] text-gray-400">
-                                {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-700 dark:text-gray-200 mt-0.5 leading-relaxed">{comment.text}</p>
-                            {renderCommentGifts(comment.gifts)}
-
-                            <div className="flex items-center gap-4 mt-1.5 relative">
-                              <button
-                                onClick={() => setReplyTo({ commentId: cId, authorName: comment.author?.name || 'Scholar' })}
-                                className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
-                              >
-                                Reply
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  setActiveGiftCommentId(activeGiftCommentId === cId ? null : cId)
-                                  setGiftMsg('')
-                                }}
-                                className="text-[11px] font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer"
-                              >
-                                <FiGift size={12} /> Gift Reaction
-                              </button>
-
-                              {replies.length > 0 && (
-                                <button
-                                  onClick={() => toggleShowReplies(cId)}
-                                  className="text-[11px] font-semibold text-gray-400 hover:text-primary transition cursor-pointer flex items-center gap-1"
-                                >
-                                  {showRepliesMap[cId] ? 'Hide replies' : `View ${replies.length} ${replies.length === 1 ? 'reply' : 'replies'}`}
-                                </button>
-                              )}
-
-                              {/* Gifting Popover Menu */}
-                              {activeGiftCommentId === cId && (
-                                <div className="absolute left-0 top-full mt-2 z-30 bg-white border border-gray-100 rounded-2xl shadow-xl p-3 min-w-[280px]">
-                                  <p className="text-xs font-bold text-dark mb-2 flex items-center gap-1">
-                                    <FiGift className="text-amber-500" size={14} /> Gift Reaction
-                                  </p>
-                                  {giftMsg && (
-                                    <p className={`text-xs font-semibold mb-2 p-1.5 rounded-lg ${giftMsg.startsWith('Success') ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
-                                      {giftMsg}
-                                    </p>
-                                  )}
-                                  <div className="grid grid-cols-2 gap-1.5">
-                                    {REACTION_GIFTS.map((rg) => {
-                                      const IconComponent = rg.icon
-                                      return (
-                                        <button
-                                          key={rg.id}
-                                          disabled={gifting}
-                                          onClick={() => handleSendGift(rg, comment)}
-                                          className={`flex items-center gap-2 p-2 rounded-xl border text-left transition disabled:opacity-50 ${rg.color}`}
-                                        >
-                                          <IconComponent size={16} className="flex-shrink-0" />
-                                          <div className="min-w-0">
-                                            <p className="text-xs font-bold truncate">{rg.name}</p>
-                                            <p className="text-[10px] opacity-80 font-semibold">{rg.price} coins</p>
-                                          </div>
-                                        </button>
-                                      )
-                                    })}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* X-style Conversation Thread */}
-                        {replies.length > 0 && showRepliesMap[cId] && (
-                          <div className="ml-4 pl-4 border-l-2 border-primary/30 flex flex-col gap-2 mt-1">
-                            {replies.map((reply) => {
-                              const rId = reply.id || reply._id
-                              return (
-                                <div key={rId} className="flex items-start gap-2 py-1">
-                                  <div className="w-6 h-6 bg-primary/15 rounded-full flex items-center justify-center text-primary text-[10px] font-bold flex-shrink-0">
-                                    {reply.author?.name?.charAt(0) || 'S'}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
-                                      <p className="text-[11px] font-bold text-dark">{reply.author?.name || 'Scholar'}</p>
-                                      <span className="text-[9px] text-gray-400">
-                                        {reply.createdAt ? new Date(reply.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : ''}
-                                      </span>
-                                    </div>
-                                    <p className="text-xs text-gray-700 mt-0.5 leading-relaxed">{reply.text}</p>
-                                    {renderCommentGifts(reply.gifts)}
-                                    <div className="flex items-center gap-3 mt-1 relative">
-                                      <button
-                                        onClick={() => setReplyTo({ commentId: cId, authorName: reply.author?.name || 'Scholar' })}
-                                        className="text-[10px] font-semibold text-primary hover:underline cursor-pointer"
-                                      >
-                                        Reply
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          setActiveGiftCommentId(activeGiftCommentId === rId ? null : rId)
-                                          setGiftMsg('')
-                                        }}
-                                        className="text-[10px] font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer"
-                                      >
-                                        <FiGift size={11} /> Gift Reaction
-                                      </button>
-
-                                      {activeGiftCommentId === rId && (
-                                        <div className="absolute left-0 top-full mt-2 z-30 bg-white border border-gray-100 rounded-2xl shadow-xl p-3 min-w-[280px]">
-                                          <p className="text-xs font-bold text-dark mb-2 flex items-center gap-1">
-                                            <FiGift className="text-amber-500" size={14} /> Gift Reaction
-                                          </p>
-                                          {giftMsg && (
-                                            <p className={`text-xs font-semibold mb-2 p-1.5 rounded-lg ${giftMsg.startsWith('Success') ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
-                                              {giftMsg}
-                                            </p>
-                                          )}
-                                          <div className="grid grid-cols-2 gap-1.5">
-                                            {REACTION_GIFTS.map((rg) => {
-                                              const IconComponent = rg.icon
-                                              return (
-                                                <button
-                                                  key={rg.id}
-                                                  disabled={gifting}
-                                                  onClick={() => handleSendGift(rg, reply)}
-                                                  className={`flex items-center gap-2 p-2 rounded-xl border text-left transition disabled:opacity-50 ${rg.color}`}
-                                                >
-                                                  <IconComponent size={16} className="flex-shrink-0" />
-                                                  <div className="min-w-0">
-                                                    <p className="text-xs font-bold truncate">{rg.name}</p>
-                                                    <p className="text-[10px] opacity-80 font-semibold">{rg.price} coins</p>
-                                                  </div>
-                                                </button>
-                                              )
-                                            })}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })
-                })()}
-              </div>
+              post.commentsData.map((c, i) => (
+                <div key={i} className="p-3 bg-gray-50 dark:bg-zinc-800/50 rounded-xl border border-gray-100 dark:border-zinc-800">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-bold text-xs text-dark dark:text-white">{c.author?.name || 'Scholar'}</span>
+                    <span className="text-[10px] text-gray-400">@{c.author?.username || 'scholar'}</span>
+                  </div>
+                  <p className="text-xs text-gray-700 dark:text-gray-300">{c.text || c.content}</p>
+                </div>
+              ))
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
+
+      {/* Share Modal Integration */}
+      <ShareModal
+        isOpen={showShareModal}
+        post={post}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   )
 }
