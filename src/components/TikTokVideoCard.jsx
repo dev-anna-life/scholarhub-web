@@ -15,6 +15,17 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
   const [showComments, setShowComments] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadNotice, setDownloadNotice] = useState('')
+  const [shareNotice, setShareNotice] = useState('')
+
+  const handleShare = (e) => {
+    e.stopPropagation()
+    const url = typeof window !== 'undefined' ? (window.location.origin + '/post/' + (video.id || video._id || 'clip')) : ''
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url)
+    }
+    setShareNotice('🔗 Video link copied to clipboard!')
+    setTimeout(() => setShareNotice(''), 3000)
+  }
 
   const allowDownload = video?.allowDownload !== false // Default true unless creator toggled false
 
@@ -133,16 +144,16 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
         {isMuted ? <FiVolumeX size={18} /> : <FiVolume2 size={18} />}
       </button>
 
-      {/* Download Status Toast Notice */}
+      {/* Share / Download Status Toast Notice */}
       <AnimatePresence>
-        {downloadNotice && (
+        {(downloadNotice || shareNotice) && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-16 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full bg-black/80 backdrop-blur-md text-white text-xs font-bold border border-white/20 shadow-lg text-center"
           >
-            {downloadNotice}
+            {downloadNotice || shareNotice}
           </motion.div>
         )}
       </AnimatePresence>
@@ -205,6 +216,14 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
             <FiGift size={22} />
           </div>
           <span className="text-[10px] font-extrabold text-amber-300 drop-shadow-md">Gift Coins</span>
+        </button>
+
+        {/* Share Video Button */}
+        <button onClick={handleShare} className="flex flex-col items-center gap-1 text-white">
+          <div className="w-12 h-12 rounded-full bg-black/40 hover:bg-emerald-500 backdrop-blur-md flex items-center justify-center text-white transition">
+            <FiShare2 size={20} />
+          </div>
+          <span className="text-[10px] font-bold text-white drop-shadow-md">Share</span>
         </button>
 
         {/* Download Video Button (With Creator Download Preference) */}
