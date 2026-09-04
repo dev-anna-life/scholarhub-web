@@ -11,7 +11,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'University Law Track',
     title: 'AI Case Story: The Locked-Out Tenant & Self-Help Eviction Law',
     caption: 'Meet Sarah. Her landlord changed her locks overnight without a court order. Is self-help eviction legal? Watch this 45-second legal case story...',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-student-reading-a-book-in-a-library-42930-large.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     likesCount: 642,
     commentCount: 48,
     allowDownload: true,
@@ -26,7 +26,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'Medical Sciences Track',
     title: 'AI Clinical Story: The Marathon Runner\'s Hidden Heart Warning',
     caption: 'Marcus felt zero chest pain after his 10km run, but his jaw and left elbow were aching. Watch how the brain misinterprets heart distress (Referred Pain)...',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-studying-with-a-laptop-in-a-library-42932-large.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     likesCount: 812,
     commentCount: 65,
     allowDownload: true,
@@ -41,7 +41,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'UI/UX & Product Design',
     title: 'AI Design Story: How 1 Button Change Generated $300 Million',
     caption: 'Why did removing the mandatory "Register" form at checkout generate $300M in revenue? Watch this 60-second UX friction story...',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-man-working-on-a-laptop-43093-large.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
     likesCount: 1240,
     commentCount: 92,
     allowDownload: true,
@@ -56,7 +56,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'Web & Software Engineering',
     title: 'AI Dev Story: The $45,000 Infinite Loop Weekend',
     caption: 'A developer forgot one loop counter variable in a serverless function and spawned 140 million cloud calls over 48 hours. Here is why execution limits matter...',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-student-reading-a-book-in-a-library-42930-large.mp4',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
     likesCount: 950,
     commentCount: 84,
     allowDownload: true,
@@ -69,24 +69,35 @@ export default function ClipsFeed() {
   const [activeIndex, setActiveIndex] = useState(0)
   const containerRef = useRef(null)
 
-  const handleScroll = () => {
-    if (!containerRef.current) return
-    const height = containerRef.current.clientHeight
-    const scrollTop = containerRef.current.scrollTop
-    const newIndex = Math.round(scrollTop / height)
-    if (newIndex !== activeIndex) {
-      setActiveIndex(newIndex)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const handleScroll = () => {
+      const height = el.clientHeight || 1
+      const scrollTop = el.scrollTop
+      const newIndex = Math.round(scrollTop / height)
+      if (newIndex !== activeIndex) {
+        setActiveIndex(newIndex)
+      }
     }
-  }
+
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [activeIndex])
 
   return (
     <div
       ref={containerRef}
-      onScroll={handleScroll}
-      className="h-[calc(100vh-80px)] w-full overflow-y-scroll snap-y snap-mandatory bg-black rounded-2xl relative scrollbar-none"
+      className="h-[calc(100vh-140px)] md:h-[calc(100vh-120px)] w-full overflow-y-scroll snap-y snap-mandatory bg-black rounded-3xl relative scrollbar-none touch-pan-y"
+      style={{ scrollSnapType: 'y mandatory', WebkitOverflowScrolling: 'touch' }}
     >
       {SAMPLE_CLIPS.map((clip, index) => (
-        <div key={clip.id} className="h-full w-full snap-start snap-always relative">
+        <div
+          key={clip.id}
+          className="h-full w-full snap-start snap-always relative flex-shrink-0"
+          style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+        >
           <TikTokVideoCard
             video={clip}
             isActive={index === activeIndex}
