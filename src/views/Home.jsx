@@ -364,14 +364,6 @@ function Home() {
         fetchPosts(1)
     }, [searchQuery])
 
-    useEffect(() => {
-        if (searchQuery) return
-        const interval = setInterval(() => {
-            fetchPosts(1)
-        }, 30000)
-        return () => clearInterval(interval)
-    }, [searchQuery, fetchPosts])
-
     const toggleLike = async (id, isReal) => {
         setPosts(prev => prev.map(p =>
             p.id === id ? { ...p, likes: p.liked ? p.likes - 1 : p.likes + 1, liked: !p.liked } : p

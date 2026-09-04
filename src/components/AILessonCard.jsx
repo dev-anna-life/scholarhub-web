@@ -11,16 +11,15 @@ export default function AILessonCard({ post }) {
   const [showShareModal, setShowShareModal] = useState(false)
   const [liked, setLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(post?.likesCount || 12)
-  const [coinsWon, setCoinsWon] = useState(false)
+  const [isCorrect, setIsCorrect] = useState(false)
 
   if (!post) return null
 
   const author = post.author || {}
-  const isBot = author.email?.startsWith('bot_') || author.isBot || author.isOfficial || post.isAiAssisted
+  const cleanTitle = (post.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
+  const cleanContent = (post.content || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
 
-  // Extract quiz parameters if present in content or post
-  const hasQuiz = post.content && post.content.includes('KNOWLEDGE CHECK')
-  const defaultQuestion = post.quizQuestion || 'What is the key takeaways rule for this lesson?'
+  const defaultQuestion = post.quizQuestion || 'What is the primary takeaway for this lesson?'
   const defaultOptions = post.quizOptions || ['Option A: Apply rule correctly', 'Option B: Ignore formula', 'Option C: Invalid concept', 'Option D: None of the above']
   const correctIdx = post.correctOptionIndex !== undefined ? post.correctOptionIndex : 0
 
@@ -29,7 +28,7 @@ export default function AILessonCard({ post }) {
     setSelectedOption(index)
     setIsAnswered(true)
     if (index === correctIdx) {
-      setCoinsWon(true)
+      setIsCorrect(true)
     }
   }
 
@@ -64,18 +63,18 @@ export default function AILessonCard({ post }) {
         {/* Prominent Official AI Study Lesson Tag */}
         <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-2xs">
           <FiBook size={12} />
-          <span>🏛️ OFFICIAL AI LESSON</span>
+          <span>OFFICIAL AI LESSON</span>
         </span>
       </div>
 
       {/* Lesson Title */}
       <h2 className="text-base font-extrabold text-dark dark:text-white mb-3 leading-snug">
-        {post.title}
+        {cleanTitle}
       </h2>
 
       {/* Lesson Body Content */}
       <div className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap bg-amber-500/5 dark:bg-zinc-800/60 p-4 rounded-xl border border-amber-500/10 dark:border-zinc-700/50 mb-4 font-normal">
-        {post.content}
+        {cleanContent}
       </div>
 
       {/* Verified Academic Source / Citation Badge */}
@@ -86,15 +85,15 @@ export default function AILessonCard({ post }) {
         </div>
       )}
 
-      {/* Interactive 30-Second Quiz Widget */}
+      {/* Interactive Knowledge Check Widget */}
       <div className="bg-gray-50 dark:bg-zinc-800/80 p-4 rounded-xl border border-gray-200/80 dark:border-zinc-700/80 mb-4">
         <div className="flex items-center justify-between mb-2.5">
           <h4 className="text-xs font-extrabold text-dark dark:text-white flex items-center gap-1.5">
             <FiZap className="text-amber-500" size={14} />
-            <span>30-Second Knowledge Check</span>
+            <span>Knowledge Check</span>
           </h4>
-          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-            +5 Scholar Coins 🪙
+          <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 bg-gray-200/60 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
+            Self Practice
           </span>
         </div>
 
@@ -133,16 +132,18 @@ export default function AILessonCard({ post }) {
           })}
         </div>
 
-        {/* Coin Reward Banner */}
+        {/* Feedback Banner */}
         <AnimatePresence>
-          {coinsWon && (
+          {isAnswered && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-2.5 bg-emerald-500 text-white rounded-xl text-center text-xs font-bold flex items-center justify-center gap-1.5 shadow-md"
+              className={`p-2.5 rounded-xl text-center text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm ${
+                isCorrect ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
+              }`}
             >
               <FiAward size={16} />
-              <span>Correct! 🎉 You earned +5 Scholar Coins!</span>
+              <span>{isCorrect ? 'Correct Answer! Concept Verified.' : `Incorrect. Option ${String.fromCharCode(65 + correctIdx)} is the correct answer.`}</span>
             </motion.div>
           )}
         </AnimatePresence>
