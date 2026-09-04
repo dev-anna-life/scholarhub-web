@@ -1,16 +1,17 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiHeart, FiMessageSquare, FiGift, FiDownload, FiLock, FiShare2, FiVolume2, FiVolumeX, FiPlay, FiPause, FiCheckCircle, FiBookOpen, FiActivity, FiCpu, FiLayout, FiShield, FiCode } from 'react-icons/fi'
+import { FiHeart, FiMessageSquare, FiGift, FiDownload, FiLock, FiShare2, FiVolume2, FiVolumeX, FiPlay, FiPause, FiCheckCircle, FiBookOpen, FiActivity, FiCpu, FiLayout, FiShield, FiCode, FiCheck, FiX } from 'react-icons/fi'
 import CommentDrawer from './CommentDrawer'
 import PostGiftModal from './PostGiftModal'
 import ShareModal from './ShareModal'
 
 function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
   const [typedText, setTypedText] = useState('')
-  const fullText = video.storyScenario || video.caption || ''
+  const rawText = video.storyScenario || video.caption || ''
+  // Strip raw emojis from text
+  const fullText = rawText.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
 
-  // Typewriter text animation effect
   useEffect(() => {
     if (!isPlaying) return
     setTypedText('')
@@ -26,34 +27,15 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
     return () => clearInterval(timer)
   }, [isPlaying, fullText])
 
-  // Optional Web Speech Synthesis Narration when unmuted
-  useEffect(() => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
-    if (isPlaying && !isMuted) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(video.title + '. ' + fullText)
-      utterance.rate = 0.95
-      window.speechSynthesis.speak(utterance)
-    } else {
-      window.speechSynthesis?.cancel()
-    }
-    return () => {
-      window.speechSynthesis?.cancel()
-    }
-  }, [isPlaying, isMuted, video.title, fullText])
-
   const username = video.authorUsername || ''
 
-  // 1. University Law Track Visual Canvas
   if (username === 'uni_law' || video.skillDomain?.includes('Law')) {
     return (
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-sky-950 flex flex-col justify-between p-6 overflow-hidden">
-        {/* Background Animated Scale / Legal Grid */}
         <div className="absolute inset-0 opacity-15 pointer-events-none flex items-center justify-center">
           <div className="w-80 h-80 rounded-full border border-sky-400 animate-ping" style={{ animationDuration: '6s' }} />
         </div>
 
-        {/* Top Visual Topic Header */}
         <div className="relative z-10 flex items-center justify-between pt-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-500/20 border border-sky-400/40 backdrop-blur-md text-sky-300 text-xs font-bold">
             <FiShield size={14} className="text-sky-400 animate-pulse" />
@@ -62,7 +44,6 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
           <span className="text-[10px] text-sky-200/70 font-semibold">Nigerian Constitutional Law</span>
         </div>
 
-        {/* Center Animated Scale & Statue Visual Graphic */}
         <div className="relative z-10 flex flex-col items-center justify-center my-auto text-center px-2">
           <motion.div
             animate={{ rotate: isPlaying ? [0, 4, -4, 0] : 0 }}
@@ -73,10 +54,9 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
           </motion.div>
 
           <h2 className="text-lg md:text-xl font-extrabold text-white mb-2 leading-tight drop-shadow-md">
-            {video.title}
+            {(video.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()}
           </h2>
 
-          {/* Typewriter Prompt Text Streaming Card */}
           <div className="w-full max-w-sm p-4 rounded-2xl bg-black/60 backdrop-blur-md border border-sky-400/30 text-left shadow-2xl">
             <div className="flex items-center gap-1.5 text-sky-400 text-[11px] font-bold mb-1.5 uppercase tracking-wider">
               <FiBookOpen size={13} />
@@ -94,11 +74,9 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
     )
   }
 
-  // 2. Medical Sciences Track Visual Canvas
   if (username === 'uni_med' || video.skillDomain?.includes('Medical')) {
     return (
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-teal-950 to-emerald-950 flex flex-col justify-between p-6 overflow-hidden">
-        {/* Background Animated Pulse ECG Line */}
         <div className="absolute inset-0 opacity-20 pointer-events-none flex items-center justify-center">
           <div className="w-96 h-96 rounded-full border border-teal-400 animate-ping" style={{ animationDuration: '4s' }} />
         </div>
@@ -121,7 +99,7 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
           </motion.div>
 
           <h2 className="text-lg md:text-xl font-extrabold text-white mb-2 leading-tight drop-shadow-md">
-            {video.title}
+            {(video.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()}
           </h2>
 
           <div className="w-full max-w-sm p-4 rounded-2xl bg-black/60 backdrop-blur-md border border-emerald-400/30 text-left shadow-2xl">
@@ -141,7 +119,6 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
     )
   }
 
-  // 3. UI/UX Product Design Visual Canvas
   if (username === 'pro_uiux' || video.skillDomain?.includes('UI/UX')) {
     return (
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-purple-950 to-indigo-950 flex flex-col justify-between p-6 overflow-hidden">
@@ -163,7 +140,7 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
           </motion.div>
 
           <h2 className="text-lg md:text-xl font-extrabold text-white mb-2 leading-tight drop-shadow-md">
-            {video.title}
+            {(video.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()}
           </h2>
 
           <div className="w-full max-w-sm p-4 rounded-2xl bg-black/60 backdrop-blur-md border border-purple-400/30 text-left shadow-2xl">
@@ -183,7 +160,6 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
     )
   }
 
-  // 4. Web & Software Engineering Visual Canvas (Default / Dev)
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-zinc-900 to-slate-950 flex flex-col justify-between p-6 overflow-hidden">
       <div className="relative z-10 flex items-center justify-between pt-12">
@@ -204,7 +180,7 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
         </motion.div>
 
         <h2 className="text-lg md:text-xl font-extrabold text-white mb-2 leading-tight drop-shadow-md">
-          {video.title}
+          {(video.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()}
         </h2>
 
         <div className="w-full max-w-sm p-4 rounded-2xl bg-black/75 backdrop-blur-md border border-amber-400/30 text-left shadow-2xl">
@@ -225,6 +201,7 @@ function AIVisualStoryCanvas({ video, isPlaying, isMuted }) {
 }
 
 export default function TikTokVideoCard({ video, onGift, isActive }) {
+  const videoRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [isLiked, setIsLiked] = useState(false)
@@ -234,6 +211,8 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadNotice, setDownloadNotice] = useState('')
   const [shareNotice, setShareNotice] = useState('')
+
+  const hasRealVideo = Boolean(video?.videoUrl || video?.video)
 
   const handleShare = (e) => {
     e.stopPropagation()
@@ -250,32 +229,49 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
   useEffect(() => {
     if (isActive) {
       setIsPlaying(true)
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0
+        videoRef.current.muted = true
+        videoRef.current.play().catch(() => {})
+      }
     } else {
       setIsPlaying(false)
+      if (videoRef.current) {
+        videoRef.current.pause()
+      }
     }
   }, [isActive])
 
   const togglePlay = () => {
     setIsPlaying(prev => !prev)
+    if (videoRef.current) {
+      if (isPlaying) videoRef.current.pause()
+      else videoRef.current.play().catch(() => {})
+    }
   }
 
   const toggleMute = (e) => {
     e.stopPropagation()
     setIsMuted(prev => !prev)
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+    }
   }
 
   const handleDownload = async (e) => {
     e.stopPropagation()
     if (!allowDownload) {
-      setDownloadNotice('🔒 Creator has disabled clip downloads')
+      setDownloadNotice('Creator has disabled clip downloads')
       setTimeout(() => setDownloadNotice(''), 3000)
       return
     }
 
     try {
       setIsDownloading(true)
-      setDownloadNotice('📥 Exporting lesson transcript...')
-      const blob = new Blob([`${video.title}\n\n${video.storyScenario || video.caption}\n\nCitation: ${video.citationSource || 'Verified Source'}`], { type: 'text/plain;charset=utf-8' })
+      setDownloadNotice('Exporting lesson transcript...')
+      const cleanT = (video.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
+      const cleanC = (video.storyScenario || video.caption || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
+      const blob = new Blob([`${cleanT}\n\n${cleanC}\n\nCitation: ${video.citationSource || 'Verified Source'}`], { type: 'text/plain;charset=utf-8' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.style.display = 'none'
@@ -284,26 +280,41 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
-      setDownloadNotice('✅ Saved successfully!')
+      setDownloadNotice('Saved successfully!')
     } catch (err) {
-      setDownloadNotice('❌ Export failed')
+      setDownloadNotice('Export failed')
     } finally {
       setIsDownloading(false)
       setTimeout(() => setDownloadNotice(''), 3000)
     }
   }
 
+  const cleanTitle = (video.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
+  const cleanCaption = (video.caption || video.content || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
+
   return (
     <div
       onClick={togglePlay}
       className="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-2xl snap-start snap-always flex flex-col justify-center items-center group cursor-pointer"
     >
-      {/* 100% Topic-Matched AI Visual Canvas Storyboard Player */}
-      <AIVisualStoryCanvas
-        video={video}
-        isPlaying={isPlaying}
-        isMuted={isMuted}
-      />
+      {hasRealVideo ? (
+        <video
+          ref={videoRef}
+          src={video.videoUrl || video.video}
+          poster={video.poster}
+          loop
+          muted={isMuted}
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover cursor-pointer"
+        />
+      ) : (
+        <AIVisualStoryCanvas
+          video={video}
+          isPlaying={isPlaying}
+          isMuted={isMuted}
+        />
+      )}
 
       {/* Play/Pause Overlay Icon */}
       {!isPlaying && (
@@ -314,11 +325,11 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
         </div>
       )}
 
-      {/* Mute/Unmute Narration Quick Toggle */}
+      {/* Mute/Unmute Quick Toggle */}
       <button
         onClick={toggleMute}
         className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition"
-        title={isMuted ? 'Unmute Audio Narration' : 'Mute Audio Narration'}
+        title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
       >
         {isMuted ? <FiVolumeX size={18} /> : <FiVolume2 size={18} />}
       </button>
@@ -339,8 +350,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
 
       {/* Bottom Info Overlay */}
       <div className="absolute bottom-0 left-0 right-16 p-4 sm:p-6 bg-gradient-to-t from-black/95 via-black/60 to-transparent z-20 text-white pointer-events-none">
-        
-        {/* Creator Info Header */}
         <div className="flex items-center gap-2.5 mb-2 pointer-events-auto">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold text-white text-sm border-2 border-white overflow-hidden shadow-md">
             {video.authorAvatar ? (
@@ -358,22 +367,19 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
           </div>
         </div>
 
-        {/* Video Title & Caption */}
-        <h3 className="font-bold text-sm md:text-base text-white mb-1 leading-snug line-clamp-2">{video.title}</h3>
-        <p className="text-xs text-gray-200 line-clamp-2 font-normal leading-relaxed">{video.caption}</p>
+        <h3 className="font-bold text-sm md:text-base text-white mb-1 leading-snug line-clamp-2">{cleanTitle}</h3>
+        <p className="text-xs text-gray-200 line-clamp-2 font-normal leading-relaxed">{cleanCaption}</p>
 
-        {/* Citation / Source Badge */}
         {video.citationSource && (
           <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur border border-emerald-400/40 text-emerald-300 text-[10px] font-bold">
-            🟢 Verified Source: {video.citationSource}
+            <FiCheckCircle size={12} className="text-emerald-400" />
+            <span>Verified Source: {video.citationSource}</span>
           </div>
         )}
       </div>
 
-      {/* Right Side Floating Action Buttons Overlay (Clean Like and Comment - No Raw Counts) */}
+      {/* Right Side Action Buttons */}
       <div className="absolute right-3 bottom-8 z-30 flex flex-col items-center gap-5">
-        
-        {/* Like Button */}
         <button onClick={handleLike} className="flex flex-col items-center gap-1 text-white group/btn cursor-pointer">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${isLiked ? 'bg-red-500 text-white scale-110' : 'bg-black/40 hover:bg-black/60 text-white'}`}>
             <FiHeart size={22} className={isLiked ? 'fill-current' : ''} />
@@ -381,7 +387,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
           <span className="text-[10px] font-bold text-white drop-shadow-md">Like</span>
         </button>
 
-        {/* Comment Button */}
         <button onClick={(e) => { e.stopPropagation(); setShowComments(true) }} className="flex flex-col items-center gap-1 text-white cursor-pointer">
           <div className="w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center text-white transition">
             <FiMessageSquare size={22} />
@@ -389,7 +394,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
           <span className="text-[10px] font-bold text-white drop-shadow-md">Comment</span>
         </button>
 
-        {/* Gift Reaction Button */}
         <button onClick={(e) => { e.stopPropagation(); setShowGiftModal(true) }} className="flex flex-col items-center gap-1 text-white animate-bounce" style={{ animationDuration: '3s' }}>
           <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-emerald-500 hover:opacity-90 flex items-center justify-center text-white shadow-lg shadow-amber-500/30 transition scale-105">
             <FiGift size={22} />
@@ -397,7 +401,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
           <span className="text-[10px] font-extrabold text-amber-300 drop-shadow-md">Gift Coins</span>
         </button>
 
-        {/* Share Video Button */}
         <button onClick={handleShare} className="flex flex-col items-center gap-1 text-white cursor-pointer">
           <div className="w-12 h-12 rounded-full bg-black/40 hover:bg-emerald-500 backdrop-blur-md flex items-center justify-center text-white transition">
             <FiShare2 size={20} />
@@ -405,7 +408,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
           <span className="text-[10px] font-bold text-white drop-shadow-md">Share</span>
         </button>
 
-        {/* Download Video Button */}
         <button
           onClick={handleDownload}
           disabled={isDownloading}
@@ -425,21 +427,18 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
         </button>
       </div>
 
-      {/* Gift Modal Integration */}
       <PostGiftModal
         isOpen={showGiftModal}
         post={video}
         onClose={() => setShowGiftModal(false)}
       />
 
-      {/* Share Modal Integration */}
       <ShareModal
         isOpen={showShareModal}
         post={video}
         onClose={() => setShowShareModal(false)}
       />
 
-      {/* Comment Drawer Integration */}
       {showComments && (
         <CommentDrawer
           post={video}
