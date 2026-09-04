@@ -5,81 +5,93 @@ import TikTokVideoCard from './TikTokVideoCard'
 const SAMPLE_CLIPS = [
   {
     id: 'clip_1',
-    authorName: 'Alex Rivers',
-    authorUsername: 'alex_ux',
-    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-    skillDomain: 'UI/UX Design Studio',
-    title: '3 Mobile Navigation UX Patterns You Need to Know',
-    caption: 'Stop using complex 3-level accordion menus on mobile screens! Here are 3 clean navigation patterns that increase mobile retention by 40%...',
+    authorName: 'Official Law AI Bot',
+    authorUsername: 'uni_law',
+    authorAvatar: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=150',
+    skillDomain: 'University Law Track',
+    title: 'AI Case Story: The Locked-Out Tenant & Self-Help Eviction Law',
+    caption: 'Meet Sarah. Her landlord changed her locks overnight without a court order. Is self-help eviction legal? Watch this 45-second legal case story...',
     videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-student-reading-a-book-in-a-library-42930-large.mp4',
-    likesCount: 342,
-    commentCount: 28,
+    likesCount: 642,
+    commentCount: 48,
     allowDownload: true,
-    citationSource: 'Google',
+    citationSource: 'Nigerian Constitutional Law & Supreme Court Law Reports',
+    isOfficial: true
   },
   {
     id: 'clip_2',
-    authorName: 'Sarah Jenkins',
-    authorUsername: 'sarah_dev',
-    authorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
-    skillDomain: 'Web & Software Engineering',
-    title: 'How Async/Await Actually Works in JavaScript',
-    caption: 'The event loop processes microtasks before macrotasks! Watch this 45-second visual breakdown of async execution order...',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-man-working-on-a-laptop-43093-large.mp4',
-    likesCount: 512,
-    commentCount: 45,
+    authorName: 'Official Medical AI Bot',
+    authorUsername: 'uni_med',
+    authorAvatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150',
+    skillDomain: 'Medical Sciences Track',
+    title: 'AI Clinical Story: The Marathon Runner\'s Hidden Heart Warning',
+    caption: 'Marcus felt zero chest pain after his 10km run, but his jaw and left elbow were aching. Watch how the brain misinterprets heart distress (Referred Pain)...',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-studying-with-a-laptop-in-a-library-42932-large.mp4',
+    likesCount: 812,
+    commentCount: 65,
     allowDownload: true,
-    citationSource: 'IEEE',
+    citationSource: 'Guyton & Hall Medical Physiology Textbook',
+    isOfficial: true
   },
   {
     id: 'clip_3',
-    authorName: 'Dr. Michael Chen',
-    authorUsername: 'prof_chen',
-    authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-    skillDomain: 'Data Science & AI',
-    title: 'Understanding Transformer Self-Attention in 60s',
-    caption: 'Why did Transformers replace RNNs in AI? Self-attention calculates query-key matrix weights in parallel across all tokens at once!',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-studying-with-a-laptop-in-a-library-42932-large.mp4',
-    likesCount: 890,
-    commentCount: 72,
-    allowDownload: false, // Creator toggled download OFF!
-    citationSource: 'NASA',
+    authorName: 'Official UI/UX AI Bot',
+    authorUsername: 'pro_uiux',
+    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    skillDomain: 'UI/UX & Product Design',
+    title: 'AI Design Story: How 1 Button Change Generated $300 Million',
+    caption: 'Why did removing the mandatory "Register" form at checkout generate $300M in revenue? Watch this 60-second UX friction story...',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-man-working-on-a-laptop-43093-large.mp4',
+    likesCount: 1240,
+    commentCount: 92,
+    allowDownload: true,
+    citationSource: 'Figma & Apple Human Interface Guidelines',
+    isOfficial: true
   },
+  {
+    id: 'clip_4',
+    authorName: 'Official Web Dev AI Bot',
+    authorUsername: 'pro_webdev',
+    authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+    skillDomain: 'Web & Software Engineering',
+    title: 'AI Dev Story: The $45,000 Infinite Loop Weekend',
+    caption: 'A developer forgot one loop counter variable in a serverless function and spawned 140 million cloud calls over 48 hours. Here is why execution limits matter...',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-student-reading-a-book-in-a-library-42930-large.mp4',
+    likesCount: 950,
+    commentCount: 84,
+    allowDownload: true,
+    citationSource: 'MDN Web Docs & AWS Serverless Best Practices',
+    isOfficial: true
+  }
 ]
 
 export default function ClipsFeed() {
   const [activeIndex, setActiveIndex] = useState(0)
   const containerRef = useRef(null)
 
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const handleScroll = () => {
-      const scrollPosition = container.scrollTop
-      const cardHeight = container.clientHeight
-      const newIndex = Math.round(scrollPosition / cardHeight)
-      if (newIndex !== activeIndex) {
-        setActiveIndex(newIndex)
-      }
+  const handleScroll = () => {
+    if (!containerRef.current) return
+    const height = containerRef.current.clientHeight
+    const scrollTop = containerRef.current.scrollTop
+    const newIndex = Math.round(scrollTop / height)
+    if (newIndex !== activeIndex) {
+      setActiveIndex(newIndex)
     }
-
-    container.addEventListener('scroll', handleScroll)
-    return () => container.removeEventListener('scroll', handleScroll)
-  }, [activeIndex])
+  }
 
   return (
     <div
       ref={containerRef}
-      className="w-full max-w-md mx-auto h-[82vh] md:h-[85vh] overflow-y-scroll snap-y snap-mandatory rounded-3xl space-y-4 no-scrollbar border border-gray-200 dark:border-zinc-800 shadow-2xl bg-black"
-      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      onScroll={handleScroll}
+      className="h-[calc(100vh-80px)] w-full overflow-y-scroll snap-y snap-mandatory bg-black rounded-2xl relative scrollbar-none"
     >
       {SAMPLE_CLIPS.map((clip, index) => (
-        <TikTokVideoCard
-          key={clip.id}
-          video={clip}
-          isActive={index === activeIndex}
-        />
+        <div key={clip.id} className="h-full w-full snap-start snap-always relative">
+          <TikTokVideoCard
+            video={clip}
+            isActive={index === activeIndex}
+          />
+        </div>
       ))}
     </div>
   )
