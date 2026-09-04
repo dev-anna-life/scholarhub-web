@@ -86,24 +86,77 @@ export default function ClipsFeed() {
     return () => el.removeEventListener('scroll', handleScroll)
   }, [activeIndex])
 
+  const goToNext = () => {
+    if (activeIndex < SAMPLE_CLIPS.length - 1) {
+      const nextIndex = activeIndex + 1
+      setActiveIndex(nextIndex)
+      if (containerRef.current) {
+        containerRef.current.scrollTo({
+          top: nextIndex * containerRef.current.clientHeight,
+          behavior: 'smooth'
+        })
+      }
+    }
+  }
+
+  const goToPrev = () => {
+    if (activeIndex > 0) {
+      const prevIndex = activeIndex - 1
+      setActiveIndex(prevIndex)
+      if (containerRef.current) {
+        containerRef.current.scrollTo({
+          top: prevIndex * containerRef.current.clientHeight,
+          behavior: 'smooth'
+        })
+      }
+    }
+  }
+
   return (
-    <div
-      ref={containerRef}
-      className="h-[calc(100vh-140px)] md:h-[calc(100vh-120px)] w-full overflow-y-scroll snap-y snap-mandatory bg-black rounded-3xl relative scrollbar-none touch-pan-y"
-      style={{ scrollSnapType: 'y mandatory', WebkitOverflowScrolling: 'touch' }}
-    >
-      {SAMPLE_CLIPS.map((clip, index) => (
-        <div
-          key={clip.id}
-          className="h-full w-full snap-start snap-always relative flex-shrink-0"
-          style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+    <div className="relative w-full max-w-md mx-auto">
+      {/* Desktop Navigation Arrows */}
+      <div className="hidden sm:flex flex-col gap-2 absolute -right-14 top-1/2 -translate-y-1/2 z-30">
+        <button
+          type="button"
+          onClick={goToPrev}
+          disabled={activeIndex === 0}
+          className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-dark dark:text-white shadow-md disabled:opacity-30 hover:bg-primary hover:text-white transition"
+          title="Previous Video"
         >
-          <TikTokVideoCard
-            video={clip}
-            isActive={index === activeIndex}
-          />
-        </div>
-      ))}
+          ▲
+        </button>
+        <span className="text-[10px] font-bold text-center text-gray-500">
+          {activeIndex + 1} / {SAMPLE_CLIPS.length}
+        </span>
+        <button
+          type="button"
+          onClick={goToNext}
+          disabled={activeIndex === SAMPLE_CLIPS.length - 1}
+          className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-dark dark:text-white shadow-md disabled:opacity-30 hover:bg-primary hover:text-white transition"
+          title="Next Video"
+        >
+          ▼
+        </button>
+      </div>
+
+      <div
+        ref={containerRef}
+        className="h-[580px] md:h-[620px] w-full overflow-y-scroll snap-y snap-mandatory bg-black rounded-3xl relative scrollbar-none touch-pan-y shadow-2xl border border-gray-800"
+        style={{ scrollSnapType: 'y mandatory', WebkitOverflowScrolling: 'touch' }}
+      >
+        {SAMPLE_CLIPS.map((clip, index) => (
+          <div
+            key={clip.id}
+            className="h-[580px] md:h-[620px] w-full snap-start snap-always relative flex-shrink-0"
+            style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+          >
+            <TikTokVideoCard
+              video={clip}
+              isActive={index === activeIndex}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

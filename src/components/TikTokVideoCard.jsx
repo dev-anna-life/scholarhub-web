@@ -27,24 +27,24 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
   const allowDownload = video?.allowDownload !== false // Default true unless creator toggled false
 
   useEffect(() => {
-    if (!videoRef.current) return
+    const el = videoRef.current
+    if (!el) return
 
     if (isActive) {
-      videoRef.current.currentTime = 0
-      const playPromise = videoRef.current.play()
+      el.currentTime = 0
+      el.muted = true
+      setIsMuted(true)
+      const playPromise = el.play()
       if (playPromise !== undefined) {
         playPromise
           .then(() => setIsPlaying(true))
-          .catch(() => {
-            setIsMuted(true)
-            if (videoRef.current) {
-              videoRef.current.muted = true
-              videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
-            }
+          .catch(err => {
+            console.warn('Autoplay error:', err)
+            setIsPlaying(false)
           })
       }
     } else {
-      videoRef.current.pause()
+      el.pause()
       setIsPlaying(false)
     }
   }, [isActive])
