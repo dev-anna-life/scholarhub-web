@@ -1,20 +1,16 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiHeart, FiMessageSquare, FiGift, FiDownload, FiLock, FiShare2, FiVolume2, FiVolumeX, FiPlay, FiPause, FiCheckCircle } from 'react-icons/fi'
-import CommentDrawer from './CommentDrawer'
+import { FiGift, FiDownload, FiLock, FiShare2, FiVolume2, FiVolumeX, FiPlay, FiCheckCircle } from 'react-icons/fi'
 import PostGiftModal from './PostGiftModal'
 import ShareModal from './ShareModal'
 
 export default function TikTokVideoCard({ video, onGift, isActive }) {
   const videoRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
-  const [likesCount, setLikesCount] = useState(video?.likesCount || 24)
+  const [isMuted, setIsMuted] = useState(true)
   const [showGiftModal, setShowGiftModal] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
-  const [showComments, setShowComments] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadNotice, setDownloadNotice] = useState('')
   const [shareNotice, setShareNotice] = useState('')
@@ -24,7 +20,7 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
     setShowShareModal(true)
   }
 
-  const allowDownload = video?.allowDownload !== false // Default true unless creator toggled false
+  const allowDownload = video?.allowDownload !== false
 
   useEffect(() => {
     const el = videoRef.current
@@ -39,8 +35,9 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
         playPromise
           .then(() => setIsPlaying(true))
           .catch(err => {
-            console.warn('Autoplay error:', err)
-            setIsPlaying(false)
+            console.warn('Autoplay fallback:', err)
+            el.muted = true
+            el.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
           })
       }
     } else {
@@ -56,7 +53,8 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
       setIsPlaying(false)
     } else {
       videoRef.current.play()
-      setIsPlaying(true)
+        .then(() => setIsPlaying(true))
+        .catch(err => console.error('Play error:', err))
     }
   }
 
@@ -66,17 +64,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
     const newMute = !isMuted
     videoRef.current.muted = newMute
     setIsMuted(newMute)
-  }
-
-  const handleLike = (e) => {
-    e.stopPropagation()
-    if (isLiked) {
-      setLikesCount(prev => prev - 1)
-      setIsLiked(false)
-    } else {
-      setLikesCount(prev => prev + 1)
-      setIsLiked(true)
-    }
   }
 
   const handleDownload = async (e) => {
@@ -118,7 +105,7 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
       {/* Video Element */}
       <video
         ref={videoRef}
-        src={video.videoUrl || video.url || 'https://assets.mixkit.co/videos/preview/mixkit-student-reading-a-book-in-a-library-42930-large.mp4'}
+        src={video.videoUrl || video.url || 'https://vjs.zencdn.net/v/oceans.mp4'}
         poster={video.poster}
         loop
         muted={isMuted}
@@ -141,6 +128,7 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
       <button
         onClick={toggleMute}
         className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition"
+        title={isMuted ? 'Unmute' : 'Mute'}
       >
         {isMuted ? <FiVolumeX size={18} /> : <FiVolume2 size={18} />}
       </button>
@@ -195,22 +183,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
       {/* Right Side Floating Action Buttons Overlay */}
       <div className="absolute right-3 bottom-8 z-20 flex flex-col items-center gap-5">
         
-        {/* Like Button */}
-        <button onClick={handleLike} className="flex flex-col items-center gap-1 text-white group/btn">
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${isLiked ? 'bg-red-500 text-white scale-110' : 'bg-black/40 hover:bg-black/60 text-white'}`}>
-            <FiHeart size={22} className={isLiked ? 'fill-current' : ''} />
-          </div>
-          <span className="text-[11px] font-bold text-white drop-shadow-md">{likesCount}</span>
-        </button>
-
-        {/* Comments Button */}
-        <button onClick={() => setShowComments(true)} className="flex flex-col items-center gap-1 text-white">
-          <div className="w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center text-white transition">
-            <FiMessageSquare size={22} />
-          </div>
-          <span className="text-[11px] font-bold text-white drop-shadow-md">{video.commentCount || 8}</span>
-        </button>
-
         {/* Gift Reaction Button */}
         <button onClick={() => setShowGiftModal(true)} className="flex flex-col items-center gap-1 text-white animate-bounce" style={{ animationDuration: '3s' }}>
           <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-emerald-500 hover:opacity-90 flex items-center justify-center text-white shadow-lg shadow-amber-500/30 transition scale-105">
@@ -227,7 +199,7 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
           <span className="text-[10px] font-bold text-white drop-shadow-md">Share</span>
         </button>
 
-        {/* Download Video Button (With Creator Download Preference) */}
+        {/* Download Video Button */}
         <button
           onClick={handleDownload}
           disabled={isDownloading}
@@ -260,15 +232,6 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
         post={video}
         onClose={() => setShowShareModal(false)}
       />
-
-      {/* Comment Drawer Integration */}
-      {showComments && (
-        <CommentDrawer
-          post={video}
-          isOpen={showComments}
-          onClose={() => setShowComments(false)}
-        />
-      )}
 
     </div>
   )

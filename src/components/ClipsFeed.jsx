@@ -11,9 +11,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'University Law Track',
     title: 'AI Case Story: The Locked-Out Tenant & Self-Help Eviction Law',
     caption: 'Meet Sarah. Her landlord changed her locks overnight without a court order. Is self-help eviction legal? Watch this 45-second legal case story...',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    likesCount: 642,
-    commentCount: 48,
+    videoUrl: 'https://vjs.zencdn.net/v/oceans.mp4',
     allowDownload: true,
     citationSource: 'Nigerian Constitutional Law & Supreme Court Law Reports',
     isOfficial: true
@@ -26,9 +24,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'Medical Sciences Track',
     title: 'AI Clinical Story: The Marathon Runner\'s Hidden Heart Warning',
     caption: 'Marcus felt zero chest pain after his 10km run, but his jaw and left elbow were aching. Watch how the brain misinterprets heart distress (Referred Pain)...',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    likesCount: 812,
-    commentCount: 65,
+    videoUrl: 'https://res.cloudinary.com/demo/video/upload/elephants.mp4',
     allowDownload: true,
     citationSource: 'Guyton & Hall Medical Physiology Textbook',
     isOfficial: true
@@ -41,9 +37,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'UI/UX & Product Design',
     title: 'AI Design Story: How 1 Button Change Generated $300 Million',
     caption: 'Why did removing the mandatory "Register" form at checkout generate $300M in revenue? Watch this 60-second UX friction story...',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    likesCount: 1240,
-    commentCount: 92,
+    videoUrl: 'https://media.w3.org/2010/05/sintel/trailer_hd.mp4',
     allowDownload: true,
     citationSource: 'Figma & Apple Human Interface Guidelines',
     isOfficial: true
@@ -56,9 +50,7 @@ const SAMPLE_CLIPS = [
     skillDomain: 'Web & Software Engineering',
     title: 'AI Dev Story: The $45,000 Infinite Loop Weekend',
     caption: 'A developer forgot one loop counter variable in a serverless function and spawned 140 million cloud calls over 48 hours. Here is why execution limits matter...',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-    likesCount: 950,
-    commentCount: 84,
+    videoUrl: 'https://res.cloudinary.com/demo/video/upload/dog.mp4',
     allowDownload: true,
     citationSource: 'MDN Web Docs & AWS Serverless Best Practices',
     isOfficial: true
