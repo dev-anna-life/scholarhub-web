@@ -13,6 +13,7 @@ import SchoolLogo from '../components/SchoolLogo'
 import SchoolBadge from '../components/SchoolBadge'
 import CitationSourceInput from '../components/CitationSourceInput'
 import UserBadge from '../components/UserBadge'
+import AILessonCard from '../components/AILessonCard'
 import { formatCitationSource } from '../data/citationSources'
 import axios from 'axios'
 
@@ -890,12 +891,18 @@ function Home() {
                             )
                         ) : (
                             <AnimatePresence>
-                                {filteredPosts.map((post, i) => (
-                                    <motion.div key={post.id}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: i * 0.05 }}
-                                        className="bg-white rounded-2xl p-3 md:p-5 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-300">
+                                {filteredPosts.map((post, i) => {
+                                    const isBotPost = post.author?.email?.startsWith('bot_') || post.author?.isBot || post.author?.isOfficial || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
+                                    if (isBotPost) {
+                                        return <AILessonCard key={post.id || i} post={post} />
+                                    }
+
+                                    return (
+                                        <motion.div key={post.id || i}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.05 }}
+                                            className="bg-white rounded-2xl p-3 md:p-5 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-300">
 
                                         <div className="flex items-start gap-2 mb-3">
                                             <div
@@ -1013,7 +1020,7 @@ function Home() {
                                             </button>
                                         </div>
                                     </motion.div>
-                                ))}
+                                 )})}
                             </AnimatePresence>
                         )}
                     </div>
