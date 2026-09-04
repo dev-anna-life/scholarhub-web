@@ -30,15 +30,17 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
     if (!videoRef.current) return
 
     if (isActive) {
+      videoRef.current.currentTime = 0
       const playPromise = videoRef.current.play()
       if (playPromise !== undefined) {
         playPromise
           .then(() => setIsPlaying(true))
           .catch(() => {
-            // Autoplay blocked by browser autoplay policy, try muted
             setIsMuted(true)
-            videoRef.current.muted = true
-            videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+            if (videoRef.current) {
+              videoRef.current.muted = true
+              videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+            }
           })
       }
     } else {
@@ -111,7 +113,7 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
   }
 
   return (
-    <div className="relative w-full h-[82vh] md:h-[85vh] bg-black rounded-3xl overflow-hidden shadow-2xl snap-start flex flex-col justify-center items-center group">
+    <div className="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-2xl snap-start snap-always flex flex-col justify-center items-center group">
       
       {/* Video Element */}
       <video
@@ -119,15 +121,17 @@ export default function TikTokVideoCard({ video, onGift, isActive }) {
         src={video.videoUrl || video.url || 'https://assets.mixkit.co/videos/preview/mixkit-student-reading-a-book-in-a-library-42930-large.mp4'}
         poster={video.poster}
         loop
+        muted={isMuted}
         playsInline
+        preload="auto"
         className="w-full h-full object-cover cursor-pointer"
         onClick={togglePlay}
       />
 
       {/* Play/Pause Overlay Icon */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/20">
-          <div className="w-16 h-16 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-white text-2xl">
+        <div onClick={togglePlay} className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer z-10">
+          <div className="w-16 h-16 rounded-full bg-white/30 backdrop-blur-md flex items-center justify-center text-white text-2xl shadow-xl">
             <FiPlay size={32} className="ml-1" />
           </div>
         </div>
