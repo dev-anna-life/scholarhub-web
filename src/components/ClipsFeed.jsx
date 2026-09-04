@@ -112,42 +112,55 @@ export default function ClipsFeed() {
     }
   }
 
+  // Support Desktop Keyboard Up/Down Arrow Navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        goToNext()
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        goToPrev()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activeIndex])
+
   return (
     <div className="relative w-full max-w-md mx-auto">
-      {/* Desktop Navigation Arrows */}
-      <div className="hidden sm:flex flex-col gap-2 absolute -right-14 top-1/2 -translate-y-1/2 z-30">
+      {/* Desktop Up / Down Arrow Navigation Buttons */}
+      <div className="hidden sm:flex flex-col gap-3 absolute -right-14 top-1/2 -translate-y-1/2 z-30">
         <button
           type="button"
           onClick={goToPrev}
           disabled={activeIndex === 0}
-          className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-dark dark:text-white shadow-md disabled:opacity-30 hover:bg-primary hover:text-white transition"
-          title="Previous Video"
+          className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-dark dark:text-white shadow-lg disabled:opacity-30 hover:bg-primary hover:text-white transition"
+          title="Previous Video (Up Arrow)"
         >
           ▲
         </button>
-        <span className="text-[10px] font-bold text-center text-gray-500">
-          {activeIndex + 1} / {SAMPLE_CLIPS.length}
-        </span>
         <button
           type="button"
           onClick={goToNext}
           disabled={activeIndex === SAMPLE_CLIPS.length - 1}
-          className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-dark dark:text-white shadow-md disabled:opacity-30 hover:bg-primary hover:text-white transition"
-          title="Next Video"
+          className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 flex items-center justify-center text-dark dark:text-white shadow-lg disabled:opacity-30 hover:bg-primary hover:text-white transition"
+          title="Next Video (Down Arrow)"
         >
           ▼
         </button>
       </div>
 
+      {/* Main Snap Scroll Container - Hides Browser Scrollbar Line Completely */}
       <div
         ref={containerRef}
-        className="h-[580px] md:h-[620px] w-full overflow-y-scroll snap-y snap-mandatory bg-black rounded-3xl relative scrollbar-none touch-pan-y shadow-2xl border border-gray-800"
+        className="h-[calc(100vh-140px)] md:h-[620px] w-full overflow-y-scroll snap-y snap-mandatory bg-black rounded-3xl relative scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-y shadow-2xl border-0"
         style={{ scrollSnapType: 'y mandatory', WebkitOverflowScrolling: 'touch' }}
       >
         {SAMPLE_CLIPS.map((clip, index) => (
           <div
             key={clip.id}
-            className="h-[580px] md:h-[620px] w-full snap-start snap-always relative flex-shrink-0"
+            className="h-[calc(100vh-140px)] md:h-[620px] w-full snap-start snap-always relative flex-shrink-0 overflow-hidden"
             style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
           >
             <TikTokVideoCard
