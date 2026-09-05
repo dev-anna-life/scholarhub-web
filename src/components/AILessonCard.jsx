@@ -186,14 +186,11 @@ export default function AILessonCard({ post, onCommentClick }) {
       {/* Action Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-zinc-800 text-gray-500 text-xs font-bold">
         <button
-          onClick={() => {
-            setLiked(!liked)
-            setLikesCount(prev => prev + (liked ? -1 : 1))
-          }}
-          className={`flex items-center gap-1.5 transition ${liked ? 'text-red-500' : 'hover:text-dark dark:hover:text-white'}`}
+          onClick={() => setLiked(!liked)}
+          className={`flex items-center gap-1.5 transition cursor-pointer ${liked ? 'text-red-500' : 'hover:text-dark dark:hover:text-white'}`}
         >
           <FiHeart size={16} className={liked ? 'fill-current' : ''} />
-          <span>{likesCount} Likes</span>
+          <span>{liked ? 'Liked' : 'Like'}</span>
         </button>
 
         <button
