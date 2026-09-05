@@ -9,6 +9,7 @@ import CommentDrawer from "../components/CommentDrawer"
 import PostGiftModal from "../components/PostGiftModal"
 import { schoolsByCountry, featuredSchools, getSchoolsForUser, getAllSchoolsForLevel, getSchoolLogo, matchSchool } from '../data/schools'
 import SchoolLogo from '../components/SchoolLogo'
+import { formatRelativeTime } from '../utils/date'
 
 const communityData = {
     secondary: {
@@ -207,7 +208,7 @@ function CommunityFeed() {
                 likes: post.likes?.length || 0,
                 liked: post.liked || false,
                 commentCount: post.commentsData?.length || 0,
-                time: post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently',
+                time: formatRelativeTime(post.createdAt),
                 trending: post.trending || false,
                 saved: false,
                 isReal: true,

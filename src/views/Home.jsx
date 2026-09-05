@@ -15,6 +15,7 @@ import CitationSourceInput from '../components/CitationSourceInput'
 import UserBadge from '../components/UserBadge'
 import AILessonCard from '../components/AILessonCard'
 import { formatCitationSource } from '../data/citationSources'
+import { formatRelativeTime } from '../utils/date'
 import axios from 'axios'
 
 const REACTION_GIFTS_MAP = {
@@ -316,7 +317,7 @@ function Home() {
                 likes: post.likesCount ?? post.likes?.length ?? 0,
                 liked: post.liked || post.likes?.includes(userId) || false,
                 commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
-                time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
+                time: formatRelativeTime(post.createdAt),
                 trending: post.trending || false,
                 citationSource: post.citationSource || '',
                 citationStatus: post.citationStatus || 'unverified',

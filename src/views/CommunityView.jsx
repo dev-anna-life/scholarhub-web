@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { getPosts, likePost, getComments, addComment, savePost } from "../api/auth"
 import CommentDrawer from '../components/CommentDrawer'
 import { getSchoolAbbr, stringToColor } from '../utils/school'
+import { formatRelativeTime } from '../utils/date'
 
 function CommunityView({ communityId }) {
     const router = useRouter()
@@ -46,7 +47,7 @@ function CommunityView({ communityId }) {
                     likes: post.likesCount ?? post.likes?.length ?? 0,
                     liked: post.liked || post.likes?.includes(user?._id || user?.id) || false,
                     commentCount: post.commentCount ?? post.commentsData?.length ?? 0,
-                    time: post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently',
+                    time: formatRelativeTime(post.createdAt),
                     saved: false,
                     isReal: true
                 }))

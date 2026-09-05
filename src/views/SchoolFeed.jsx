@@ -8,6 +8,7 @@ import { createPost, getPosts, likePost, getComments, addComment, getMe } from '
 import CommentDrawer from '../components/CommentDrawer'
 import PostGiftModal from '../components/PostGiftModal'
 import SchoolLogo from '../components/SchoolLogo'
+import { formatRelativeTime } from '../utils/date'
 
 function SchoolFeed() {
     const params = useParams() || {}
@@ -133,7 +134,7 @@ function SchoolFeed() {
                     likes: post.likes?.length || 0,
                     liked: post.likes?.includes(user.id) || false,
                     commentCount: post.commentsData?.length || 0,
-                    time: new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
+                    time: formatRelativeTime(post.createdAt),
                     isReal: true
                 }))
                 setPosts(mapped)

@@ -11,6 +11,7 @@ import { getUserById, followUser, getPosts, deletePost, sendCoins } from "../api
 import { getSchoolLogo } from "../data/schools"
 import SchoolBadge from "../components/SchoolBadge"
 import SchoolLogo from "../components/SchoolLogo"
+import { formatRelativeTime } from "../utils/date"
 
 const knownAbbreviations = {
     'university of lagos': 'UNILAG', 'obafemi awolowo university': 'OAU',
@@ -618,7 +619,7 @@ function UserProfile() {
                                                         <span className="text-gray-400">@{profileUser.username || 'scholar'}</span>
                                                         <span className="text-gray-300">•</span>
                                                         <span className="text-gray-400 text-[11px]">
-                                                            {post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently'}
+                                                            {formatRelativeTime(post.createdAt)}
                                                         </span>
                                                     </div>
                                                 </div>

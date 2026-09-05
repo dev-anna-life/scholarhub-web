@@ -116,34 +116,26 @@ export default function ShareModal({ isOpen, onClose, post }) {
               </button>
             </div>
 
-            {/* Direct Copy Link Bar */}
+            {/* Direct Copy Link Bar with Sleek Icon Button */}
             <div className="relative flex items-center">
               <input
                 type="text"
                 readOnly
                 value={shareUrl}
-                className="w-full py-2.5 pl-3 pr-24 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-mono bg-gray-50 dark:bg-zinc-900 text-gray-700 dark:text-gray-300 focus:outline-none"
+                className="w-full py-2.5 pl-3 pr-12 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-mono bg-gray-50 dark:bg-zinc-900 text-gray-700 dark:text-gray-300 focus:outline-none truncate"
+                title={shareUrl}
               />
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className={`absolute right-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                title={copied ? 'Copied to clipboard' : 'Copy link'}
+                className={`absolute right-1.5 p-2 rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer ${
                   copied
                     ? 'bg-emerald-500 text-white'
                     : 'bg-primary text-white hover:opacity-90'
                 }`}
               >
-                {copied ? (
-                  <>
-                    <FiCheck size={13} />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <FiCopy size={13} />
-                    <span>Copy Link</span>
-                  </>
-                )}
+                {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
               </button>
             </div>
           </div>

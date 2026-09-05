@@ -12,6 +12,7 @@ import { getSchoolLogo } from "../data/schools"
 import SchoolBadge from "../components/SchoolBadge"
 import SchoolLogo from "../components/SchoolLogo"
 import UserBadge from "../components/UserBadge"
+import { formatRelativeTime } from "../utils/date"
 
 function Profile() {
   const router = useRouter()
@@ -455,7 +456,7 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                             <span className="text-gray-400">@{user.username || 'scholar'}</span>
                             <span className="text-gray-300">•</span>
                             <span className="text-gray-400 text-[11px]">
-                              {post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Recently'}
+                              {formatRelativeTime(post.createdAt)}
                             </span>
                           </div>
                         </div>

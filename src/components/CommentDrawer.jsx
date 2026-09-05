@@ -6,6 +6,7 @@ import {
   FiImage, FiZap, FiStar, FiAward, FiMessageCircle, FiHeart, FiChevronDown, FiChevronUp
 } from 'react-icons/fi'
 import { giftReaction } from '../api/auth'
+import { formatRelativeTime } from '../utils/date'
 
 const REACTION_GIFTS = [
   { id: 'gift_helpful', name: 'Helpful', price: 10, icon: FiThumbsUp, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20' },
@@ -321,7 +322,7 @@ export default function CommentDrawer({
                         {/* Action details (Time, Reply, Gift) */}
                         <div className="flex items-center gap-4 mt-1.5 text-xs text-white/40">
                           <span>
-                            {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Just now'}
+                            {formatRelativeTime(comment.createdAt)}
                           </span>
                           <button
                             onClick={() => setReplyTo({ commentId: cId, authorName: comment.author?.name || 'Scholar' })}
@@ -401,7 +402,7 @@ export default function CommentDrawer({
                                     )}
                                     {renderCommentGifts(reply.gifts)}
                                     <div className="flex items-center gap-3 mt-1 text-[11px] text-white/40">
-                                      <span>{reply.createdAt ? new Date(reply.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }) : 'Just now'}</span>
+                                      <span>{formatRelativeTime(reply.createdAt)}</span>
                                       <button
                                         onClick={() => setReplyTo({ commentId: cId, authorName: reply.author?.name || 'Scholar' })}
                                         className="font-semibold text-white/60 hover:text-white transition"
