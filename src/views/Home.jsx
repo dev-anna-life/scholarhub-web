@@ -322,6 +322,9 @@ function Home() {
                 citationSource: post.citationSource || '',
                 citationStatus: post.citationStatus || 'unverified',
                 citationSummary: post.citationSummary || '',
+                quizQuestion: post.quizQuestion || null,
+                quizOptions: post.quizOptions || null,
+                correctOptionIndex: post.correctOptionIndex !== undefined ? post.correctOptionIndex : 0,
                 saved: savedIds.has(post.id || post._id),
                 isReal: true
             }))
@@ -887,7 +890,7 @@ function Home() {
                                 {filteredPosts.map((post, i) => {
                                     const isBotPost = post.author?.email?.startsWith('bot_') || post.author?.isBot || post.author?.isOfficial || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
                                     if (isBotPost) {
-                                        return <AILessonCard key={post.id || i} post={post} />
+                                        return <AILessonCard key={post.id || i} post={post} onCommentClick={handleShowComments} />
                                     }
 
                                     return (

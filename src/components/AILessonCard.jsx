@@ -5,7 +5,7 @@ import { FiBookOpen, FiCheckCircle, FiAward, FiShare2, FiHeart, FiMessageCircle,
 import UserBadge from './UserBadge'
 import ShareModal from './ShareModal'
 
-export default function AILessonCard({ post }) {
+export default function AILessonCard({ post, onCommentClick }) {
   const [selectedOption, setSelectedOption] = useState(null)
   const [isAnswered, setIsAnswered] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
@@ -15,13 +15,47 @@ export default function AILessonCard({ post }) {
 
   if (!post) return null
 
-  const author = post.author || {}
+  const author = typeof post.author === 'object' ? post.author : { name: post.author || 'Official AI Study Bot' }
   const cleanTitle = (post.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
   const cleanContent = (post.content || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
 
-  const defaultQuestion = post.quizQuestion || 'What is the primary takeaway for this lesson?'
-  const defaultOptions = post.quizOptions || ['Option A: Apply rule correctly', 'Option B: Ignore formula', 'Option C: Invalid concept', 'Option D: None of the above']
-  const correctIdx = post.correctOptionIndex !== undefined ? post.correctOptionIndex : 0
+  // Smart Topic-Based Quiz Question & Options Resolution
+  let defaultQuestion = post.quizQuestion
+  let defaultOptions = post.quizOptions
+  let correctIdx = post.correctOptionIndex !== undefined ? post.correctOptionIndex : 0
+
+  if (!defaultQuestion || !defaultOptions || !Array.isArray(defaultOptions) || defaultOptions.length === 0) {
+    if (cleanTitle.includes('Audi Alteram Partem') || cleanContent.includes('Audi Alteram Partem') || cleanTitle.includes('Natural Justice')) {
+      defaultQuestion = 'What does the Latin legal maxim "Audi Alteram Partem" translate to?'
+      defaultOptions = ['Hear the other side', 'Buyer beware', 'The law is harsh', 'State of emergency']
+      correctIdx = 0
+    } else if (cleanTitle.includes('Newton') || cleanContent.includes('F = ma')) {
+      defaultQuestion = 'If you push a 5kg box with 15N of force, what is its acceleration?'
+      defaultOptions = ['3 m/s²', '10 m/s²', '75 m/s²', '0.3 m/s²']
+      correctIdx = 0
+    } else if (cleanTitle.includes('Flexbox') || cleanContent.includes('Center a Div')) {
+      defaultQuestion = 'Which CSS Flexbox property aligns items vertically along the cross axis?'
+      defaultOptions = ['align-items', 'justify-content', 'text-align', 'float']
+      correctIdx = 0
+    } else if (cleanTitle.includes('Figma') || cleanContent.includes('Auto-Layout')) {
+      defaultQuestion = 'Which Figma sizing property makes an element stretch to fill its parent width?'
+      defaultOptions = ['Fill Container', 'Hug Contents', 'Fixed Width', 'Clip Content']
+      correctIdx = 0
+    } else if (cleanTitle.includes('Coronary') || cleanContent.includes('Myocardial')) {
+      defaultQuestion = 'What is the primary cause of acute myocardial infarction?'
+      defaultOptions = ['Coronary artery occlusion', 'Low blood pressure', 'Vitamin deficiency', 'Muscle fatigue']
+      correctIdx = 0
+    } else {
+      defaultQuestion = 'What is the main principle demonstrated in this lesson?'
+      defaultOptions = [
+        'Apply the verified academic rule correctly',
+        'Ignore core theoretical guidelines',
+        'Bypass legal and scientific standards',
+        'None of the above'
+      ]
+      correctIdx = 0
+    }
+  }
 
   const handleSelectOption = (index) => {
     if (isAnswered) return
@@ -163,8 +197,16 @@ export default function AILessonCard({ post }) {
         </button>
 
         <button
+          onClick={() => onCommentClick && onCommentClick(post)}
+          className="flex items-center gap-1.5 hover:text-primary transition text-gray-500 hover:text-primary cursor-pointer"
+        >
+          <FiMessageCircle size={16} />
+          <span>{post.commentCount || 0} Comments</span>
+        </button>
+
+        <button
           onClick={() => setShowShareModal(true)}
-          className="flex items-center gap-1.5 hover:text-primary transition"
+          className="flex items-center gap-1.5 hover:text-primary transition cursor-pointer"
         >
           <FiShare2 size={16} />
           <span>Share Lesson</span>
