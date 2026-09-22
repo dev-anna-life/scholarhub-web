@@ -31,7 +31,7 @@ export function formatRelativeTime(dateInput) {
   if (diffInDays < 7) return `${diffInDays}d ago`
 
   const diffInWeeks = Math.floor(diffInDays / 7)
-  if (diffInWeeks < 4) return `${diffInWeeks}w ago`
+  if (diffInWeeks < 5) return `${diffInWeeks}w ago`  // show up to "4w ago" before switching to months
 
   const diffInMonths = Math.floor(diffInDays / 30)
   if (diffInMonths < 12) return `${diffInMonths}mo ago`
