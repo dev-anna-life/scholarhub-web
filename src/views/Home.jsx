@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift, FiThumbsUp, FiCompass, FiZap, FiStar, FiAward, FiBookOpen } from "react-icons/fi"
+import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift, FiThumbsUp, FiCompass, FiZap, FiStar, FiAward, FiBookOpen, FiX } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
 import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, getCommunities, savePost, getSavedPosts, getMe } from '../api/auth'
 import SOSButton from '../components/SOSButton'
@@ -121,6 +121,7 @@ function Home() {
     const feedCategories = ['Sciences', 'Mathematics', 'Technology', 'Law', 'Medicine', 'Arts & Lit', 'Commerce', 'Campus Gist', 'Entertainment', 'Talent']
     const categories = feedCategories
     const [expandedPosts, setExpandedPosts] = useState(new Set())
+    const [selectedStoryPost, setSelectedStoryPost] = useState(null)
 
     const toggleExpandPost = (postId) => {
         setExpandedPosts(prev => {
@@ -890,32 +891,37 @@ function Home() {
                             )
                         ) : (
                             <AnimatePresence>
-                                {/* AI LESSONS SECTION - HORIZONTAL SCROLL CAROUSEL */}
+                                {/* INSTAGRAM-STYLE AI LESSON STORIES (COMPACT & UNBLOCKING) */}
                                 {aiPosts.length > 0 && (
-                                    <div key="ai-lessons-section" className="mb-6">
-                                        <div className="flex items-center justify-between mb-3 px-1">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
-                                                    <FiBookOpen size={13} />
-                                                </div>
-                                                <h3 className="text-xs font-bold text-dark dark:text-white uppercase tracking-wider">AI Study Lessons</h3>
-                                                <span className="text-[10px] text-gray-400 font-medium">Bite-sized curriculum</span>
-                                            </div>
-                                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                                                {aiPosts.length} {aiPosts.length === 1 ? 'lesson' : 'lessons'}
-                                            </span>
-                                        </div>
-                                        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory -mx-1 px-1">
-                                            {aiPosts.map((post, i) => (
-                                                <div key={post.id || `ai-${i}`} className="flex-shrink-0 w-[88%] sm:w-[420px] md:w-[460px] snap-start">
-                                                    <AILessonCard post={post} onCommentClick={handleShowComments} />
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="flex items-center gap-3 mt-2 mb-4 px-1">
-                                            <div className="flex-1 h-px bg-gray-200/60 dark:bg-slate-800" />
-                                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">From The Community</p>
-                                            <div className="flex-1 h-px bg-gray-200/60 dark:bg-slate-800" />
+                                    <div key="ai-stories-bar" className="mb-4 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 rounded-2xl p-3 shadow-2xs">
+                                        <div className="flex items-center gap-4 overflow-x-auto scrollbar-none py-1 px-1">
+                                            {aiPosts.map((post, i) => {
+                                                const category = post.category || 'Lesson'
+                                                return (
+                                                    <button
+                                                        key={post.id || `story-${i}`}
+                                                        onClick={() => setSelectedStoryPost(post)}
+                                                        className="flex flex-col items-center gap-1.5 flex-shrink-0 group cursor-pointer focus:outline-none"
+                                                    >
+                                                        {/* Gradient Story Ring (Instagram Style) */}
+                                                        <div className="w-14 h-14 rounded-full p-[2.5px] bg-gradient-to-tr from-amber-500 via-emerald-500 to-primary group-hover:scale-105 transition-transform duration-200 shadow-xs flex items-center justify-center">
+                                                            <div className="w-full h-full rounded-full bg-white dark:bg-zinc-900 p-[2px] flex items-center justify-center overflow-hidden">
+                                                                {post.authorAvatar || (post.avatar && post.avatar.startsWith('data:image')) || (post.author?.avatar) ? (
+                                                                    <img src={post.authorAvatar || post.avatar || post.author?.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                                                                ) : (
+                                                                    <div className="w-full h-full rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
+                                                                        <FiBookOpen size={16} />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        {/* Story Subject Label */}
+                                                        <span className="text-[11px] font-semibold text-dark dark:text-gray-200 max-w-[68px] truncate leading-tight group-hover:text-primary transition-colors">
+                                                            {category}
+                                                        </span>
+                                                    </button>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -1270,6 +1276,40 @@ function Home() {
                 post={giftPost}
                 onClose={() => setGiftPost(null)}
             />
+
+            {/* AI STORY LESSON POPUP VIEWER */}
+            <AnimatePresence>
+                {selectedStoryPost && (
+                    <div 
+                        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm"
+                        onClick={() => setSelectedStoryPost(null)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={e => e.stopPropagation()}
+                            className="w-full max-w-lg max-h-[90vh] overflow-y-auto relative rounded-2xl"
+                        >
+                            <button
+                                onClick={() => setSelectedStoryPost(null)}
+                                aria-label="Close"
+                                className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition cursor-pointer shadow-md"
+                            >
+                                <FiX size={18} />
+                            </button>
+                            <AILessonCard 
+                                post={selectedStoryPost} 
+                                onCommentClick={(p) => {
+                                    setSelectedStoryPost(null)
+                                    handleShowComments(p)
+                                }} 
+                            />
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
