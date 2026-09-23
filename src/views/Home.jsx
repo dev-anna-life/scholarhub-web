@@ -653,12 +653,23 @@ function Home() {
         if (!cat) return 'Lesson'
         const lower = cat.toLowerCase()
         if (lower.includes('med')) return 'Medicine'
-        if (lower.includes('law')) return 'Law'
-        if (lower.includes('art') || lower.includes('ui')) return 'Design'
-        if (lower.includes('tech') || lower.includes('web')) return 'Technology'
-        if (lower.includes('sci') || lower.includes('phys')) return 'Sciences'
+        if (lower.includes('law') || lower.includes('juris')) return 'Law'
+        if (lower.includes('art') || lower.includes('ui') || lower.includes('design')) return 'Design'
+        if (lower.includes('tech') || lower.includes('web') || lower.includes('data')) return 'Technology'
+        if (lower.includes('sci') || lower.includes('phys') || lower.includes('chem')) return 'Sciences'
         if (lower.includes('math')) return 'Maths'
+        if (lower.includes('comm') || lower.includes('acc') || lower.includes('econ')) return 'Commerce'
         return cat.split(' ')[0]
+    }
+
+    const uniqueAiStories = []
+    const seenCategories = new Set()
+    for (const post of aiPosts) {
+        const key = formatCategoryLabel(post.category)
+        if (!seenCategories.has(key)) {
+            seenCategories.add(key)
+            uniqueAiStories.push(post)
+        }
     }
 
     return (
@@ -916,7 +927,7 @@ function Home() {
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-4 overflow-x-auto py-1 px-0.5 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                                            {aiPosts.map((post, i) => {
+                                            {uniqueAiStories.map((post, i) => {
                                                 const shortLabel = formatCategoryLabel(post.category)
                                                 return (
                                                     <button
@@ -1308,24 +1319,62 @@ function Home() {
                             className="w-full max-w-lg max-h-[88vh] flex flex-col bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-zinc-800 overflow-hidden"
                         >
                             {/* Sticky Modal Header with ScholarHub Logo & Dedicated Safe Close Button */}
-                            <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-100 dark:border-zinc-800/80 bg-gray-50/80 dark:bg-zinc-900/90 backdrop-blur-sm flex-shrink-0">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-7 h-7 rounded-full bg-emerald-500/10 p-0.5 flex items-center justify-center flex-shrink-0">
-                                        <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain" />
+                            {(() => {
+                                const categoryLessons = selectedStoryPost 
+                                    ? aiPosts.filter(p => formatCategoryLabel(p.category) === formatCategoryLabel(selectedStoryPost.category))
+                                    : []
+                                const activeLessonIndex = selectedStoryPost 
+                                    ? categoryLessons.findIndex(p => (p.id || p._id) === (selectedStoryPost.id || selectedStoryPost._id))
+                                    : 0
+                                return (
+                                    <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-100 dark:border-zinc-800/80 bg-gray-50/80 dark:bg-zinc-900/90 backdrop-blur-sm flex-shrink-0">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-7 h-7 rounded-full bg-emerald-500/10 p-0.5 flex items-center justify-center flex-shrink-0">
+                                                <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Lesson</h4>
+                                                <p className="text-[10px] text-gray-400 font-medium">Bite-sized official curriculum</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {categoryLessons.length > 1 && (
+                                                <div className="flex items-center gap-1.5 bg-gray-200/60 dark:bg-zinc-800 px-2 py-0.5 rounded-full text-[11px] font-bold text-gray-600 dark:text-gray-300">
+                                                    <button
+                                                        disabled={activeLessonIndex <= 0}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            if (activeLessonIndex > 0) setSelectedStoryPost(categoryLessons[activeLessonIndex - 1])
+                                                        }}
+                                                        className="disabled:opacity-30 hover:text-primary transition px-1 cursor-pointer font-bold"
+                                                    >
+                                                        ‹
+                                                    </button>
+                                                    <span className="text-[10px] tracking-tight">{activeLessonIndex + 1}/{categoryLessons.length}</span>
+                                                    <button
+                                                        disabled={activeLessonIndex >= categoryLessons.length - 1}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            if (activeLessonIndex < categoryLessons.length - 1) setSelectedStoryPost(categoryLessons[activeLessonIndex + 1])
+                                                        }}
+                                                        className="disabled:opacity-30 hover:text-primary transition px-1 cursor-pointer font-bold"
+                                                    >
+                                                        ›
+                                                    </button>
+                                                </div>
+                                            )}
+                                            <button
+                                                onClick={() => setSelectedStoryPost(null)}
+                                                aria-label="Close"
+                                                className="w-8 h-8 rounded-full bg-gray-200/70 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-200 flex items-center justify-center transition cursor-pointer"
+                                            >
+                                                <FiX size={16} />
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Lesson</h4>
-                                        <p className="text-[10px] text-gray-400 font-medium">Bite-sized official curriculum</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setSelectedStoryPost(null)}
-                                    aria-label="Close"
-                                    className="w-8 h-8 rounded-full bg-gray-200/70 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-200 flex items-center justify-center transition cursor-pointer"
-                                >
-                                    <FiX size={16} />
-                                </button>
-                            </div>
+                                )
+                            })()}
 
                             {/* Scrollable Modal Content */}
                             <div className="overflow-y-auto p-3 sm:p-5 flex-1 [scrollbar-width:thin]">
