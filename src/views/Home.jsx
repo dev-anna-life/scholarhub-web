@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift, FiThumbsUp, FiCompass, FiZap, FiStar, FiAward } from "react-icons/fi"
+import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift, FiThumbsUp, FiCompass, FiZap, FiStar, FiAward, FiBookOpen } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
 import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, getCommunities, savePost, getSavedPosts, getMe } from '../api/auth'
 import SOSButton from '../components/SOSButton'
@@ -644,6 +644,9 @@ function Home() {
     }, [showTopics])
 
     const filteredPosts = posts
+    const isBotCheck = (post) => post.author?.email?.startsWith('bot_') || post.author?.isBot || post.author?.isOfficial || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
+    const aiPosts = filteredPosts.filter(isBotCheck)
+    const studentPosts = filteredPosts.filter(p => !isBotCheck(p))
 
     return (
        
@@ -887,14 +890,46 @@ function Home() {
                             )
                         ) : (
                             <AnimatePresence>
-                                {filteredPosts.map((post, i) => {
-                                    const isBotPost = post.author?.email?.startsWith('bot_') || post.author?.isBot || post.author?.isOfficial || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
-                                    if (isBotPost) {
-                                        return <AILessonCard key={post.id || i} post={post} onCommentClick={handleShowComments} />
-                                    }
+                                {/* AI LESSONS SECTION - HORIZONTAL SCROLL CAROUSEL */}
+                                {aiPosts.length > 0 && (
+                                    <div key="ai-lessons-section" className="mb-6">
+                                        <div className="flex items-center justify-between mb-3 px-1">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                                                    <FiBookOpen size={13} />
+                                                </div>
+                                                <h3 className="text-xs font-bold text-dark dark:text-white uppercase tracking-wider">AI Study Lessons</h3>
+                                                <span className="text-[10px] text-gray-400 font-medium">Bite-sized curriculum</span>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                                                {aiPosts.length} {aiPosts.length === 1 ? 'lesson' : 'lessons'}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory -mx-1 px-1">
+                                            {aiPosts.map((post, i) => (
+                                                <div key={post.id || `ai-${i}`} className="flex-shrink-0 w-[88%] sm:w-[420px] md:w-[460px] snap-start">
+                                                    <AILessonCard post={post} onCommentClick={handleShowComments} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="flex items-center gap-3 mt-2 mb-4 px-1">
+                                            <div className="flex-1 h-px bg-gray-200/60 dark:bg-slate-800" />
+                                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">From The Community</p>
+                                            <div className="flex-1 h-px bg-gray-200/60 dark:bg-slate-800" />
+                                        </div>
+                                    </div>
+                                )}
 
-                                    return (
-                                        <motion.div key={post.id || i}
+                                {/* STUDENT ORIGINAL POSTS FEED */}
+                                {studentPosts.length === 0 && aiPosts.length > 0 ? (
+                                    <div className="text-center py-10 bg-white rounded-2xl border border-gray-100 p-6">
+                                        <p className="text-sm font-semibold text-dark">No student posts yet</p>
+                                        <p className="text-xs text-gray-400 mt-1">Be the first student to share your thoughts or questions!</p>
+                                    </div>
+                                ) : (
+                                    studentPosts.map((post, i) => {
+                                        return (
+                                            <motion.div key={post.id || i}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.05 }}
@@ -1016,7 +1051,9 @@ function Home() {
                                             </button>
                                         </div>
                                     </motion.div>
-                                 )})}
+                                    )
+                                })
+                            )}
                             </AnimatePresence>
                         )}
                     </div>
