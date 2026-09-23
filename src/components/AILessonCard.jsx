@@ -70,19 +70,19 @@ export default function AILessonCard({ post, onCommentClick }) {
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-zinc-900 border-2 border-amber-500/30 dark:border-amber-500/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition relative overflow-hidden mb-5"
+      className="bg-white dark:bg-zinc-900 border-2 border-amber-500/30 dark:border-amber-500/20 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition relative overflow-hidden mb-2"
     >
       {/* Decorative Top Accent Bar */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-emerald-500 to-primary" />
 
       {/* Card Header: AI Lesson Badge & Author */}
-      <div className="flex items-center justify-between mb-4 pt-1">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-emerald-600 text-white flex items-center justify-center font-bold overflow-hidden shadow-md">
+      <div className="flex items-center justify-between mb-4 pt-1 gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-emerald-600 text-white flex items-center justify-center font-bold overflow-hidden shadow-md flex-shrink-0">
             {author.avatar ? (
               <img src={author.avatar} alt={author.name} className="w-full h-full object-cover" />
             ) : (
-              <FiBookOpen size={18} />
+              <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain p-1" />
             )}
           </div>
           <div>

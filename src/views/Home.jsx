@@ -649,6 +649,18 @@ function Home() {
     const aiPosts = filteredPosts.filter(isBotCheck)
     const studentPosts = filteredPosts.filter(p => !isBotCheck(p))
 
+    const formatCategoryLabel = (cat) => {
+        if (!cat) return 'Lesson'
+        const lower = cat.toLowerCase()
+        if (lower.includes('med')) return 'Medicine'
+        if (lower.includes('law')) return 'Law'
+        if (lower.includes('art') || lower.includes('ui')) return 'Design'
+        if (lower.includes('tech') || lower.includes('web')) return 'Technology'
+        if (lower.includes('sci') || lower.includes('phys')) return 'Sciences'
+        if (lower.includes('math')) return 'Maths'
+        return cat.split(' ')[0]
+    }
+
     return (
        
         <div className="min-h-screen bg-light md:pl-56 pt-16 md:pt-0 pb-24 md:pb-8">
@@ -891,33 +903,36 @@ function Home() {
                             )
                         ) : (
                             <AnimatePresence>
-                                {/* INSTAGRAM-STYLE AI LESSON STORIES (COMPACT & UNBLOCKING) */}
+                                {/* INSTAGRAM-STYLE AI LESSON STORIES (MODERN & SCHOLARHUB BRANDED) */}
                                 {aiPosts.length > 0 && (
-                                    <div key="ai-stories-bar" className="mb-4 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 rounded-2xl p-3 shadow-2xs">
-                                        <div className="flex items-center gap-4 overflow-x-auto scrollbar-none py-1 px-1">
+                                    <div key="ai-stories-bar" className="mb-4 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 rounded-2xl p-3 sm:p-4 shadow-2xs overflow-hidden">
+                                        <div className="flex items-center justify-between mb-2.5 px-0.5">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                <span className="text-xs font-bold text-dark dark:text-white uppercase tracking-wider">AI Study Stories</span>
+                                            </div>
+                                            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
+                                                Tap to learn
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-4 overflow-x-auto py-1 px-0.5 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                                             {aiPosts.map((post, i) => {
-                                                const category = post.category || 'Lesson'
+                                                const shortLabel = formatCategoryLabel(post.category)
                                                 return (
                                                     <button
                                                         key={post.id || `story-${i}`}
                                                         onClick={() => setSelectedStoryPost(post)}
                                                         className="flex flex-col items-center gap-1.5 flex-shrink-0 group cursor-pointer focus:outline-none"
                                                     >
-                                                        {/* Gradient Story Ring (Instagram Style) */}
-                                                        <div className="w-14 h-14 rounded-full p-[2.5px] bg-gradient-to-tr from-amber-500 via-emerald-500 to-primary group-hover:scale-105 transition-transform duration-200 shadow-xs flex items-center justify-center">
-                                                            <div className="w-full h-full rounded-full bg-white dark:bg-zinc-900 p-[2px] flex items-center justify-center overflow-hidden">
-                                                                {post.authorAvatar || (post.avatar && post.avatar.startsWith('data:image')) || (post.author?.avatar) ? (
-                                                                    <img src={post.authorAvatar || post.avatar || post.author?.avatar} alt="" className="w-full h-full rounded-full object-cover" />
-                                                                ) : (
-                                                                    <div className="w-full h-full rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
-                                                                        <FiBookOpen size={16} />
-                                                                    </div>
-                                                                )}
+                                                        {/* Vibrant Gradient Story Ring with ScholarHub Logo */}
+                                                        <div className="w-14 h-14 sm:w-15 sm:h-15 rounded-full p-[2.5px] bg-gradient-to-tr from-amber-500 via-emerald-500 to-primary group-hover:scale-105 group-hover:shadow-md group-hover:shadow-emerald-500/20 transition-all duration-300 shadow-xs flex items-center justify-center relative">
+                                                            <div className="w-full h-full rounded-full bg-white dark:bg-zinc-900 p-1 flex items-center justify-center overflow-hidden">
+                                                                <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain" />
                                                             </div>
                                                         </div>
                                                         {/* Story Subject Label */}
-                                                        <span className="text-[11px] font-semibold text-dark dark:text-gray-200 max-w-[68px] truncate leading-tight group-hover:text-primary transition-colors">
-                                                            {category}
+                                                        <span className="text-[11px] font-bold text-gray-700 dark:text-gray-200 max-w-[70px] truncate leading-tight group-hover:text-primary transition-colors text-center">
+                                                            {shortLabel}
                                                         </span>
                                                     </button>
                                                 )
@@ -1277,35 +1292,51 @@ function Home() {
                 onClose={() => setGiftPost(null)}
             />
 
-            {/* AI STORY LESSON POPUP VIEWER */}
+            {/* MODERN MOBILE-RESPONSIVE AI STORY LESSON POPUP VIEWER */}
             <AnimatePresence>
                 {selectedStoryPost && (
                     <div 
-                        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/80 backdrop-blur-md"
                         onClick={() => setSelectedStoryPost(null)}
                     >
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                            initial={{ opacity: 0, scale: 0.92, y: 16 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                            transition={{ duration: 0.2 }}
+                            exit={{ opacity: 0, scale: 0.92, y: 16 }}
+                            transition={{ type: "spring", stiffness: 350, damping: 25 }}
                             onClick={e => e.stopPropagation()}
-                            className="w-full max-w-lg max-h-[90vh] overflow-y-auto relative rounded-2xl"
+                            className="w-full max-w-lg max-h-[88vh] flex flex-col bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-zinc-800 overflow-hidden"
                         >
-                            <button
-                                onClick={() => setSelectedStoryPost(null)}
-                                aria-label="Close"
-                                className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black transition cursor-pointer shadow-md"
-                            >
-                                <FiX size={18} />
-                            </button>
-                            <AILessonCard 
-                                post={selectedStoryPost} 
-                                onCommentClick={(p) => {
-                                    setSelectedStoryPost(null)
-                                    handleShowComments(p)
-                                }} 
-                            />
+                            {/* Sticky Modal Header with ScholarHub Logo & Dedicated Safe Close Button */}
+                            <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-100 dark:border-zinc-800/80 bg-gray-50/80 dark:bg-zinc-900/90 backdrop-blur-sm flex-shrink-0">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-7 h-7 rounded-full bg-emerald-500/10 p-0.5 flex items-center justify-center flex-shrink-0">
+                                        <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Lesson</h4>
+                                        <p className="text-[10px] text-gray-400 font-medium">Bite-sized official curriculum</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setSelectedStoryPost(null)}
+                                    aria-label="Close"
+                                    className="w-8 h-8 rounded-full bg-gray-200/70 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-200 flex items-center justify-center transition cursor-pointer"
+                                >
+                                    <FiX size={16} />
+                                </button>
+                            </div>
+
+                            {/* Scrollable Modal Content */}
+                            <div className="overflow-y-auto p-3 sm:p-5 flex-1 [scrollbar-width:thin]">
+                                <AILessonCard 
+                                    post={selectedStoryPost} 
+                                    onCommentClick={(p) => {
+                                        setSelectedStoryPost(null)
+                                        handleShowComments(p)
+                                    }} 
+                                />
+                            </div>
                         </motion.div>
                     </div>
                 )}
