@@ -30,12 +30,9 @@ export function formatRelativeTime(dateInput) {
   const diffInDays = Math.floor(diffInHours / 24)
   if (diffInDays < 7) return `${diffInDays}d ago`
 
-  const diffInWeeks = Math.floor(diffInDays / 7)
-  if (diffInWeeks < 5) return `${diffInWeeks}w ago`  // show up to "4w ago" before switching to months
-
-  const diffInMonths = Math.floor(diffInDays / 30)
-  if (diffInMonths < 12) return `${diffInMonths}mo ago`
-
-  const diffInYears = Math.floor(diffInDays / 365)
-  return `${diffInYears}y ago`
+  // TikTok style: Any post older than one week (>= 7 days) is formatted as YYYY-MM-DD (e.g. 2026-07-25)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
