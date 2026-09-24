@@ -32,7 +32,7 @@ export const rejectPost = (id) => API.put(`/admin/posts/${id}/reject`)
 export const getAllUsers = () => API.get('/admin/users')
 export const getUserPosts = () => API.get('/posts/my')
 export const getPosts = (page = 1, search = '', tab = '', category = '', communityId = '') => {
-  let url = `/posts?page=${page}&limit=20`
+  let url = `/posts?page=${page}&limit=50`
   if (search) url += `&search=${encodeURIComponent(search)}`
   if (tab) url += `&tab=${tab}`
   if (category) url += `&category=${encodeURIComponent(category)}`
