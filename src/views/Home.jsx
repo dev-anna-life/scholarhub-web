@@ -649,25 +649,56 @@ function Home() {
     const aiPosts = filteredPosts.filter(isBotCheck)
     const studentPosts = filteredPosts.filter(p => !isBotCheck(p))
 
-    const formatCategoryLabel = (cat) => {
-        if (!cat) return 'Lesson'
-        const lower = cat.toLowerCase()
-        if (lower.includes('med')) return 'Medicine'
-        if (lower.includes('law') || lower.includes('juris')) return 'Law'
-        if (lower.includes('art') || lower.includes('ui') || lower.includes('design')) return 'Design'
-        if (lower.includes('tech') || lower.includes('web') || lower.includes('data')) return 'Technology'
-        if (lower.includes('sci') || lower.includes('phys') || lower.includes('chem')) return 'Sciences'
-        if (lower.includes('math')) return 'Maths'
-        if (lower.includes('comm') || lower.includes('acc') || lower.includes('econ')) return 'Commerce'
-        return cat.split(' ')[0]
+    const getPostTrackInfo = (post) => {
+        if (!post) return { label: 'Lesson', track: 'Curriculum' }
+        const username = (post.author?.username || post.author?.email || '').toLowerCase()
+        const title = (post.title || '').toLowerCase()
+        const cat = (post.category || '').toLowerCase()
+
+        if (username.includes('science') || title.includes('physics') || title.includes('chemistry') || title.includes('biology')) {
+            return { label: 'Sciences', track: 'Secondary Sciences' }
+        }
+        if (username.includes('art') || title.includes('literature') || title.includes('macbeth') || title.includes('drama') || title.includes('history')) {
+            return { label: 'Literature', track: 'Literature & History' }
+        }
+        if (username.includes('commerce') || (title.includes('commerce') && !title.includes('accounting'))) {
+            return { label: 'Commerce', track: 'Secondary Commerce' }
+        }
+        if (username.includes('accounting') || title.includes('accounting') || title.includes('bookkeeping') || title.includes('ifrs')) {
+            return { label: 'Accounting', track: 'Accounting & Finance' }
+        }
+        if (username.includes('polsci') || title.includes('political') || title.includes('separation of powers') || title.includes('governance')) {
+            return { label: 'Governance', track: 'Political Science' }
+        }
+        if (username.includes('law') || title.includes('law') || title.includes('audi alteram') || title.includes('contract')) {
+            return { label: 'Law', track: 'Law & Jurisprudence' }
+        }
+        if (username.includes('med') || title.includes('med') || title.includes('renal') || title.includes('coronary') || title.includes('physiology')) {
+            return { label: 'Medicine', track: 'Medical Sciences' }
+        }
+        if (username.includes('uiux') || title.includes('ui/ux') || title.includes('figma') || title.includes('design') || title.includes('60-30-10')) {
+            return { label: 'Design', track: 'Product Design & UI/UX' }
+        }
+        if (username.includes('data') || title.includes('data science') || title.includes('machine learning') || title.includes('ai') || title.includes('overfitting')) {
+            return { label: 'AI & Data', track: 'Data Science & AI' }
+        }
+        if (username.includes('webdev') || title.includes('web engineering') || title.includes('flexbox') || title.includes('javascript') || title.includes('event loop')) {
+            return { label: 'Web Dev', track: 'Web Engineering' }
+        }
+
+        if (cat.includes('med')) return { label: 'Medicine', track: 'Medical Sciences' }
+        if (cat.includes('law')) return { label: 'Law', track: 'Law & Jurisprudence' }
+        if (cat.includes('sci')) return { label: 'Sciences', track: 'Sciences' }
+        if (cat.includes('comm')) return { label: 'Commerce', track: 'Commerce' }
+        return { label: post.category?.split(' ')[0] || 'Lesson', track: post.category || 'Curriculum' }
     }
 
     const uniqueAiStories = []
     const seenCategories = new Set()
     for (const post of aiPosts) {
-        const key = formatCategoryLabel(post.category)
-        if (!seenCategories.has(key)) {
-            seenCategories.add(key)
+        const info = getPostTrackInfo(post)
+        if (!seenCategories.has(info.label)) {
+            seenCategories.add(info.label)
             uniqueAiStories.push(post)
         }
     }
@@ -928,7 +959,7 @@ function Home() {
                                         </div>
                                         <div className="flex items-center gap-4 overflow-x-auto py-1 px-0.5 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                                             {uniqueAiStories.map((post, i) => {
-                                                const shortLabel = formatCategoryLabel(post.category)
+                                                const info = getPostTrackInfo(post)
                                                 return (
                                                     <button
                                                         key={post.id || `story-${i}`}
@@ -943,7 +974,7 @@ function Home() {
                                                         </div>
                                                         {/* Story Subject Label */}
                                                         <span className="text-[11px] font-bold text-gray-700 dark:text-gray-200 max-w-[70px] truncate leading-tight group-hover:text-primary transition-colors text-center">
-                                                            {shortLabel}
+                                                            {info.label}
                                                         </span>
                                                     </button>
                                                 )
@@ -1320,8 +1351,9 @@ function Home() {
                         >
                             {/* Sticky Modal Header with ScholarHub Logo & Dedicated Safe Close Button */}
                             {(() => {
+                                const selectedInfo = getPostTrackInfo(selectedStoryPost)
                                 const categoryLessons = selectedStoryPost 
-                                    ? aiPosts.filter(p => formatCategoryLabel(p.category) === formatCategoryLabel(selectedStoryPost.category))
+                                    ? aiPosts.filter(p => getPostTrackInfo(p).label === selectedInfo.label)
                                     : []
                                 const activeLessonIndex = selectedStoryPost 
                                     ? categoryLessons.findIndex(p => (p.id || p._id) === (selectedStoryPost.id || selectedStoryPost._id))
@@ -1333,8 +1365,8 @@ function Home() {
                                                 <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Lesson</h4>
-                                                <p className="text-[10px] text-gray-400 font-medium">Bite-sized official curriculum</p>
+                                                <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Lesson • {selectedInfo.label}</h4>
+                                                <p className="text-[10px] text-gray-400 font-medium">{selectedInfo.track} • Verified Curriculum</p>
                                             </div>
                                         </div>
 
