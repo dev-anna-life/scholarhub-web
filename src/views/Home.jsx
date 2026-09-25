@@ -667,6 +667,7 @@ function Home() {
         return () => document.removeEventListener('mousedown', handler)
     }, [showTopics])
 
+    const filteredPosts = posts
     const isBotCheck = (post) => {
         const authorEmail = (post.authorData?.email || post.author?.email || '').toLowerCase()
         const authorName = (typeof post.author === 'string' ? post.author : (post.author?.name || '')).toLowerCase()

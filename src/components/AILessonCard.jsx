@@ -54,6 +54,7 @@ export default function AILessonCard({ post, onCommentClick }) {
     !defaultOptions || 
     !Array.isArray(defaultOptions) || 
     defaultOptions.length === 0 ||
+    typeof defaultQuestion !== 'string' ||
     defaultQuestion.startsWith('What is the main principle demonstrated') ||
     defaultQuestion.startsWith('What is the cornerstone requirement')
 
