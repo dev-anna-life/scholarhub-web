@@ -455,7 +455,7 @@ function compressImage(file, maxDimension = 300, quality = 0.85) {
                             <span className="font-bold text-dark dark:text-white truncate">{user.name}</span>
                             <span className="text-gray-400">@{user.username || 'scholar'}</span>
                             <span className="text-gray-300">•</span>
-                            <span className="text-gray-400 text-[11px]">
+                            <span className="text-gray-400 text-[11px] whitespace-nowrap flex-shrink-0">
                               {formatRelativeTime(post.createdAt)}
                             </span>
                           </div>

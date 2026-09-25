@@ -618,7 +618,7 @@ function UserProfile() {
                                                         <span className="font-bold text-dark dark:text-white truncate">{profileUser.name}</span>
                                                         <span className="text-gray-400">@{profileUser.username || 'scholar'}</span>
                                                         <span className="text-gray-300">•</span>
-                                                        <span className="text-gray-400 text-[11px]">
+                                                        <span className="text-gray-400 text-[11px] whitespace-nowrap flex-shrink-0">
                                                             {formatRelativeTime(post.createdAt)}
                                                         </span>
                                                     </div>

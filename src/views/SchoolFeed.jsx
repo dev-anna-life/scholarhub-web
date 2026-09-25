@@ -311,7 +311,7 @@ function SchoolFeed() {
                                                     className={`font-semibold text-dark text-xs md:text-sm truncate ${post.authorId && post.authorId !== user.id ? 'cursor-pointer hover:text-primary transition' : ''}`}>
                                                     {post.author}
                                                 </p>
-                                                <p className="text-xs text-gray-400">{post.time} {post.school ? `• ${post.school}` : ''}</p>
+                                                <p className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">{post.time} {post.school ? `• ${post.school}` : ''}</p>
                                             </div>
                                             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-50 text-primary border border-green-200">
                                                 {post.category}

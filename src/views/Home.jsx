@@ -323,10 +323,33 @@ function Home() {
                 citationSource: post.citationSource || '',
                 citationStatus: post.citationStatus || 'unverified',
                 citationSummary: post.citationSummary || '',
-                quizQuestion: post.quizQuestion || null,
-                quizOptions: post.quizOptions || null,
-                correctOptionIndex: post.correctOptionIndex !== undefined ? post.correctOptionIndex : 0,
+                quizQuestion: post.quizQuestion || (() => {
+                    try {
+                        if (post.citationSummary && typeof post.citationSummary === 'string' && post.citationSummary.startsWith('{')) {
+                            return JSON.parse(post.citationSummary).quizQuestion
+                        }
+                    } catch (_) {}
+                    return null
+                })(),
+                quizOptions: post.quizOptions || (() => {
+                    try {
+                        if (post.citationSummary && typeof post.citationSummary === 'string' && post.citationSummary.startsWith('{')) {
+                            return JSON.parse(post.citationSummary).quizOptions
+                        }
+                    } catch (_) {}
+                    return null
+                })(),
+                correctOptionIndex: post.correctOptionIndex !== undefined ? post.correctOptionIndex : (() => {
+                    try {
+                        if (post.citationSummary && typeof post.citationSummary === 'string' && post.citationSummary.startsWith('{')) {
+                            const parsed = JSON.parse(post.citationSummary)
+                            if (parsed.correctOptionIndex !== undefined) return parsed.correctOptionIndex
+                        }
+                    } catch (_) {}
+                    return 0
+                })(),
                 saved: savedIds.has(post.id || post._id),
+                isAiAssisted: Boolean(post.isAiAssisted),
                 isReal: true
             }))
 
@@ -644,8 +667,16 @@ function Home() {
         return () => document.removeEventListener('mousedown', handler)
     }, [showTopics])
 
-    const filteredPosts = posts
-    const isBotCheck = (post) => post.author?.email?.startsWith('bot_') || post.author?.isBot || post.author?.isOfficial || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
+    const isBotCheck = (post) => {
+        const authorEmail = (post.authorData?.email || post.author?.email || '').toLowerCase()
+        const authorName = (typeof post.author === 'string' ? post.author : (post.author?.name || '')).toLowerCase()
+        const isBotAuthor = authorEmail.startsWith('bot_') || 
+                            Boolean(post.authorData?.isBot) || Boolean(post.author?.isBot) || 
+                            Boolean(post.authorData?.isOfficial) || Boolean(post.author?.isOfficial) || 
+                            authorName.includes('bot') || 
+                            authorName.includes('official ai')
+        return isBotAuthor || Boolean(post.isAiAssisted) || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
+    }
     const aiPosts = filteredPosts.filter(isBotCheck)
     const studentPosts = filteredPosts.filter(p => !isBotCheck(p))
 
@@ -996,7 +1027,7 @@ function Home() {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: i * 0.05 }}
-                                            className="bg-white rounded-2xl p-3 md:p-5 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-300">
+                                            className="bg-white rounded-2xl p-3.5 sm:p-5 border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all duration-300">
 
                                         <div className="flex items-start gap-2 mb-3">
                                             <div
@@ -1015,29 +1046,31 @@ function Home() {
                                                     <span>{(typeof post.author === 'string' ? post.author : (post.author?.name || 'Scholar')).split(' ').slice(0, 2).join(' ')}</span>
                                                     {renderAuthorBadge(post)}
                                                 </p>
-                                                <div className="flex items-center gap-1.5 mt-0.5">
+                                                <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
                                                     {post.school && (
-                                                        <SchoolLogo school={post.school} size={16} className="shadow-xs" />
+                                                        <SchoolLogo school={post.school} size={16} className="shadow-xs flex-shrink-0" />
                                                     )}
-                                                    <p className="text-xs text-gray-400">{post.time}</p>
+                                                    <p className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">{post.time}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
                                                 {post.citationStatus === 'verified' ? (
                                                     <span
                                                         title={post.citationSummary || (post.citationSource ? `Verified from: ${post.citationSource}` : 'Verified Academic Source')}
-                                                        className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full text-[10px] cursor-help shadow-xs"
+                                                        className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full text-[10px] cursor-help shadow-xs whitespace-nowrap"
                                                     >
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                        🟢 Verified Source
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                                                        <span className="hidden sm:inline">🟢 Verified Source</span>
+                                                        <span className="sm:hidden">🟢 Verified</span>
                                                     </span>
                                                 ) : (
                                                     <span
                                                         title={post.citationSummary || 'No verified source found in database (Unverified)'}
-                                                        className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-medium px-2 py-0.5 rounded-full text-[10px] cursor-help"
+                                                        className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-medium px-2 py-0.5 rounded-full text-[10px] cursor-help whitespace-nowrap"
                                                     >
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                                        🟡 Unverified Source
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                                                        <span className="hidden sm:inline">🟡 Unverified Source</span>
+                                                        <span className="sm:hidden">🟡 Unverified</span>
                                                     </span>
                                                 )}
                                                 {post.trending && (
@@ -1362,7 +1395,7 @@ function Home() {
                                     <div className="flex flex-col border-b border-gray-100 dark:border-zinc-800/80 bg-gray-50/90 dark:bg-zinc-900/95 backdrop-blur-md flex-shrink-0">
                                         {/* INSTAGRAM-STYLE STORY PROGRESS SEGMENT BARS */}
                                         {categoryLessons.length > 1 && (
-                                            <div className="flex items-center gap-1.5 px-4 sm:px-5 pt-3 pb-1 w-full">
+                                            <div className="flex items-center gap-1.5 px-3 sm:px-4 pt-2.5 pb-1 w-full">
                                                 {categoryLessons.map((_, idx) => (
                                                     <button
                                                         key={idx}
@@ -1371,15 +1404,15 @@ function Home() {
                                                             e.stopPropagation()
                                                             setSelectedStoryPost(categoryLessons[idx])
                                                         }}
-                                                        className="h-1 flex-1 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-800 transition cursor-pointer focus:outline-none"
+                                                        className="p-0 m-0 border-0 outline-none appearance-none block h-[2.5px] min-h-[2.5px] max-h-[2.5px] flex-1 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-700/60 transition cursor-pointer"
                                                         aria-label={`Jump to lesson ${idx + 1}`}
                                                     >
-                                                        <div 
-                                                            className={`h-full transition-all duration-300 rounded-full ${
+                                                        <span 
+                                                            className={`block h-full transition-all duration-300 rounded-full ${
                                                                 idx === activeLessonIndex 
                                                                     ? 'bg-gradient-to-r from-amber-500 via-emerald-500 to-primary w-full' 
                                                                     : idx < activeLessonIndex 
-                                                                        ? 'bg-emerald-500/80 w-full' 
+                                                                        ? 'bg-emerald-500/90 w-full' 
                                                                         : 'w-0'
                                                             }`} 
                                                         />
@@ -1450,6 +1483,7 @@ function Home() {
                             {/* Scrollable Modal Content */}
                             <div className="overflow-y-auto p-3 sm:p-5 flex-1 [scrollbar-width:thin]">
                                 <AILessonCard 
+                                    key={selectedStoryPost.id || selectedStoryPost._id}
                                     post={selectedStoryPost} 
                                     onCommentClick={(p) => {
                                         setSelectedStoryPost(null)

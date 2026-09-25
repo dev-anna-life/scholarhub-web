@@ -472,7 +472,7 @@ function CommunityFeed() {
                                                      <SchoolLogo school={post.school} size={22} className="shadow-xs ml-1" />
                                                  )}
                                                 </div>
-                                                <p className="text-xs text-gray-400">{post.time}</p>
+                                                <p className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">{post.time}</p>
                                             </div>
                                             <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
                                                 {post.citationStatus === 'verified' && (

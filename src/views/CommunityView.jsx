@@ -176,7 +176,7 @@ function CommunityView({ communityId }) {
                                                     {isGlobal ? post.school : getSchoolAbbr(post.school)}
                                                 </span>
                                             )}
-                                            <p className="text-xs text-gray-400">{post.time}</p>
+                                            <p className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">{post.time}</p>
                                         </div>
                                     </div>
                                 </div>
