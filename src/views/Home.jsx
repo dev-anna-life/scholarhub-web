@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift, FiThumbsUp, FiCompass, FiZap, FiStar, FiAward, FiBookOpen, FiX } from "react-icons/fi"
+import { FiSearch, FiBell, FiHeart, FiMessageCircle, FiShare2, FiPlus, FiTrendingUp, FiBookmark, FiSend, FiCamera, FiRefreshCw, FiImage, FiVideo, FiUsers, FiInbox, FiHome, FiCheck, FiGift, FiThumbsUp, FiCompass, FiZap, FiStar, FiAward, FiBookOpen, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi"
 import { useRouter } from 'next/navigation'
 import { createPost, getPosts, getUserPosts, likePost, getComments, addComment, getNotifications, markNotificationsRead, getLeaderboard, followUser, getMyCommunities, getCommunities, savePost, getSavedPosts, getMe } from '../api/auth'
 import SOSButton from '../components/SOSButton'
@@ -1349,7 +1349,7 @@ function Home() {
                             onClick={e => e.stopPropagation()}
                             className="w-full max-w-lg max-h-[88vh] flex flex-col bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-zinc-800 overflow-hidden"
                         >
-                            {/* Sticky Modal Header with ScholarHub Logo & Dedicated Safe Close Button */}
+                            {/* Sticky Modal Header with Instagram-Style Segmented Story Bars */}
                             {(() => {
                                 const selectedInfo = getPostTrackInfo(selectedStoryPost)
                                 const categoryLessons = selectedStoryPost 
@@ -1359,50 +1359,89 @@ function Home() {
                                     ? categoryLessons.findIndex(p => (p.id || p._id) === (selectedStoryPost.id || selectedStoryPost._id))
                                     : 0
                                 return (
-                                    <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-100 dark:border-zinc-800/80 bg-gray-50/80 dark:bg-zinc-900/90 backdrop-blur-sm flex-shrink-0">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="w-7 h-7 rounded-full bg-emerald-500/10 p-0.5 flex items-center justify-center flex-shrink-0">
-                                                <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain" />
+                                    <div className="flex flex-col border-b border-gray-100 dark:border-zinc-800/80 bg-gray-50/90 dark:bg-zinc-900/95 backdrop-blur-md flex-shrink-0">
+                                        {/* INSTAGRAM-STYLE STORY PROGRESS SEGMENT BARS */}
+                                        {categoryLessons.length > 1 && (
+                                            <div className="flex items-center gap-1.5 px-4 sm:px-5 pt-3 pb-1 w-full">
+                                                {categoryLessons.map((_, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setSelectedStoryPost(categoryLessons[idx])
+                                                        }}
+                                                        className="h-1 flex-1 rounded-full overflow-hidden bg-gray-200 dark:bg-zinc-800 transition cursor-pointer focus:outline-none"
+                                                        aria-label={`Jump to lesson ${idx + 1}`}
+                                                    >
+                                                        <div 
+                                                            className={`h-full transition-all duration-300 rounded-full ${
+                                                                idx === activeLessonIndex 
+                                                                    ? 'bg-gradient-to-r from-amber-500 via-emerald-500 to-primary w-full' 
+                                                                    : idx < activeLessonIndex 
+                                                                        ? 'bg-emerald-500/80 w-full' 
+                                                                        : 'w-0'
+                                                            }`} 
+                                                        />
+                                                    </button>
+                                                ))}
                                             </div>
-                                            <div>
-                                                <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Lesson • {selectedInfo.label}</h4>
-                                                <p className="text-[10px] text-gray-400 font-medium">{selectedInfo.track} • Verified Curriculum</p>
-                                            </div>
-                                        </div>
+                                        )}
 
-                                        <div className="flex items-center gap-2">
-                                            {categoryLessons.length > 1 && (
-                                                <div className="flex items-center gap-1.5 bg-gray-200/60 dark:bg-zinc-800 px-2 py-0.5 rounded-full text-[11px] font-bold text-gray-600 dark:text-gray-300">
-                                                    <button
-                                                        disabled={activeLessonIndex <= 0}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            if (activeLessonIndex > 0) setSelectedStoryPost(categoryLessons[activeLessonIndex - 1])
-                                                        }}
-                                                        className="disabled:opacity-30 hover:text-primary transition px-1 cursor-pointer font-bold"
-                                                    >
-                                                        ‹
-                                                    </button>
-                                                    <span className="text-[10px] tracking-tight">{activeLessonIndex + 1}/{categoryLessons.length}</span>
-                                                    <button
-                                                        disabled={activeLessonIndex >= categoryLessons.length - 1}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            if (activeLessonIndex < categoryLessons.length - 1) setSelectedStoryPost(categoryLessons[activeLessonIndex + 1])
-                                                        }}
-                                                        className="disabled:opacity-30 hover:text-primary transition px-1 cursor-pointer font-bold"
-                                                    >
-                                                        ›
-                                                    </button>
+                                        {/* Header Info Bar: Logo + Track + Sleek Story Controls + Close Button */}
+                                        <div className="flex items-center justify-between px-4 sm:px-5 py-2.5">
+                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                <div className="w-8 h-8 rounded-full bg-emerald-500/10 p-0.5 flex items-center justify-center flex-shrink-0">
+                                                    <img src="/scholarhub-logo.svg" alt="ScholarHub" className="w-full h-full object-contain" />
                                                 </div>
-                                            )}
-                                            <button
-                                                onClick={() => setSelectedStoryPost(null)}
-                                                aria-label="Close"
-                                                className="w-8 h-8 rounded-full bg-gray-200/70 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-200 flex items-center justify-center transition cursor-pointer"
-                                            >
-                                                <FiX size={16} />
-                                            </button>
+                                                <div className="min-w-0">
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Story • {selectedInfo.label}</h4>
+                                                        {categoryLessons.length > 1 && (
+                                                            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.2 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
+                                                                Lesson {activeLessonIndex + 1} of {categoryLessons.length}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[10px] text-gray-400 font-medium truncate">{selectedInfo.track} • Verified Curriculum</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                                                {categoryLessons.length > 1 && (
+                                                    <div className="flex items-center gap-0.5 bg-gray-200/60 dark:bg-zinc-800 p-0.5 rounded-full">
+                                                        <button
+                                                            disabled={activeLessonIndex <= 0}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                if (activeLessonIndex > 0) setSelectedStoryPost(categoryLessons[activeLessonIndex - 1])
+                                                            }}
+                                                            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
+                                                            aria-label="Previous Lesson"
+                                                        >
+                                                            <FiChevronLeft size={15} />
+                                                        </button>
+                                                        <button
+                                                            disabled={activeLessonIndex >= categoryLessons.length - 1}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                if (activeLessonIndex < categoryLessons.length - 1) setSelectedStoryPost(categoryLessons[activeLessonIndex + 1])
+                                                            }}
+                                                            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-20 disabled:hover:bg-transparent transition cursor-pointer"
+                                                            aria-label="Next Lesson"
+                                                        >
+                                                            <FiChevronRight size={15} />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                <button
+                                                    onClick={() => setSelectedStoryPost(null)}
+                                                    aria-label="Close"
+                                                    className="w-8 h-8 rounded-full bg-gray-200/70 dark:bg-zinc-800 hover:bg-gray-300 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-200 flex items-center justify-center transition cursor-pointer"
+                                                >
+                                                    <FiX size={16} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 )

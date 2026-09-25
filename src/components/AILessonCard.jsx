@@ -16,7 +16,11 @@ export default function AILessonCard({ post, onCommentClick }) {
   if (!post) return null
 
   const author = typeof post.author === 'object' ? post.author : { name: post.author || 'Official AI Study Bot' }
-  const cleanTitle = (post.title || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
+  const cleanTitle = (post.title || '')
+    .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+    .replace(/\s*\([A-Za-z]+\s+\d+\)/g, '')
+    .replace(/\s*\(\d{4}-\d{2}-\d{2}\)/g, '')
+    .trim()
   const cleanContent = (post.content || '').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim()
 
   // Smart Topic-Based Quiz Question & Options Resolution
