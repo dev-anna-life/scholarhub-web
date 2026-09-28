@@ -302,6 +302,7 @@ function Home() {
                 authorId: post.author?.id || post.author?._id || '',
                 author: post.author?.name || 'Student',
                 authorAvatar: post.author?.avatar || '',
+                authorUsername: post.author?.username || '',
                 authorData: post.author,
                 badgeSubscriptions: post.author?.badgeSubscriptions || [],
                 isVerified: post.author?.isVerified || false,
@@ -375,6 +376,9 @@ function Home() {
             if (res.data) {
                 setUser(res.data)
                 localStorage.setItem('user', JSON.stringify(res.data))
+                if (Array.isArray(res.data.followingIds) && res.data.followingIds.length > 0) {
+                    setFollowedNotifs(prev => new Set([...prev, ...res.data.followingIds]))
+                }
             }
         }).catch(() => {})
         fetchPosts(1)
@@ -671,15 +675,35 @@ function Home() {
     const isBotCheck = (post) => {
         const authorEmail = (post.authorData?.email || post.author?.email || '').toLowerCase()
         const authorName = (typeof post.author === 'string' ? post.author : (post.author?.name || '')).toLowerCase()
-        const isBotAuthor = authorEmail.startsWith('bot_') || 
+        const authorUsername = (post.authorData?.username || post.author?.username || '').toLowerCase()
+        const isOfficialAccount = authorEmail.startsWith('bot_') || 
+                            authorEmail.endsWith('@scholarhub.dev') ||
                             Boolean(post.authorData?.isBot) || Boolean(post.author?.isBot) || 
                             Boolean(post.authorData?.isOfficial) || Boolean(post.author?.isOfficial) || 
                             authorName.includes('bot') || 
-                            authorName.includes('official ai')
-        return isBotAuthor || Boolean(post.isAiAssisted) || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
+                            authorName.includes('official ai') ||
+                            authorUsername.endsWith('_academy') ||
+                            authorUsername.endsWith('_faculty') ||
+                            authorUsername.endsWith('_guild') ||
+                            authorUsername.endsWith('_studio') ||
+                            authorUsername === 'medical_sciences' ||
+                            authorUsername === 'governance_studies'
+        return isOfficialAccount || (post.title && post.title.includes('OFFICIAL AI LESSON')) || (post.content && post.content.includes('SIMPLE CONCEPT'))
     }
     const aiPosts = filteredPosts.filter(isBotCheck)
-    const studentPosts = filteredPosts.filter(p => !isBotCheck(p))
+
+    const isFollowingAuthor = (post) => {
+        const authorId = post.authorId || post.author?.id || post.author?._id
+        if (!authorId) return false
+        return followedNotifs.has(authorId) || Boolean(user?.followingIds && user.followingIds.includes(authorId))
+    }
+
+    // Only show official faculty posts in main feed if student follows them
+    const studentPosts = filteredPosts.filter(p => {
+        const isOfficial = isBotCheck(p)
+        if (!isOfficial) return true
+        return isFollowingAuthor(p)
+    })
 
     const getPostTrackInfo = (post) => {
         if (!post) return { label: 'Lesson', track: 'Curriculum' }
@@ -983,7 +1007,7 @@ function Home() {
                                         <div className="flex items-center justify-between mb-2.5 px-0.5">
                                             <div className="flex items-center gap-1.5">
                                                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                <span className="text-xs font-bold text-dark dark:text-white uppercase tracking-wider">AI Study Stories</span>
+                                                <span className="text-xs font-bold text-dark dark:text-white uppercase tracking-wider">Study Stories</span>
                                             </div>
                                             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
                                                 Tap to learn
@@ -1430,7 +1454,7 @@ function Home() {
                                                 </div>
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-1.5 flex-wrap">
-                                                        <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">AI Study Story • {selectedInfo.label}</h4>
+                                                        <h4 className="text-xs font-bold text-dark dark:text-white leading-tight">Study Story • {selectedInfo.label}</h4>
                                                         {categoryLessons.length > 1 && (
                                                             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.2 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
                                                                 Lesson {activeLessonIndex + 1} of {categoryLessons.length}

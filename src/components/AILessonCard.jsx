@@ -24,7 +24,15 @@ export default function AILessonCard({ post, onCommentClick }) {
 
   if (!post) return null
 
-  const author = typeof post.author === 'object' ? post.author : { name: post.author || 'Official AI Study Bot' }
+  const authorData = (typeof post.author === 'object' && post.author) ? post.author : (post.authorData || {})
+  const authorName = authorData.name || (typeof post.author === 'string' ? post.author : '') || 'Academic Faculty'
+  const authorUsername = authorData.username || post.authorUsername || (authorName ? authorName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/__+/g, '_').replace(/^_|_$/g, '') : '') || 'academic_guild'
+  const author = {
+    ...authorData,
+    name: authorName,
+    username: authorUsername,
+    avatar: authorData.avatar || post.authorAvatar || post.avatar
+  }
   const cleanTitle = (post.title || '')
     .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
     .replace(/\s*\([A-Za-z]+\s+\d+\)/g, '')
@@ -214,17 +222,17 @@ export default function AILessonCard({ post, onCommentClick }) {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="font-extrabold text-sm text-dark dark:text-white">{author.name || 'Official AI Study Bot'}</h3>
+              <h3 className="font-extrabold text-sm text-dark dark:text-white">{author.name || 'Academic Faculty'}</h3>
               <UserBadge user={author} />
             </div>
-            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">@{author.username || 'ai_tutor'} • {post.category || 'Academic Track'}</p>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">@{author.username || 'academic_guild'} • {post.category || 'Academic Track'}</p>
           </div>
         </div>
 
-        {/* Prominent Official AI Study Lesson Tag */}
+        {/* Prominent Official Verified Study Lesson Tag */}
         <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-2xs">
           <FiBook size={12} />
-          <span>OFFICIAL AI LESSON</span>
+          <span>VERIFIED LESSON</span>
         </span>
       </div>
 
